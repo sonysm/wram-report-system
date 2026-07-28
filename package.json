@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:seed": "node prisma/seed.js",
+    "db:setup": "npm run db:migrate && npm run db:seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",

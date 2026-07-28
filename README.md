@@ -26,10 +26,21 @@ A Next.js reporting application with Prisma ORM and PostgreSQL.
    npm run db:migrate
    ```
 
-4. Start development server:
+4. Seed provinces and demo users:
+   ```bash
+   npm run db:seed
+   ```
+
+5. Start development server:
    ```bash
    npm run dev
    ```
+
+You can also do migration + seed in one command:
+
+```bash
+npm run db:setup
+```
 
 ## Demo Login
 
@@ -37,6 +48,8 @@ Use these built-in accounts:
 
 - Super Admin: `demo_admin` / `demo12345`
 - Province User (Kandal): `demo_kandal` / `demo12345`
+
+These accounts are created by `npm run db:seed`.
 
 ## Key Behavior
 

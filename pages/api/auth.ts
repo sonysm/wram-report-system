@@ -91,6 +91,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       await ensureProvincesSeeded();
 
+      const dbUser = await prisma.user.findUnique({
+        where: { username: cleanUsername },
+        include: { province: true },
+      });
+
+      if (dbUser) {
+        const valid = await comparePassword(cleanPassword, dbUser.passwordHash);
+        if (!valid) return res.status(401).json({ error: "Invalid credentials" });
+
+        const token = signToken({
+          id: dbUser.id,
+          username: dbUser.username,
+          role: dbUser.role,
+          provinceId: dbUser.provinceId ?? null,
+          provinceName: dbUser.province?.khmerName || dbUser.province?.name || null,
+        });
+
+        return res.json({
+          token,
+          role: dbUser.role,
+          provinceId: dbUser.provinceId,
+          provinceName: dbUser.province?.khmerName || dbUser.province?.name || null,
+        });
+      }
+
       const dummyUser = DUMMY_USERS.find(
         (user) => user.username === cleanUsername && user.password === cleanPassword,
       );
@@ -127,29 +152,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       }
 
-      const user = await prisma.user.findUnique({
-        where: { username: cleanUsername },
-        include: { province: true },
-      });
-      if (!user) return res.status(401).json({ error: "Invalid credentials" });
-
-      const valid = await comparePassword(cleanPassword, user.passwordHash);
-      if (!valid) return res.status(401).json({ error: "Invalid credentials" });
-
-      const token = signToken({
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        provinceId: user.provinceId ?? null,
-        provinceName: user.province?.khmerName || user.province?.name || null,
-      });
-
-      return res.json({
-        token,
-        role: user.role,
-        provinceId: user.provinceId,
-        provinceName: user.province?.khmerName || user.province?.name || null,
-      });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     return res.status(400).json({ error: "Unknown action" });
