@@ -31,11 +31,27 @@ A Next.js reporting application with Prisma ORM and PostgreSQL.
    npm run dev
    ```
 
+## Demo Login
+
+Use these built-in accounts:
+
+- Super Admin: `demo_admin` / `demo12345`
+- Province User (Kandal): `demo_kandal` / `demo12345`
+
+## Key Behavior
+
+- User accounts are linked to one province.
+- Users can only submit and edit entries within their province.
+- Users select district from dropdown and can add a new district if not found.
+- Each record stores district metrics: `planArea`, `planDone`, `actualArea`, `householdPlan`, `householdDone`, and `note`.
+- Every entry create/update and district create is recorded in `AuditLog`.
+- Super admin can view consolidated province/district report data.
+
 ## Project Structure
 
 ```
 wram-report-system/
-├── prisma/schema.prisma     # Database schema (Department, Entry, User)
+├── prisma/schema.prisma     # Database schema (User, Province, District, Entry, AuditLog)
 ├── lib/
 │   ├── db.ts                # Prisma client singleton
 │   └── auth.ts              # JWT + bcrypt helpers
@@ -45,10 +61,13 @@ wram-report-system/
 │   ├── reports.tsx          # Reports view
 │   └── api/
 │       ├── auth.ts          # Login/register endpoint
-│       ├── entries.ts       # CRUD for entries
-│       └── reports.ts       # Grouped report data
+│       ├── me.ts            # Current user profile
+│       ├── districts.ts     # Province-scoped district list/add
+│       ├── entries.ts       # Entry create/update/list with audit logs
+│       ├── reports.ts       # Super-admin grouped report data
+│       └── provinces.ts     # Province list
 └── components/
-    ├── Layout.tsx            # Navigation wrapper
-    ├── DataForm.tsx          # Entry submission form
-    └── ReportTable.tsx       # Aggregated report table
+   ├── Layout.tsx            # Navigation wrapper
+   ├── DataForm.tsx          # Province-scoped entry form + edit list
+   └── ReportTable.tsx       # Super-admin report table
 ```
