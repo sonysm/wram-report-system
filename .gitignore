@@ -5,3 +5,6 @@ node_modules/
 .env*.local
 prisma/migrations/
 *.log
+
+ecosystem.config.js
+**.sh
