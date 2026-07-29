@@ -216,8 +216,8 @@ export default function ReportTable() {
                 "ផ្ទៃដីអនុវត្តន (ហត)",
                 "ផ្ទៃដីប៉ះពាល់ (ហត)",
                 "ផ្ទៃដីត្រូវអន្តរាគម (ហត)",
-                "បានជួយ",
-                "បន្តរជួយ",
+                "បានជួយ (ហត)",
+                "បន្តរជួយ (ហត)",
                 "ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)",
                 "ប្រភពទឹក",
                 "ផ្សេងៗ",
@@ -428,12 +428,12 @@ export default function ReportTable() {
                                     <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ស្រុក</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បានជួយ</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បន្តរជួយ</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">មិនអាចសង្គ្រោះ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន (ហត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់ (ហត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បានជួយ (ហត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បន្តរជួយ (ហត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">មិនអាចសង្គ្រោះ (ហត)</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
                                 </tr>
