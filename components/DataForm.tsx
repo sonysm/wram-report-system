@@ -547,8 +547,8 @@ export default function DataForm() {
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីអនុវត្តន (ហត)</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់ (ហត)</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">បានជួយ</th>
-                                <th className="px-4 py-3 font-semibold">បន្តរជួយ</th>
+                                <th className="px-4 py-3 font-semibold">បានជួយ (ហត)</th>
+                                <th className="px-4 py-3 font-semibold">បន្តរជួយ (ហត)</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)</th>
                                 <th className="px-4 py-3 font-semibold">ប្រភពទឹក</th>
                                 <th className="px-4 py-3 font-semibold">ផ្សេងៗ</th>
