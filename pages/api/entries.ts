@@ -33,6 +33,15 @@ function parseInteger(value: unknown): number | null {
   return parsed;
 }
 
+function parseNonNegativeNumber(value: unknown): number | null {
+  const parsed = parseNumber(value);
+  if (parsed === null || parsed < 0) {
+    return null;
+  }
+
+  return parsed;
+}
+
 function resolveProvinceScope(authUser: AuthTokenPayload, rawProvinceId: unknown): number | null {
   const requestedProvinceId = parseInteger(rawProvinceId);
 
@@ -64,18 +73,18 @@ function parseRecordFields(rawBody: unknown): {
 } {
   const body = typeof rawBody === "object" && rawBody !== null ? (rawBody as Record<string, unknown>) : {};
 
-  const planArea = parseInteger(body.planArea);
-  const planDone = parseInteger(body.planDone);
+  const planArea = parseNonNegativeNumber(body.planArea);
+  const planDone = parseNonNegativeNumber(body.planDone);
 
   if (planArea === null || planDone === null) {
-    throw new Error("Plan area and plan done are required as integer values");
+    throw new Error("Plan area and plan done are required as non-negative numbers");
   }
 
-  const actualArea = parseInteger(body.actualArea) ?? 0;
-  const interventionArea = parseInteger(body.interventionArea) ?? 0;
-  const householdPlan = parseInteger(body.householdPlan) ?? 0;
-  const householdDone = parseInteger(body.householdDone) ?? 0;
-  const unsalvageableArea = parseInteger(body.unsalvageableArea) ?? 0;
+  const actualArea = parseNonNegativeNumber(body.actualArea) ?? 0;
+  const interventionArea = parseNonNegativeNumber(body.interventionArea) ?? 0;
+  const householdPlan = parseNonNegativeNumber(body.householdPlan) ?? 0;
+  const householdDone = parseNonNegativeNumber(body.householdDone) ?? 0;
+  const unsalvageableArea = parseNonNegativeNumber(body.unsalvageableArea) ?? 0;
   const waterSource = normalizeText(body.waterSource);
   const noteText = normalizeText(body.note);
 

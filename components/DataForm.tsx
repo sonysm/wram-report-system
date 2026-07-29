@@ -39,13 +39,13 @@ function getToken(): string | null {
     return window.localStorage.getItem("token");
 }
 
-function parseIntegerInput(value: string): number | null {
+function parseDecimalInput(value: string): number | null {
     if (value.trim() === "") {
         return null;
     }
 
     const parsed = Number(value);
-    if (!Number.isInteger(parsed) || parsed < 0) {
+    if (!Number.isFinite(parsed) || parsed < 0) {
         return null;
     }
 
@@ -181,16 +181,16 @@ export default function DataForm() {
         setMessage("");
 
         try {
-            const parsedPlanArea = parseIntegerInput(planArea);
-            const parsedPlanDone = parseIntegerInput(planDone);
-            const parsedActualArea = parseIntegerInput(actualArea);
-            const parsedInterventionArea = parseIntegerInput(interventionArea);
-            const parsedHouseholdPlan = parseIntegerInput(householdPlan);
-            const parsedHouseholdDone = parseIntegerInput(householdDone);
-            const parsedUnsalvageableArea = parseIntegerInput(unsalvageableArea);
+            const parsedPlanArea = parseDecimalInput(planArea);
+            const parsedPlanDone = parseDecimalInput(planDone);
+            const parsedActualArea = parseDecimalInput(actualArea);
+            const parsedInterventionArea = parseDecimalInput(interventionArea);
+            const parsedHouseholdPlan = parseDecimalInput(householdPlan);
+            const parsedHouseholdDone = parseDecimalInput(householdDone);
+            const parsedUnsalvageableArea = parseDecimalInput(unsalvageableArea);
 
             if (parsedPlanArea === null || parsedPlanDone === null) {
-                throw new Error("Plan area and plan done must be non-negative integers");
+                throw new Error("Plan area and plan done must be non-negative numbers");
             }
 
             const normalizedWaterSource = waterSource.trim();
@@ -205,7 +205,7 @@ export default function DataForm() {
                 parsedHouseholdDone === null ||
                 parsedUnsalvageableArea === null
             ) {
-                throw new Error("Optional fields must be non-negative integers");
+                throw new Error("Optional fields must be non-negative numbers");
             }
 
             const payload: {
@@ -367,7 +367,7 @@ export default function DataForm() {
                             onChange={(e) => setPlanArea(e.target.value)}
                             placeholder="0"
                             type="number"
-                            step="1"
+                            step="0.01"
                             min="0"
                             required
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
@@ -384,7 +384,7 @@ export default function DataForm() {
                             onChange={(e) => setPlanDone(e.target.value)}
                             placeholder="0"
                             type="number"
-                            step="1"
+                            step="0.01"
                             min="0"
                             required
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
@@ -401,7 +401,7 @@ export default function DataForm() {
                             onChange={(e) => setActualArea(e.target.value)}
                             placeholder="0"
                             type="number"
-                            step="1"
+                            step="0.01"
                             min="0"
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />
@@ -417,7 +417,7 @@ export default function DataForm() {
                             onChange={(e) => setInterventionArea(e.target.value)}
                             placeholder="0"
                             type="number"
-                            step="1"
+                            step="0.01"
                             min="0"
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />
@@ -433,7 +433,7 @@ export default function DataForm() {
                             onChange={(e) => setHouseholdPlan(e.target.value)}
                             placeholder="0"
                             type="number"
-                            step="1"
+                            step="0.01"
                             min="0"
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />
@@ -449,7 +449,7 @@ export default function DataForm() {
                             onChange={(e) => setHouseholdDone(e.target.value)}
                             placeholder="0"
                             type="number"
-                            step="1"
+                            step="0.01"
                             min="0"
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />
@@ -479,7 +479,7 @@ export default function DataForm() {
                             onChange={(e) => setUnsalvageableArea(e.target.value)}
                             placeholder="0"
                             type="number"
-                            step="1"
+                            step="0.01"
                             min="0"
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />
@@ -487,13 +487,13 @@ export default function DataForm() {
 
                     <div className="sm:col-span-2">
                         <label htmlFor="note" className="mb-2 block text-sm font-medium text-slate-700">
-                            notes
+                            ផ្សេងៗ
                         </label>
                         <textarea
                             id="note"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
-                            placeholder="Optional remark"
+                            placeholder="ចំណាំ"
                             rows={3}
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />

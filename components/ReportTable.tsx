@@ -33,6 +33,7 @@ export default function ReportTable() {
     const [scope, setScope] = useState<"all" | "province">("all");
     const [reportMode, setReportMode] = useState<ReportMode>("aggregate");
     const [viewerProvinceName, setViewerProvinceName] = useState<string | null>(null);
+    const [generatedAt, setGeneratedAt] = useState<string>("");
     const [isExporting, setIsExporting] = useState(false);
     const [exportError, setExportError] = useState("");
     const [error, setError] = useState("");
@@ -44,6 +45,43 @@ export default function ReportTable() {
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "");
         return slug || "province";
+    };
+
+    const formatNumber = (value: number): string => {
+        return value.toLocaleString(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+        });
+    };
+
+    const handlePrint = () => {
+        if (typeof window !== "undefined") {
+            window.print();
+        }
+    };
+
+    const formatProgressPercent = (planArea: number, planDone: number): string => {
+        if (planArea <= 0) {
+            return "0%";
+        }
+
+        return `${Math.round((planDone / planArea) * 100)}%`;
+    };
+
+    const buildExcelLikeNote = (row: ReportRow): string => {
+        const noteParts: string[] = [];
+
+        if (row.note) {
+            noteParts.push(row.note);
+        }
+        if (row.householdDone > 0) {
+            noteParts.push(`បន្តរជួយ៖ ${formatNumber(row.householdDone)}`);
+        }
+        if (row.unsalvageableArea > 0) {
+            noteParts.push(`ផ្ទៃដីមិនអាចសង្គ្រោះបាន៖ ${formatNumber(row.unsalvageableArea)}`);
+        }
+
+        return noteParts.join(" | ");
     };
 
     const handleDownloadExcel = async () => {
@@ -247,6 +285,7 @@ export default function ReportTable() {
                 setScope(nextScope);
                 setReportMode(nextMode);
                 setViewerProvinceName(typeof payload.viewerProvinceName === "string" ? payload.viewerProvinceName : null);
+                setGeneratedAt(typeof payload.generatedAt === "string" ? payload.generatedAt : "");
                 setExportError("");
                 setTotals(
                     payload.totals ?? {
@@ -279,11 +318,15 @@ export default function ReportTable() {
 
     const showProvinceColumn = scope === "all";
     const showDistrictColumn = scope === "province";
+    const isProvincePreview = scope === "province";
+    const isSuperAdminPreview = scope === "all" && reportMode === "province-total";
+    const printedDate = generatedAt ? new Date(generatedAt).toLocaleDateString() : new Date().toLocaleDateString();
     const emptyColSpan = (showProvinceColumn ? 1 : 0) + (showDistrictColumn ? 1 : 0) + 10;
+    const sortedSuperAdminRows = [...data].sort((a, b) => a.provinceName.localeCompare(b.provinceName));
 
     return (
         <div className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="no-print flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 {scope === "province" ? (
                     <p className="rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-800">
                         Showing report for your province only: <strong>{viewerProvinceName ?? "Assigned Province"}</strong>
@@ -295,21 +338,34 @@ export default function ReportTable() {
                     </p>
                 )}
 
-                <button
-                    type="button"
-                    onClick={handleDownloadExcel}
-                    disabled={isExporting || data.length === 0}
-                    className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                    {isExporting ? "Exporting..." : "Download Excel"}
-                </button>
+                <div className="flex items-center gap-2">
+                    {(isProvincePreview || isSuperAdminPreview) && (
+                        <button
+                            type="button"
+                            onClick={handlePrint}
+                            disabled={data.length === 0}
+                            className="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            Preview & Print
+                        </button>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={handleDownloadExcel}
+                        disabled={isExporting || data.length === 0}
+                        className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                        {isExporting ? "Exporting..." : "Download Excel"}
+                    </button>
+                </div>
             </div>
 
             {exportError && (
                 <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{exportError}</p>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-7">
+            <div className="no-print grid gap-3 sm:grid-cols-3 lg:grid-cols-7">
                 <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">ផ្ទៃដីផែនការ</p>
                     <p className="mt-2 text-2xl font-bold text-cyan-900">{totals.planArea.toLocaleString()}</p>
@@ -340,7 +396,196 @@ export default function ReportTable() {
                 </div>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+            {isProvincePreview && (
+                <section className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
+                    <div className="space-y-2 text-center text-slate-900">
+                        <p className="text-sm font-semibold tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                        <p className="text-sm">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                    </div>
+
+                    <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
+                        <div className="text-left text-sm leading-relaxed">
+                            <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p>
+                            <p>មន្ទីធនធានទឹក នឹងឧតុនិយម ខេត្ត{viewerProvinceName ?? "-"}</p>
+                        </div>
+
+                        <div className="text-center">
+                            <h2 className="text-lg font-bold">របាយការណ៍សង្ខេបតាមស្រុក</h2>
+                            <p className="text-sm">
+                                ខេត្ត: <strong>{viewerProvinceName ?? "-"}</strong>
+                            </p>
+                            <p className="text-xs text-slate-600">ថ្ងៃបង្កើតរបាយការណ៍: {printedDate}</p>
+                        </div>
+
+                        <div aria-hidden="true" className="hidden sm:block"></div>
+                    </div>
+
+                    <div className="mt-5 overflow-hidden rounded-xl border border-slate-400">
+                        <table className="print-table min-w-full border-collapse text-xs sm:text-sm">
+                            <thead className="bg-slate-100">
+                                <tr>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ស្រុក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បានជួយ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បន្តរជួយ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">មិនអាចសង្គ្រោះ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.map((row, index) => (
+                                    <tr key={`${row.districtId ?? "none"}-${index}`}>
+                                        <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{row.districtName}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualArea)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdPlan)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdDone)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.unsalvageableArea)}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{row.waterSource || "-"}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{row.note || "-"}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr className="bg-slate-100 font-semibold">
+                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}>
+                                        សរុប
+                                    </td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualArea)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdPlan)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.unsalvageableArea)}</td>
+                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div className="mt-8 grid grid-cols-1 gap-6 text-sm sm:grid-cols-2">
+                        <div>
+                            <p>បានពិនិត្យដោយ:</p>
+                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
+                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                        </div>
+                        <div className="text-left sm:text-right">
+                            <p>បានរៀបចំដោយ:</p>
+                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
+                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {isSuperAdminPreview && (
+                <section className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
+                    <div className="space-y-2 text-center text-slate-900">
+                        <p className="text-sm font-semibold tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                        <p className="text-sm">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                    </div>
+
+                    <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
+                        <div className="text-left text-sm leading-relaxed">
+                            <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p>
+                            <p>អគ្គនាយកដ្ឋានកិច្ចការបច្ចេកទេស</p>
+                        </div>
+
+                        <div className="text-center">
+                            <h2 className="text-lg font-bold">របាយការណ៍សង្ខេបតាមខេត្ត</h2>
+                            <p className="text-sm">ទិន្នន័យសរុបតាមខេត្ត</p>
+                            <p className="text-xs text-slate-600">ថ្ងៃបង្កើតរបាយការណ៍: {printedDate}</p>
+                        </div>
+
+                        <div aria-hidden="true" className="hidden sm:block"></div>
+                    </div>
+
+                    <div className="mt-5 overflow-hidden rounded-xl border border-slate-400">
+                        <table className="print-table min-w-full border-collapse text-xs sm:text-sm">
+                            <thead className="bg-slate-100">
+                                <tr>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះខេត្ត</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">លើសផែនការ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ភាគរយអនុវត្តបាន</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បានជួយ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {sortedSuperAdminRows.map((row, index) => {
+                                    const overPlan = row.planDone > row.planArea ? row.planDone - row.planArea : 0;
+                                    const summaryNote = buildExcelLikeNote(row);
+
+                                    return (
+                                        <tr key={`${row.provinceId ?? "none"}-${index}`}>
+                                            <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
+                                            <td className="border border-slate-300 px-2 py-2">{row.provinceName}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{overPlan > 0 ? formatNumber(overPlan) : ""}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatProgressPercent(row.planArea, row.planDone)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualArea)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdPlan)}</td>
+                                            <td className="border border-slate-300 px-2 py-2">{row.waterSource || "-"}</td>
+                                            <td className="border border-slate-300 px-2 py-2">{summaryNote || "-"}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                            <tfoot>
+                                <tr className="bg-slate-100 font-semibold">
+                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}>
+                                        សរុប
+                                    </td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">
+                                        {totals.planDone > totals.planArea ? formatNumber(totals.planDone - totals.planArea) : ""}
+                                    </td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatProgressPercent(totals.planArea, totals.planDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualArea)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdPlan)}</td>
+                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div className="mt-8 grid grid-cols-1 gap-6 text-sm sm:grid-cols-2">
+                        <div>
+                            <p>បានពិនិត្យដោយ:</p>
+                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
+                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                        </div>
+                        <div className="text-left sm:text-right">
+                            <p>បានរៀបចំដោយ:</p>
+                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
+                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+
+
+            {/* <div className="no-print overflow-x-auto rounded-2xl border border-slate-200 bg-white">
                 <table className="min-w-full text-sm">
                     <thead className="bg-slate-100 text-left text-slate-700">
                         <tr>
@@ -370,13 +615,13 @@ export default function ReportTable() {
                             <tr key={`${row.provinceId ?? "none"}-${row.districtId ?? "none"}-${index}`} className="border-t border-slate-100">
                                 {showProvinceColumn && <td className="px-4 py-3">{row.provinceName}</td>}
                                 {showDistrictColumn && <td className="px-4 py-3">{row.districtName}</td>}
-                                <td className="px-4 py-3">{row.planArea.toLocaleString()}</td>
-                                <td className="px-4 py-3">{row.planDone.toLocaleString()}</td>
-                                <td className="px-4 py-3">{row.actualArea.toLocaleString()}</td>
-                                <td className="px-4 py-3">{row.interventionArea.toLocaleString()}</td>
-                                <td className="px-4 py-3">{row.householdPlan.toLocaleString()}</td>
-                                <td className="px-4 py-3">{row.householdDone.toLocaleString()}</td>
-                                <td className="px-4 py-3">{row.unsalvageableArea.toLocaleString()}</td>
+                                <td className="px-4 py-3">{formatNumber(row.planArea)}</td>
+                                <td className="px-4 py-3">{formatNumber(row.planDone)}</td>
+                                <td className="px-4 py-3">{formatNumber(row.actualArea)}</td>
+                                <td className="px-4 py-3">{formatNumber(row.interventionArea)}</td>
+                                <td className="px-4 py-3">{formatNumber(row.householdPlan)}</td>
+                                <td className="px-4 py-3">{formatNumber(row.householdDone)}</td>
+                                <td className="px-4 py-3">{formatNumber(row.unsalvageableArea)}</td>
                                 <td className="px-4 py-3">{row.waterSource || "-"}</td>
                                 <td className="px-4 py-3">{row.note || "-"}</td>
                                 <td className="px-4 py-3">
@@ -386,7 +631,7 @@ export default function ReportTable() {
                         ))}
                     </tbody>
                 </table>
-            </div>
+            </div> */}
         </div>
     );
 }

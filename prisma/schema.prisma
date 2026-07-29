@@ -18,13 +18,13 @@ model Entry {
   id            Int         @id @default(autoincrement())
   category      String?
   value         Float?
-  planArea      Int         @default(0)
-  planDone      Int         @default(0)
-  actualArea    Int         @default(0)
-  interventionArea Int      @default(0)
-  householdPlan Int         @default(0)
-  householdDone Int         @default(0)
-  unsalvageableArea Int     @default(0)
+  planArea      Float       @default(0)
+  planDone      Float       @default(0)
+  actualArea    Float       @default(0)
+  interventionArea Float    @default(0)
+  householdPlan Float       @default(0)
+  householdDone Float       @default(0)
+  unsalvageableArea Float   @default(0)
   waterSource   String      @default("")
   note          String?
   createdAt     DateTime    @default(now())

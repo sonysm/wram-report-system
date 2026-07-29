@@ -14,3 +14,45 @@ body {
   background-color: #f8fafc;
   color: #0f172a;
 }
+
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .report-print-root,
+  .report-print-root * {
+    visibility: visible;
+  }
+
+  .report-print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-table th,
+  .print-table td {
+    font-size: 11px !important;
+    line-height: 1.25;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
