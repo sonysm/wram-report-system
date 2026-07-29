@@ -357,9 +357,13 @@ export default function DataForm() {
                 )}
 
                 <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                        <p className="text-xs text-slate-500">(ហត) គិតជាហត្តា</p>
+                    </div>
+
                     <div>
                         <label htmlFor="planArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីផែនការ
+                            ផ្ទៃដីផែនការ (ហត)
                         </label>
                         <input
                             id="planArea"
@@ -376,7 +380,7 @@ export default function DataForm() {
 
                     <div>
                         <label htmlFor="planDone" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីអនុវត្តន
+                            ផ្ទៃដីអនុវត្តន (ហត)
                         </label>
                         <input
                             id="planDone"
@@ -393,7 +397,7 @@ export default function DataForm() {
 
                     <div>
                         <label htmlFor="actualArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីប៉ះពាល់
+                            ផ្ទៃដីប៉ះពាល់ (ហត)
                         </label>
                         <input
                             id="actualArea"
@@ -409,7 +413,7 @@ export default function DataForm() {
 
                     <div>
                         <label htmlFor="interventionArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីត្រូវអន្តរាគម
+                            ផ្ទៃដីត្រូវអន្តរាគម (ហត)
                         </label>
                         <input
                             id="interventionArea"
@@ -471,7 +475,7 @@ export default function DataForm() {
 
                     <div>
                         <label htmlFor="unsalvageableArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីមិនអាចសង្គ្រោះបាន
+                            ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)
                         </label>
                         <input
                             id="unsalvageableArea"
@@ -539,13 +543,13 @@ export default function DataForm() {
                         <thead className="bg-slate-100 text-left text-slate-700">
                             <tr>
                                 <th className="px-4 py-3 font-semibold">ស្រុក</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីផែនការ</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីអនុវត្តន</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីត្រូវអន្តរាគម</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីផែនការ (ហត)</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីអនុវត្តន (ហត)</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់ (ហត)</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</th>
                                 <th className="px-4 py-3 font-semibold">បានជួយ</th>
                                 <th className="px-4 py-3 font-semibold">បន្តរជួយ</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីមិនអាចសង្គ្រោះបាន</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)</th>
                                 <th className="px-4 py-3 font-semibold">ប្រភពទឹក</th>
                                 <th className="px-4 py-3 font-semibold">ផ្សេងៗ</th>
                                 <th className="px-4 py-3 font-semibold">ថ្ងៃបញ្ចូល</th>

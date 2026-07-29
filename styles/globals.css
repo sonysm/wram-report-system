@@ -16,8 +16,8 @@ body {
 }
 
 @page {
-  size: A4 portrait;
-  margin: 10mm;
+  size: A4 landscape;
+  margin: 8mm;
 }
 
 @media print {
@@ -50,6 +50,12 @@ body {
   .print-table td {
     font-size: 11px !important;
     line-height: 1.25;
+  }
+
+  .print-title {
+    white-space: nowrap;
+    font-size: 16px !important;
+    line-height: 1.2 !important;
   }
 
   .no-print {

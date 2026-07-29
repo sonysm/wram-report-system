@@ -212,13 +212,13 @@ export default function ReportTable() {
             const headerRow = [
                 ...(showProvinceColumn ? ["ឈ្មោះខេត្ត"] : []),
                 ...(showDistrictColumn ? ["ស្រុក"] : []),
-                "ផ្ទៃដីផែនការ",
-                "ផ្ទៃដីអនុវត្តន",
-                "ផ្ទៃដីប៉ះពាល់",
-                "ផ្ទៃដីត្រូវអន្តរាគម",
+                "ផ្ទៃដីផែនការ (ហត)",
+                "ផ្ទៃដីអនុវត្តន (ហត)",
+                "ផ្ទៃដីប៉ះពាល់ (ហត)",
+                "ផ្ទៃដីត្រូវអន្តរាគម (ហត)",
                 "បានជួយ",
                 "បន្តរជួយ",
-                "ផ្ទៃដីមិនអាចសង្គ្រោះបាន",
+                "ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)",
                 "ប្រភពទឹក",
                 "ផ្សេងៗ",
                 "ភាគរយ អនុវត្តបាន",
@@ -367,19 +367,19 @@ export default function ReportTable() {
 
             <div className="no-print grid gap-3 sm:grid-cols-3 lg:grid-cols-7">
                 <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">ផ្ទៃដីផែនការ</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">ផ្ទៃដីផែនការ (ហត)</p>
                     <p className="mt-2 text-2xl font-bold text-cyan-900">{totals.planArea.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">ផ្ទៃដីអនុវត្តន</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">ផ្ទៃដីអនុវត្តន (ហត)</p>
                     <p className="mt-2 text-2xl font-bold text-indigo-900">{totals.planDone.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">ផ្ទៃដីប៉ះពាល់</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">ផ្ទៃដីប៉ះពាល់ (ហត)</p>
                     <p className="mt-2 text-2xl font-bold text-emerald-900">{totals.actualArea.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-700">ផ្ទៃដីត្រូវអន្តរាគម</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-700">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</p>
                     <p className="mt-2 text-2xl font-bold text-violet-900">{totals.interventionArea.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
@@ -391,7 +391,7 @@ export default function ReportTable() {
                     <p className="mt-2 text-2xl font-bold text-rose-900">{totals.householdDone.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-slate-300 bg-slate-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-700">ផ្ទៃដីមិនអាចសង្គ្រោះបាន</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-700">ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)</p>
                     <p className="mt-2 text-2xl font-bold text-slate-900">{totals.unsalvageableArea.toLocaleString()}</p>
                 </div>
             </div>
@@ -410,11 +410,12 @@ export default function ReportTable() {
                         </div>
 
                         <div className="text-center">
-                            <h2 className="text-lg font-bold">របាយការណ៍សង្ខេបតាមស្រុក</h2>
+                            <h2 className="print-title text-lg font-bold tracking-tight">របាយការណ៍សង្ខេបតាមស្រុក</h2>
                             <p className="text-sm">
                                 ខេត្ត: <strong>{viewerProvinceName ?? "-"}</strong>
                             </p>
                             <p className="text-xs text-slate-600">ថ្ងៃបង្កើតរបាយការណ៍: {printedDate}</p>
+                            <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p>
                         </div>
 
                         <div aria-hidden="true" className="hidden sm:block"></div>
@@ -426,7 +427,7 @@ export default function ReportTable() {
                                 <tr>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ស្រុក</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ (ហត)</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម</th>
@@ -501,9 +502,10 @@ export default function ReportTable() {
                         </div>
 
                         <div className="text-center">
-                            <h2 className="text-lg font-bold">របាយការណ៍សង្ខេបតាមខេត្ត</h2>
+                            <h2 className="print-title text-lg font-bold tracking-tight">របាយការណ៍សង្ខេបតាមខេត្ត</h2>
                             <p className="text-sm">ទិន្នន័យសរុបតាមខេត្ត</p>
                             <p className="text-xs text-slate-600">ថ្ងៃបង្កើតរបាយការណ៍: {printedDate}</p>
+                            <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p>
                         </div>
 
                         <div aria-hidden="true" className="hidden sm:block"></div>
@@ -515,13 +517,14 @@ export default function ReportTable() {
                                 <tr>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះខេត្ត</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ (ហត)</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">លើសផែនការ</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ភាគរយអនុវត្តបាន</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">បានជួយ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">មិនអាចសង្គ្រោះ</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
                                 </tr>
@@ -542,6 +545,7 @@ export default function ReportTable() {
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualArea)}</td>
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdPlan)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.unsalvageableArea)}</td>
                                             <td className="border border-slate-300 px-2 py-2">{row.waterSource || "-"}</td>
                                             <td className="border border-slate-300 px-2 py-2">{summaryNote || "-"}</td>
                                         </tr>
@@ -562,6 +566,7 @@ export default function ReportTable() {
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdPlan)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.unsalvageableArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2" colSpan={2}></td>
                                 </tr>
                             </tfoot>
