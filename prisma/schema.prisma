@@ -48,6 +48,7 @@ model User {
   provinceId       Int?
   province         Province?  @relation(fields: [provinceId], references: [id])
   entries          Entry[]
+  waterEntries     ProvinceWaterEntry[]
   createdDistricts District[] @relation("DistrictCreator")
   auditLogs        AuditLog[] @relation("AuditActor")
 }
@@ -59,6 +60,7 @@ model Province {
   users     User[]
   districts District[]
   entries   Entry[]
+  waterEntries ProvinceWaterEntry[]
   auditLogs AuditLog[]
 }
 
@@ -71,8 +73,31 @@ model District {
   province        Province @relation(fields: [provinceId], references: [id])
   createdByUser   User?    @relation("DistrictCreator", fields: [createdByUserId], references: [id])
   entries         Entry[]
+  waterEntries    ProvinceWaterEntry[]
 
   @@unique([provinceId, name])
+}
+
+model ProvinceWaterEntry {
+  id           Int       @id @default(autoincrement())
+  basinName    String
+  location     String
+  districtName String
+  communeName  String?
+  totalWater   Float     @default(0)
+  actualWater  Float     @default(0)
+  note         String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  provinceId   Int
+  districtId   Int?
+  userId       Int?
+  province     Province  @relation(fields: [provinceId], references: [id])
+  district     District? @relation(fields: [districtId], references: [id])
+  user         User?     @relation(fields: [userId], references: [id])
+
+  @@index([provinceId, createdAt])
+  @@index([districtId])
 }
 
 model AuditLog {

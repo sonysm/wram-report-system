@@ -84,3 +84,7 @@ wram-report-system/
    ├── DataForm.tsx          # Province-scoped entry form + edit list
    └── ReportTable.tsx       # Super-admin report table
 ```
+
+
+npm run db:migrate -- --name add_province_water_feature
+npm run db:generate
