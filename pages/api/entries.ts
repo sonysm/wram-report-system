@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../lib/db";
 import type { AuthTokenPayload } from "../../lib/auth";
-import { getAuthPayload } from "../../lib/requestAuth";
+import { getActiveAuthPayload } from "../../lib/requestAuth";
 
 function normalizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -187,7 +187,7 @@ async function resolveDistrict(params: {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const authUser = getAuthPayload(req);
+  const authUser = await getActiveAuthPayload(req);
   if (!authUser) {
     return res.status(401).json({ error: "Unauthorized" });
   }

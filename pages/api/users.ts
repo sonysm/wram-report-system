@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "GET") {
         const users = await prisma.user.findMany({
+            where: { isActive: true },
             select: {
                 id: true,
                 username: true,
@@ -151,6 +152,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         return res.json({
             message: `Password reset for ${targetUser.username}`,
+        });
+    }
+
+    if (req.method === "DELETE") {
+        const userId = parseInteger(req.body?.userId);
+
+        if (userId === null) {
+            return res.status(400).json({ error: "User is required" });
+        }
+
+        const targetUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                username: true,
+                role: true,
+                isActive: true,
+            },
+        });
+
+        if (!targetUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if (targetUser.role !== "user") {
+            return res.status(400).json({ error: "Only province users can be disabled from this action" });
+        }
+
+        if (!targetUser.isActive) {
+            return res.status(400).json({ error: "User is already disabled" });
+        }
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: { isActive: false },
+        });
+
+        return res.json({
+            message: `User ${targetUser.username} has been disabled`,
         });
     }
 

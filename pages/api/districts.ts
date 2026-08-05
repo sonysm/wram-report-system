@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../lib/db";
-import { getAuthPayload } from "../../lib/requestAuth";
+import { getActiveAuthPayload } from "../../lib/requestAuth";
 
 function parseNumber(value: unknown): number | null {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -20,7 +20,7 @@ function normalizeName(value: unknown): string {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const authUser = getAuthPayload(req);
+    const authUser = await getActiveAuthPayload(req);
     if (!authUser) {
         return res.status(401).json({ error: "Unauthorized" });
     }

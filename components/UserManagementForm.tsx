@@ -35,6 +35,7 @@ export default function UserManagementForm() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [resettingUserId, setResettingUserId] = useState<number | null>(null);
+    const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
     const [authError, setAuthError] = useState("");
     const [message, setMessage] = useState("");
     const [status, setStatus] = useState<"success" | "error" | "">("");
@@ -143,6 +144,54 @@ export default function UserManagementForm() {
             setMessage(error instanceof Error ? error.message : "Unable to reset password");
         } finally {
             setResettingUserId(null);
+        }
+    };
+
+    const handleDeleteUser = async (user: ManagedUser) => {
+        const token = getToken();
+        if (!token) {
+            setStatus("error");
+            setMessage("Please login first.");
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Disable ${user.username}? They will disappear from the system, but their reference data will stay.`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setDeletingUserId(user.id);
+        setStatus("");
+        setMessage("");
+
+        try {
+            const response = await fetch("/api/users", {
+                method: "DELETE",
+                headers: authHeaders(token),
+                body: JSON.stringify({ userId: user.id }),
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error ?? "Unable to disable user");
+            }
+
+            setResetPasswords((prev) => {
+                const next = { ...prev };
+                delete next[user.id];
+                return next;
+            });
+            setUsers((prev) => prev.filter((currentUser) => currentUser.id !== user.id));
+            setStatus("success");
+            setMessage(payload.message ?? `User ${user.username} disabled`);
+        } catch (error) {
+            setStatus("error");
+            setMessage(error instanceof Error ? error.message : "Unable to disable user");
+        } finally {
+            setDeletingUserId(null);
         }
     };
 
@@ -300,7 +349,7 @@ export default function UserManagementForm() {
                                 <th className="px-4 py-3 font-semibold">Username</th>
                                 <th className="px-4 py-3 font-semibold">Role</th>
                                 <th className="px-4 py-3 font-semibold">Province</th>
-                                <th className="px-4 py-3 font-semibold">Reset Password</th>
+                                <th className="px-4 py-3 font-semibold">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -318,7 +367,7 @@ export default function UserManagementForm() {
                                     <td className="px-4 py-3">{user.provinceName ?? "-"}</td>
                                     <td className="px-4 py-3">
                                         {user.role === "user" ? (
-                                            <div className="flex min-w-[260px] items-center gap-2">
+                                            <div className="flex min-w-[320px] items-center gap-2">
                                                 <input
                                                     value={resetPasswords[user.id] ?? ""}
                                                     onChange={(e) =>
@@ -335,10 +384,18 @@ export default function UserManagementForm() {
                                                 <button
                                                     type="button"
                                                     onClick={() => void handleResetPassword(user)}
-                                                    disabled={resettingUserId === user.id}
+                                                    disabled={resettingUserId === user.id || deletingUserId === user.id}
                                                     className="rounded-lg border border-cyan-300 bg-cyan-50 px-3 py-2 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-70"
                                                 >
                                                     {resettingUserId === user.id ? "Resetting..." : "Reset"}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void handleDeleteUser(user)}
+                                                    disabled={resettingUserId === user.id || deletingUserId === user.id}
+                                                    className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-70"
+                                                >
+                                                    {deletingUserId === user.id ? "Disabling..." : "Delete"}
                                                 </button>
                                             </div>
                                         ) : (

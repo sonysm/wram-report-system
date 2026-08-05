@@ -97,6 +97,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       if (dbUser) {
+        if (!dbUser.isActive) {
+          return res.status(403).json({ error: "Account is disabled" });
+        }
+
         const valid = await comparePassword(cleanPassword, dbUser.passwordHash);
         if (!valid) return res.status(401).json({ error: "Invalid credentials" });
 

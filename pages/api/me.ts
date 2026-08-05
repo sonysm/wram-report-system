@@ -32,6 +32,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ error: "User no longer exists" });
     }
 
+    if (!user.isActive) {
+        return res.status(403).json({ error: "Account is disabled" });
+    }
+
     return res.json({
         id: user.id,
         username: user.username,

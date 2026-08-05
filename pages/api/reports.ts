@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { Prisma } from "@prisma/client";
 import prisma from "../../lib/db";
-import { getAuthPayload } from "../../lib/requestAuth";
+import { getActiveAuthPayload } from "../../lib/requestAuth";
 
 interface ReportRow {
     provinceId: number | null;
@@ -58,7 +58,7 @@ function calculateTotals(rows: ReportRow[]): Totals {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const authUser = getAuthPayload(req);
+    const authUser = await getActiveAuthPayload(req);
     if (!authUser) {
         return res.status(401).json({ error: "Unauthorized" });
     }

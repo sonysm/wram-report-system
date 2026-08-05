@@ -1,6 +1,5 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -45,12 +44,15 @@ model User {
   username         String     @unique
   passwordHash     String
   role             String     @default("user")
+  isActive         Boolean    @default(true)
   provinceId       Int?
   province         Province?  @relation(fields: [provinceId], references: [id])
   entries          Entry[]
   waterEntries     ProvinceWaterEntry[]
   createdDistricts District[] @relation("DistrictCreator")
   auditLogs        AuditLog[] @relation("AuditActor")
+
+  @@index([isActive])
 }
 
 model Province {
