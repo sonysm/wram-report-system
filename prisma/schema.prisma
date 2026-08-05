@@ -85,7 +85,10 @@ model ProvinceWaterEntry {
   districtName String
   communeName  String?
   totalWater   Float     @default(0)
+  waterPercent  Float     @default(0)
   actualWater  Float     @default(0)
+  irrigatedDryArea Float  @default(0)
+  irrigatedWetArea Float  @default(0)
   note         String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

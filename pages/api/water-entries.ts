@@ -38,6 +38,10 @@ function parseNonNegative(value: unknown): number | null {
     return parsed;
 }
 
+function calculateActualWater(totalWater: number, waterPercent: number): number {
+    return (totalWater * waterPercent) / 100;
+}
+
 function resolveProvinceId(authUser: AuthTokenPayload, rawProvinceId: unknown): number | null {
     if (authUser.role !== "admin") {
         return authUser.provinceId;
@@ -92,6 +96,17 @@ async function loadEntriesForProvince(provinceId: number) {
     });
 }
 
+async function loadAdminEntries(provinceId?: number | null) {
+    return prisma.provinceWaterEntry.findMany({
+        where: provinceId ? { provinceId } : undefined,
+        include: {
+            district: { select: { id: true, name: true } },
+            province: { select: { id: true, name: true, khmerName: true } },
+        },
+        orderBy: [{ provinceId: "asc" }, { createdAt: "desc" }, { id: "desc" }],
+    });
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const authUser = getAuthPayload(req);
     if (!authUser) {
@@ -100,6 +115,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "GET") {
         const provinceId = resolveProvinceId(authUser, req.query.provinceId);
+        if (authUser.role === "admin") {
+            const entries = await loadAdminEntries(provinceId);
+            return res.json({ entries });
+        }
+
         if (!provinceId) {
             return res.status(403).json({ error: "This account has no province assigned" });
         }
@@ -118,6 +138,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const basinName = normalizeText(req.body?.basinName);
             const location = normalizeText(req.body?.location);
             const totalWater = parseNonNegative(req.body?.totalWater);
+            const waterPercent = parseNonNegative(req.body?.waterPercent);
+            const irrigatedDryArea = parseNonNegative(req.body?.irrigatedDryArea) ?? 0;
+            const irrigatedWetArea = parseNonNegative(req.body?.irrigatedWetArea) ?? 0;
             const actualWater = parseNonNegative(req.body?.actualWater);
             const note = normalizeText(req.body?.note);
 
@@ -127,9 +150,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (!location) {
                 throw new Error("Location is required");
             }
-            if (totalWater === null || actualWater === null) {
-                throw new Error("Total water and actual water must be non-negative numbers");
+            if (totalWater === null || waterPercent === null) {
+                throw new Error("Capacity and percentage must be non-negative numbers");
             }
+
+            const calculatedActualWater = calculateActualWater(totalWater, waterPercent);
 
             const resolvedLocation = await resolveLocation({
                 provinceId,
@@ -145,7 +170,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     districtName: resolvedLocation.districtName,
                     communeName: resolvedLocation.communeName,
                     totalWater,
-                    actualWater,
+                    waterPercent,
+                    actualWater: calculatedActualWater,
+                    irrigatedDryArea,
+                    irrigatedWetArea,
                     note: note || null,
                     provinceId,
                     districtId: resolvedLocation.districtId,
@@ -168,7 +196,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             districtName: entry.districtName,
                             communeName: entry.communeName,
                             totalWater: entry.totalWater,
+                            waterPercent: entry.waterPercent,
                             actualWater: entry.actualWater,
+                            irrigatedDryArea: entry.irrigatedDryArea,
+                            irrigatedWetArea: entry.irrigatedWetArea,
                         },
                     },
                 },
@@ -199,7 +230,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const basinName = normalizeText(req.body?.basinName);
             const location = normalizeText(req.body?.location);
             const totalWater = parseNonNegative(req.body?.totalWater);
-            const actualWater = parseNonNegative(req.body?.actualWater);
+            const waterPercent = parseNonNegative(req.body?.waterPercent);
+            const irrigatedDryArea = parseNonNegative(req.body?.irrigatedDryArea) ?? 0;
+            const irrigatedWetArea = parseNonNegative(req.body?.irrigatedWetArea) ?? 0;
             const note = normalizeText(req.body?.note);
 
             if (!basinName) {
@@ -208,9 +241,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (!location) {
                 throw new Error("Location is required");
             }
-            if (totalWater === null || actualWater === null) {
-                throw new Error("Total water and actual water must be non-negative numbers");
+            if (totalWater === null || waterPercent === null) {
+                throw new Error("Capacity and percentage must be non-negative numbers");
             }
+
+            const calculatedActualWater = calculateActualWater(totalWater, waterPercent);
 
             const resolvedLocation = await resolveLocation({
                 provinceId: existing.provinceId,
@@ -227,7 +262,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     districtName: resolvedLocation.districtName,
                     communeName: resolvedLocation.communeName,
                     totalWater,
-                    actualWater,
+                    waterPercent,
+                    actualWater: calculatedActualWater,
+                    irrigatedDryArea,
+                    irrigatedWetArea,
                     note: note || null,
                     districtId: resolvedLocation.districtId,
                 },
@@ -248,7 +286,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             districtName: existing.districtName,
                             communeName: existing.communeName,
                             totalWater: existing.totalWater,
+                            waterPercent: existing.waterPercent,
                             actualWater: existing.actualWater,
+                            irrigatedDryArea: existing.irrigatedDryArea,
+                            irrigatedWetArea: existing.irrigatedWetArea,
                         },
                         after: {
                             basinName: updated.basinName,
@@ -256,7 +297,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             districtName: updated.districtName,
                             communeName: updated.communeName,
                             totalWater: updated.totalWater,
+                            waterPercent: updated.waterPercent,
                             actualWater: updated.actualWater,
+                            irrigatedDryArea: updated.irrigatedDryArea,
+                            irrigatedWetArea: updated.irrigatedWetArea,
                         },
                     },
                 },
