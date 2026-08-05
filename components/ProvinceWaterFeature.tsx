@@ -574,236 +574,238 @@ export default function ProvinceWaterFeature() {
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <h2 className="text-lg font-semibold text-slate-900">បញ្ចូលទិន្នន័យអាងទឹក</h2>
+            {!isAdmin && (
+                <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                    <h2 className="text-lg font-semibold text-slate-900">បញ្ចូលទិន្នន័យអាងទឹក</h2>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label htmlFor="basinName" className="mb-2 block text-sm font-medium text-slate-700">
-                            ឈ្មោះអាងទឹក
-                        </label>
-                        <input
-                            id="basinName"
-                            value={basinName}
-                            onChange={(e) => setBasinName(e.target.value)}
-                            placeholder="បញ្ចូលឈ្មោះអាងទឹក"
-                            required
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="location" className="mb-2 block text-sm font-medium text-slate-700">
-                            ទីតាំង
-                        </label>
-                        <input
-                            id="location"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            placeholder="ឧ. ភូមិ..., ឃុំ..., ស្រុក..."
-                            required
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="district" className="mb-2 block text-sm font-medium text-slate-700">
-                            ស្រុក
-                        </label>
-                        <select
-                            id="district"
-                            value={selectedDistrictId}
-                            onChange={(e) => {
-                                setSelectedDistrictId(e.target.value);
-                                setSelectedCommuneName("");
-                                setNewCommuneName("");
-                            }}
-                            required
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        >
-                            <option value="">ជ្រើសរើសស្រុក</option>
-                            {districts.map((district) => (
-                                <option key={district.id} value={district.id}>
-                                    {district.name}
-                                </option>
-                            ))}
-                            <option value="__new__">+ បញ្ចូលស្រុកដោយដៃ</option>
-                        </select>
-                    </div>
-
-                    {selectedDistrictId === "__new__" && (
+                    <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label htmlFor="newDistrictName" className="mb-2 block text-sm font-medium text-slate-700">
-                                ឈ្មោះស្រុកថ្មី
+                            <label htmlFor="basinName" className="mb-2 block text-sm font-medium text-slate-700">
+                                ឈ្មោះអាងទឹក
                             </label>
                             <input
-                                id="newDistrictName"
-                                value={newDistrictName}
+                                id="basinName"
+                                value={basinName}
+                                onChange={(e) => setBasinName(e.target.value)}
+                                placeholder="បញ្ចូលឈ្មោះអាងទឹក"
+                                required
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="location" className="mb-2 block text-sm font-medium text-slate-700">
+                                ទីតាំង
+                            </label>
+                            <input
+                                id="location"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                placeholder="ឧ. ភូមិ..., ឃុំ..., ស្រុក..."
+                                required
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="district" className="mb-2 block text-sm font-medium text-slate-700">
+                                ស្រុក
+                            </label>
+                            <select
+                                id="district"
+                                value={selectedDistrictId}
                                 onChange={(e) => {
-                                    setNewDistrictName(e.target.value);
+                                    setSelectedDistrictId(e.target.value);
                                     setSelectedCommuneName("");
                                     setNewCommuneName("");
                                 }}
-                                placeholder="បញ្ចូលឈ្មោះស្រុក"
-                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                            />
+                                required
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            >
+                                <option value="">ជ្រើសរើសស្រុក</option>
+                                {districts.map((district) => (
+                                    <option key={district.id} value={district.id}>
+                                        {district.name}
+                                    </option>
+                                ))}
+                                <option value="__new__">+ បញ្ចូលស្រុកដោយដៃ</option>
+                            </select>
                         </div>
-                    )}
 
-                    <div>
-                        <label htmlFor="communeName" className="mb-2 block text-sm font-medium text-slate-700">
-                            ឈ្មោះឃុំ
-                        </label>
-                        <select
-                            id="communeName"
-                            value={selectedCommuneName}
-                            onChange={(e) => setSelectedCommuneName(e.target.value)}
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        >
-                            <option value="">ជ្រើសរើសឃុំ</option>
-                            {communeOptions.map((name) => (
-                                <option key={name} value={name}>
-                                    {name}
-                                </option>
-                            ))}
-                            <option value="__new__">+ បញ្ចូលឃុំដោយដៃ</option>
-                        </select>
-                    </div>
+                        {selectedDistrictId === "__new__" && (
+                            <div>
+                                <label htmlFor="newDistrictName" className="mb-2 block text-sm font-medium text-slate-700">
+                                    ឈ្មោះស្រុកថ្មី
+                                </label>
+                                <input
+                                    id="newDistrictName"
+                                    value={newDistrictName}
+                                    onChange={(e) => {
+                                        setNewDistrictName(e.target.value);
+                                        setSelectedCommuneName("");
+                                        setNewCommuneName("");
+                                    }}
+                                    placeholder="បញ្ចូលឈ្មោះស្រុក"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                />
+                            </div>
+                        )}
 
-                    {selectedCommuneName === "__new__" && (
                         <div>
-                            <label htmlFor="newCommuneName" className="mb-2 block text-sm font-medium text-slate-700">
-                                ឈ្មោះឃុំថ្មី
+                            <label htmlFor="communeName" className="mb-2 block text-sm font-medium text-slate-700">
+                                ឈ្មោះឃុំ
+                            </label>
+                            <select
+                                id="communeName"
+                                value={selectedCommuneName}
+                                onChange={(e) => setSelectedCommuneName(e.target.value)}
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            >
+                                <option value="">ជ្រើសរើសឃុំ</option>
+                                {communeOptions.map((name) => (
+                                    <option key={name} value={name}>
+                                        {name}
+                                    </option>
+                                ))}
+                                <option value="__new__">+ បញ្ចូលឃុំដោយដៃ</option>
+                            </select>
+                        </div>
+
+                        {selectedCommuneName === "__new__" && (
+                            <div>
+                                <label htmlFor="newCommuneName" className="mb-2 block text-sm font-medium text-slate-700">
+                                    ឈ្មោះឃុំថ្មី
+                                </label>
+                                <input
+                                    id="newCommuneName"
+                                    value={newCommuneName}
+                                    onChange={(e) => setNewCommuneName(e.target.value)}
+                                    placeholder="បញ្ចូលឈ្មោះឃុំ"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                />
+                            </div>
+                        )}
+
+                        <div>
+                            <label htmlFor="totalWater" className="mb-2 block text-sm font-medium text-slate-700">
+                                សមត្ថភាពស្ដុកទឹក(ម៣)
                             </label>
                             <input
-                                id="newCommuneName"
-                                value={newCommuneName}
-                                onChange={(e) => setNewCommuneName(e.target.value)}
-                                placeholder="បញ្ចូលឈ្មោះឃុំ"
+                                id="totalWater"
+                                value={totalWater}
+                                onChange={(e) => setTotalWater(e.target.value)}
+                                placeholder="0"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                required
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                             />
                         </div>
-                    )}
 
-                    <div>
-                        <label htmlFor="totalWater" className="mb-2 block text-sm font-medium text-slate-700">
-                            សមត្ថភាពស្ដុកទឹក(ម៣)
-                        </label>
-                        <input
-                            id="totalWater"
-                            value={totalWater}
-                            onChange={(e) => setTotalWater(e.target.value)}
-                            placeholder="0"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            required
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
+                        <div>
+                            <label htmlFor="waterPercent" className="mb-2 block text-sm font-medium text-slate-700">
+                                បរិមាណទឹកគិតជា %
+                            </label>
+                            <input
+                                id="waterPercent"
+                                value={waterPercent}
+                                onChange={(e) => setWaterPercent(e.target.value)}
+                                placeholder="0"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                required
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
 
-                    <div>
-                        <label htmlFor="waterPercent" className="mb-2 block text-sm font-medium text-slate-700">
-                            បរិមាណទឹកគិតជា %
-                        </label>
-                        <input
-                            id="waterPercent"
-                            value={waterPercent}
-                            onChange={(e) => setWaterPercent(e.target.value)}
-                            placeholder="0"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            required
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
+                        <div>
+                            <p className="mb-2 block text-sm font-medium text-slate-700">បរិមាណទឹកក្នុងអាង</p>
+                            <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-900">
+                                {formatNumber(computedActualWater)}
+                            </div>
+                        </div>
 
-                    <div>
-                        <p className="mb-2 block text-sm font-medium text-slate-700">បរិមាណទឹកក្នុងអាង</p>
-                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-900">
-                            {formatNumber(computedActualWater)}
+                        <div>
+                            <label htmlFor="irrigatedDryArea" className="mb-2 block text-sm font-medium text-slate-700">
+                                ផ្ទៃដីស្រោចស្រព -ប្រាំង(ហ.ត)
+                            </label>
+                            <input
+                                id="irrigatedDryArea"
+                                value={irrigatedDryArea}
+                                onChange={(e) => setIrrigatedDryArea(e.target.value)}
+                                placeholder="0"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="irrigatedWetArea" className="mb-2 block text-sm font-medium text-slate-700">
+                                ផ្ទៃដីស្រោចស្រព -វស្សា(ហ.ត)
+                            </label>
+                            <input
+                                id="irrigatedWetArea"
+                                value={irrigatedWetArea}
+                                onChange={(e) => setIrrigatedWetArea(e.target.value)}
+                                placeholder="0"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <label htmlFor="note" className="mb-2 block text-sm font-medium text-slate-700">
+                                ផ្សេងៗ
+                            </label>
+                            <textarea
+                                id="note"
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                                rows={3}
+                                placeholder="ចំណាំបន្ថែម"
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
                         </div>
                     </div>
 
-                    <div>
-                        <label htmlFor="irrigatedDryArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីស្រោចស្រព -ប្រាំង(ហ.ត)
-                        </label>
-                        <input
-                            id="irrigatedDryArea"
-                            value={irrigatedDryArea}
-                            onChange={(e) => setIrrigatedDryArea(e.target.value)}
-                            placeholder="0"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="irrigatedWetArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីស្រោចស្រព -វស្សា(ហ.ត)
-                        </label>
-                        <input
-                            id="irrigatedWetArea"
-                            value={irrigatedWetArea}
-                            onChange={(e) => setIrrigatedWetArea(e.target.value)}
-                            placeholder="0"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-
-                    <div className="sm:col-span-2">
-                        <label htmlFor="note" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្សេងៗ
-                        </label>
-                        <textarea
-                            id="note"
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                            rows={3}
-                            placeholder="ចំណាំបន្ថែម"
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-3 sm:flex-row">
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white transition hover:from-cyan-600 hover:to-teal-600 disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                        {isSubmitting ? "Saving..." : editingId === null ? "Save Water Entry" : "Update Water Entry"}
-                    </button>
-
-                    {editingId !== null && (
+                    <div className="flex flex-col gap-3 sm:flex-row">
                         <button
-                            type="button"
-                            onClick={resetForm}
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white transition hover:from-cyan-600 hover:to-teal-600 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                            Cancel Edit
+                            {isSubmitting ? "Saving..." : editingId === null ? "Save Water Entry" : "Update Water Entry"}
                         </button>
-                    )}
-                </div>
 
-                {message && (
-                    <p
-                        className={`rounded-lg px-3 py-2 text-sm ${status === "success"
-                            ? "border border-emerald-300 bg-emerald-50 text-emerald-800"
-                            : "border border-rose-300 bg-rose-50 text-rose-700"
-                            }`}
-                    >
-                        {message}
-                    </p>
-                )}
-            </form>
+                        {editingId !== null && (
+                            <button
+                                type="button"
+                                onClick={resetForm}
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                            >
+                                Cancel Edit
+                            </button>
+                        )}
+                    </div>
+
+                    {message && (
+                        <p
+                            className={`rounded-lg px-3 py-2 text-sm ${status === "success"
+                                ? "border border-emerald-300 bg-emerald-50 text-emerald-800"
+                                : "border border-rose-300 bg-rose-50 text-rose-700"
+                                }`}
+                        >
+                            {message}
+                        </p>
+                    )}
+                </form>
+            )}
 
             <div className="no-print flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-slate-900">Province Water Report (Preview)</h3>
