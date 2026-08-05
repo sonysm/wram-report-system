@@ -56,14 +56,19 @@ model User {
 }
 
 model Province {
-  id        Int        @id @default(autoincrement())
-  name      String     @unique
-  khmerName String     @default("")
-  users     User[]
-  districts District[]
-  entries   Entry[]
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  khmerName   String     @default("")
+  code        String?    @unique
+  postalCode  Int?
+  sortOrder   Int?
+  users       User[]
+  districts   District[]
+  entries     Entry[]
   waterEntries ProvinceWaterEntry[]
-  auditLogs AuditLog[]
+  auditLogs   AuditLog[]
+
+  @@index([sortOrder])
 }
 
 model District {

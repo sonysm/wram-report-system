@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 interface ReportRow {
     provinceId: number | null;
     provinceName: string;
+    provinceCode?: string | null;
+    postalCode?: number | null;
+    provinceSortOrder?: number | null;
     districtId: number | null;
     districtName: string;
     planArea: number;
@@ -137,7 +140,15 @@ export default function ReportTable() {
                     }
                 }
 
-                const sortedRows = [...data].sort((a, b) => a.provinceName.localeCompare(b.provinceName));
+                const sortedRows = [...data].sort((a, b) => {
+                    const aSort = a.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+                    const bSort = b.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+                    if (aSort !== bSort) {
+                        return aSort - bSort;
+                    }
+
+                    return a.provinceName.localeCompare(b.provinceName);
+                });
 
                 sortedRows.forEach((row, index) => {
                     const excelRow = bodyStartRow + index;
@@ -322,7 +333,15 @@ export default function ReportTable() {
     const isSuperAdminPreview = scope === "all" && reportMode === "province-total";
     const printedDate = generatedAt ? new Date(generatedAt).toLocaleDateString() : new Date().toLocaleDateString();
     const emptyColSpan = (showProvinceColumn ? 1 : 0) + (showDistrictColumn ? 1 : 0) + 10;
-    const sortedSuperAdminRows = [...data].sort((a, b) => a.provinceName.localeCompare(b.provinceName));
+    const sortedSuperAdminRows = [...data].sort((a, b) => {
+        const aSort = a.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+        const bSort = b.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+        if (aSort !== bSort) {
+            return aSort - bSort;
+        }
+
+        return a.provinceName.localeCompare(b.provinceName);
+    });
 
     return (
         <div className="space-y-4">

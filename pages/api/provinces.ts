@@ -10,8 +10,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await ensureProvincesSeeded();
 
     const provinces = await prisma.province.findMany({
-        select: { id: true, name: true, khmerName: true },
-        orderBy: { khmerName: "asc" },
+        select: {
+            id: true,
+            code: true,
+            name: true,
+            khmerName: true,
+            postalCode: true,
+            sortOrder: true,
+        },
+        orderBy: [{ sortOrder: "asc" }, { khmerName: "asc" }],
     });
 
     return res.json({ provinces });

@@ -1,11 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { Prisma } from "@prisma/client";
 import prisma from "../../lib/db";
+import { ensureProvincesSeeded } from "../../lib/provinces";
 import { getActiveAuthPayload } from "../../lib/requestAuth";
 
 interface ReportRow {
     provinceId: number | null;
     provinceName: string;
+    provinceCode: string | null;
+    postalCode: number | null;
+    provinceSortOrder: number | null;
     districtId: number | null;
     districtName: string;
     planArea: number;
@@ -67,6 +71,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).json({ error: "Method not allowed" });
     }
 
+    await ensureProvincesSeeded();
+
     const isAdmin = authUser.role === "admin";
     if (!isAdmin && !authUser.provinceId) {
         return res.status(403).json({ error: "This account has no province assigned" });
@@ -79,7 +85,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 districtId: { not: null },
             },
             include: {
-                province: { select: { id: true, name: true, khmerName: true } },
+                province: { select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true } },
                 district: { select: { id: true, name: true } },
             },
             orderBy: [{ districtId: "asc" }, { createdAt: "desc" }],
@@ -100,6 +106,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .map((entry) => ({
                 provinceId: entry.provinceId,
                 provinceName: entry.province?.khmerName || entry.province?.name || "Unknown Province",
+                provinceCode: entry.province?.code ?? null,
+                postalCode: entry.province?.postalCode ?? null,
+                provinceSortOrder: entry.province?.sortOrder ?? null,
                 districtId: entry.districtId,
                 districtName: entry.district?.name ?? "Unknown District",
                 planArea: entry.planArea,
@@ -147,31 +156,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         _count: { _all: true },
     });
 
-    const provinceIds = groupedReport.reduce<number[]>((ids, row) => {
-        if (row.provinceId !== null && !ids.includes(row.provinceId)) {
-            ids.push(row.provinceId);
-        }
-        return ids;
-    }, []);
+    const provinces = await prisma.province.findMany({
+        select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true },
+        orderBy: [{ sortOrder: "asc" }, { khmerName: "asc" }],
+    });
 
-    const [provinces, latestDetails] = await Promise.all([
-        prisma.province.findMany({
-            where: { id: { in: provinceIds } },
-            select: { id: true, name: true, khmerName: true },
-        }),
-        prisma.entry.findMany({
-            where: {
-                provinceId: { in: provinceIds },
-            },
-            select: {
-                provinceId: true,
-                waterSource: true,
-                note: true,
-                createdAt: true,
-            },
-            orderBy: [{ provinceId: "asc" }, { createdAt: "desc" }],
-        }),
-    ]);
+    const provinceIds = provinces.map((province) => province.id);
+
+    const latestDetails = await prisma.entry.findMany({
+        where: {
+            provinceId: { in: provinceIds },
+        },
+        select: {
+            provinceId: true,
+            waterSource: true,
+            note: true,
+            createdAt: true,
+        },
+        orderBy: [{ provinceId: "asc" }, { createdAt: "desc" }],
+    });
+
+    const groupedByProvinceId = new Map<number, (typeof groupedReport)[number]>();
+    for (const row of groupedReport) {
+        if (row.provinceId !== null) {
+            groupedByProvinceId.set(row.provinceId, row);
+        }
+    }
 
     const latestMetaMap = new Map<number, { waterSource: string; note: string }>();
     for (const entry of latestDetails) {
@@ -187,30 +197,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     }
 
-    const provinceMap = new Map<number, string>(
-        provinces.map((province) => [province.id, province.khmerName || province.name]),
-    );
-
-    const rows: ReportRow[] = groupedReport.map((row) => {
-        const latestMeta = row.provinceId !== null ? latestMetaMap.get(row.provinceId) : undefined;
+    const rows: ReportRow[] = provinces.map((province) => {
+        const grouped = groupedByProvinceId.get(province.id);
+        const latestMeta = latestMetaMap.get(province.id);
 
         return {
-            provinceId: row.provinceId,
-            provinceName: row.provinceId ? provinceMap.get(row.provinceId) ?? "Unknown Province" : "Unknown Province",
+            provinceId: province.id,
+            provinceName: province.khmerName || province.name,
+            provinceCode: province.code ?? null,
+            postalCode: province.postalCode ?? null,
+            provinceSortOrder: province.sortOrder ?? null,
             districtId: null,
             districtName: "",
-            planArea: row._sum.planArea ?? 0,
-            planDone: row._sum.planDone ?? 0,
-            actualArea: row._sum.actualArea ?? 0,
-            interventionArea: row._sum.interventionArea ?? 0,
-            householdPlan: row._sum.householdPlan ?? 0,
-            householdDone: row._sum.householdDone ?? 0,
-            unsalvageableArea: row._sum.unsalvageableArea ?? 0,
+            planArea: grouped?._sum.planArea ?? 0,
+            planDone: grouped?._sum.planDone ?? 0,
+            actualArea: grouped?._sum.actualArea ?? 0,
+            interventionArea: grouped?._sum.interventionArea ?? 0,
+            householdPlan: grouped?._sum.householdPlan ?? 0,
+            householdDone: grouped?._sum.householdDone ?? 0,
+            unsalvageableArea: grouped?._sum.unsalvageableArea ?? 0,
             waterSource: latestMeta?.waterSource ?? "",
             note: latestMeta?.note ?? "",
-            recordCount: row._count._all,
+            recordCount: grouped?._count._all ?? 0,
         };
-    }).sort((a, b) => a.provinceName.localeCompare(b.provinceName));
+    });
+
+    rows.sort((a, b) => {
+        const aSort = a.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+        const bSort = b.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+        if (aSort !== bSort) {
+            return aSort - bSort;
+        }
+
+        return a.provinceName.localeCompare(b.provinceName);
+    });
 
     const totals = calculateTotals(rows);
 

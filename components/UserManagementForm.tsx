@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 
 interface ProvinceOption {
     id: number;
+    code: string | null;
     name: string;
     khmerName: string;
+    postalCode: number | null;
+    sortOrder: number | null;
 }
 
 interface ManagedUser {
@@ -313,7 +316,7 @@ export default function UserManagementForm() {
                             <option value="">Select province</option>
                             {provinces.map((province) => (
                                 <option key={province.id} value={province.id}>
-                                    {province.khmerName || province.name}
+                                    {(province.code ? `${province.code} - ` : "") + (province.khmerName || province.name)}
                                 </option>
                             ))}
                         </select>

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../lib/db";
 import type { AuthTokenPayload } from "../../lib/auth";
+import { ensureProvincesSeeded } from "../../lib/provinces";
 import { getActiveAuthPayload } from "../../lib/requestAuth";
 
 function normalizeText(value: unknown): string {
@@ -90,7 +91,7 @@ async function loadEntriesForProvince(provinceId: number) {
         where: { provinceId },
         include: {
             district: { select: { id: true, name: true } },
-            province: { select: { id: true, name: true, khmerName: true } },
+            province: { select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true } },
         },
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     });
@@ -101,9 +102,9 @@ async function loadAdminEntries(provinceId?: number | null) {
         where: provinceId ? { provinceId } : undefined,
         include: {
             district: { select: { id: true, name: true } },
-            province: { select: { id: true, name: true, khmerName: true } },
+            province: { select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true } },
         },
-        orderBy: [{ provinceId: "asc" }, { createdAt: "desc" }, { id: "desc" }],
+        orderBy: [{ province: { sortOrder: "asc" } }, { provinceId: "asc" }, { createdAt: "desc" }, { id: "desc" }],
     });
 }
 
@@ -112,6 +113,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!authUser) {
         return res.status(401).json({ error: "Unauthorized" });
     }
+
+    await ensureProvincesSeeded();
 
     if (req.method === "GET") {
         const provinceId = resolveProvinceId(authUser, req.query.provinceId);

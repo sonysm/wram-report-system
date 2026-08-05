@@ -15,9 +15,22 @@ interface District {
     provinceId: number;
 }
 
+interface ProvinceOption {
+    id: number;
+    code: string | null;
+    name: string;
+    khmerName: string;
+    postalCode: number | null;
+    sortOrder: number | null;
+}
+
 interface WaterEntry {
     id: number;
+    provinceId: number | null;
     provinceName: string;
+    provinceCode: string | null;
+    provinceSortOrder: number | null;
+    postalCode: number | null;
     basinName: string;
     location: string;
     districtName: string;
@@ -82,6 +95,7 @@ function calculateDisplayPercent(totalWater: number, actualWater: number): strin
 
 export default function ProvinceWaterFeature() {
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+    const [provinces, setProvinces] = useState<ProvinceOption[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
     const [entries, setEntries] = useState<WaterEntry[]>([]);
 
@@ -123,6 +137,20 @@ export default function ProvinceWaterFeature() {
         setDistricts(payload.districts ?? []);
     };
 
+    const loadProvinces = async (token: string) => {
+        const response = await fetch("/api/provinces", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.error ?? "Unable to load provinces");
+        }
+
+        const payload = await response.json();
+        setProvinces(payload.provinces ?? []);
+    };
+
     const loadEntries = async (token: string) => {
         const response = await fetch("/api/water-entries", {
             headers: { Authorization: `Bearer ${token}` },
@@ -136,7 +164,11 @@ export default function ProvinceWaterFeature() {
         const payload = await response.json();
         const nextEntries: WaterEntry[] = (payload.entries ?? []).map((entry: any) => ({
             id: entry.id,
+            provinceId: entry.province?.id ?? null,
             provinceName: entry.province?.khmerName || entry.province?.name || "",
+            provinceCode: entry.province?.code ?? null,
+            provinceSortOrder: entry.province?.sortOrder ?? null,
+            postalCode: entry.province?.postalCode ?? null,
             basinName: entry.basinName,
             location: entry.location,
             districtName: entry.districtName,
@@ -176,7 +208,7 @@ export default function ProvinceWaterFeature() {
             const me = await meResponse.json();
             setCurrentUser(me);
 
-            await Promise.all([loadDistricts(token), loadEntries(token)]);
+            await Promise.all([loadProvinces(token), loadDistricts(token), loadEntries(token)]);
             setAuthError("");
         } catch (error) {
             setAuthError(error instanceof Error ? error.message : "Unable to load user session");
@@ -195,7 +227,7 @@ export default function ProvinceWaterFeature() {
             return;
         }
 
-        await Promise.all([loadDistricts(token), loadEntries(token)]);
+        await Promise.all([loadProvinces(token), loadDistricts(token), loadEntries(token)]);
     };
 
     const resetForm = () => {
@@ -434,9 +466,13 @@ export default function ProvinceWaterFeature() {
 
     const adminReportRows = useMemo(() => {
         const grouped = new Map<
-            string,
+            number,
             {
+                provinceId: number;
                 provinceName: string;
+                provinceCode: string | null;
+                provinceSortOrder: number | null;
+                postalCode: number | null;
                 totalWater: number;
                 actualWater: number;
                 irrigatedDryArea: number;
@@ -445,14 +481,33 @@ export default function ProvinceWaterFeature() {
             }
         >();
 
+        for (const province of provinces) {
+            grouped.set(province.id, {
+                provinceId: province.id,
+                provinceName: province.khmerName || province.name,
+                provinceCode: province.code ?? null,
+                provinceSortOrder: province.sortOrder ?? null,
+                postalCode: province.postalCode ?? null,
+                totalWater: 0,
+                actualWater: 0,
+                irrigatedDryArea: 0,
+                irrigatedWetArea: 0,
+                note: "",
+            });
+        }
+
         for (const entry of entries) {
-            const provinceName = entry.provinceName || "Unknown Province";
-            const existing = grouped.get(provinceName);
+            const provinceId = entry.provinceId ?? -1;
+            const existing = grouped.get(provinceId);
             const entryNote = entry.note?.trim() ?? "";
 
             if (!existing) {
-                grouped.set(provinceName, {
-                    provinceName,
+                grouped.set(provinceId, {
+                    provinceId,
+                    provinceName: entry.provinceName || "Unknown Province",
+                    provinceCode: entry.provinceCode,
+                    provinceSortOrder: entry.provinceSortOrder,
+                    postalCode: entry.postalCode,
                     totalWater: entry.totalWater,
                     actualWater: entry.actualWater,
                     irrigatedDryArea: entry.irrigatedDryArea,
@@ -471,8 +526,16 @@ export default function ProvinceWaterFeature() {
             }
         }
 
-        return Array.from(grouped.values()).sort((a, b) => a.provinceName.localeCompare(b.provinceName));
-    }, [entries]);
+        return Array.from(grouped.values()).sort((a, b) => {
+            const aSort = a.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+            const bSort = b.provinceSortOrder ?? Number.MAX_SAFE_INTEGER;
+            if (aSort !== bSort) {
+                return aSort - bSort;
+            }
+
+            return a.provinceName.localeCompare(b.provinceName);
+        });
+    }, [entries, provinces]);
 
     const isAdmin = currentUser?.role === "admin";
 
@@ -782,6 +845,9 @@ export default function ProvinceWaterFeature() {
                                 <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
                                 {isAdmin ? (
                                     <>
+                                        <th className="border border-slate-400 px-2 py-2 text-left">Sort</th>
+                                        <th className="border border-slate-400 px-2 py-2 text-left">Code</th>
+                                        <th className="border border-slate-400 px-2 py-2 text-right">Postal</th>
                                         <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះខេត្ត</th>
                                         <th className="border border-slate-400 px-2 py-2 text-right">សមត្ថភាពស្ដុកទឹក(ម៣)</th>
                                         <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹកគិតជា %</th>
@@ -809,7 +875,7 @@ export default function ProvinceWaterFeature() {
                         <tbody>
                             {reportRows.length === 0 && (
                                 <tr>
-                                    <td className="border border-slate-300 px-2 py-3 text-center text-slate-500" colSpan={isAdmin ? 8 : 11}>
+                                    <td className="border border-slate-300 px-2 py-3 text-center text-slate-500" colSpan={isAdmin ? 11 : 11}>
                                         No water report data yet.
                                     </td>
                                 </tr>
@@ -818,6 +884,11 @@ export default function ProvinceWaterFeature() {
                                 ? adminReportRows.map((row, index) => (
                                     <tr key={`${row.provinceName}-${index}`}>
                                         <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{row.provinceSortOrder ?? "-"}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{row.provinceCode ?? "-"}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">
+                                            {row.postalCode ? formatNumber(row.postalCode) : "-"}
+                                        </td>
                                         <td className="border border-slate-300 px-2 py-2">{row.provinceName}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.totalWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(row.totalWater, row.actualWater)}</td>
@@ -845,7 +916,7 @@ export default function ProvinceWaterFeature() {
                         </tbody>
                         <tfoot>
                             <tr className="bg-slate-100 font-semibold">
-                                <td className="border border-slate-400 px-2 py-2" colSpan={isAdmin ? 2 : 5}>
+                                <td className="border border-slate-400 px-2 py-2" colSpan={isAdmin ? 5 : 5}>
                                     សរុប
                                 </td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.totalWater)}</td>
