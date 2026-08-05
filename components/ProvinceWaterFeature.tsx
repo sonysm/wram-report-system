@@ -40,6 +40,7 @@ interface WaterEntry {
     actualWater: number;
     irrigatedDryArea: number;
     irrigatedWetArea: number;
+    waterSource: string;
     note: string | null;
     districtId: number | null;
     createdAt: string;
@@ -109,6 +110,7 @@ export default function ProvinceWaterFeature() {
     const [waterPercent, setWaterPercent] = useState("");
     const [irrigatedDryArea, setIrrigatedDryArea] = useState("");
     const [irrigatedWetArea, setIrrigatedWetArea] = useState("");
+    const [waterSource, setWaterSource] = useState("");
     const [note, setNote] = useState("");
 
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -180,6 +182,7 @@ export default function ProvinceWaterFeature() {
             actualWater: Number(entry.actualWater ?? 0),
             irrigatedDryArea: Number(entry.irrigatedDryArea ?? 0),
             irrigatedWetArea: Number(entry.irrigatedWetArea ?? 0),
+            waterSource: entry.waterSource ?? "",
             note: entry.note ?? null,
             districtId: entry.districtId ?? null,
             createdAt: entry.createdAt,
@@ -241,6 +244,7 @@ export default function ProvinceWaterFeature() {
         setWaterPercent("");
         setIrrigatedDryArea("");
         setIrrigatedWetArea("");
+        setWaterSource("");
         setNote("");
         setEditingId(null);
     };
@@ -342,6 +346,7 @@ export default function ProvinceWaterFeature() {
             const parsedWaterPercent = parseNonNegativeInput(waterPercent);
             const parsedDryArea = parseNonNegativeInput(irrigatedDryArea) ?? 0;
             const parsedWetArea = parseNonNegativeInput(irrigatedWetArea) ?? 0;
+            const normalizedWaterSource = waterSource.trim();
 
             if (!basinName.trim()) {
                 throw new Error("Basin name is required");
@@ -353,6 +358,9 @@ export default function ProvinceWaterFeature() {
 
             if (parsedTotalWater === null || parsedWaterPercent === null) {
                 throw new Error("Capacity and percentage must be non-negative numbers");
+            }
+            if (!normalizedWaterSource) {
+                throw new Error("Water source is required");
             }
 
             const calculatedActualWater = calculateActualWater(parsedTotalWater, parsedWaterPercent);
@@ -370,6 +378,7 @@ export default function ProvinceWaterFeature() {
                 actualWater: number;
                 irrigatedDryArea: number;
                 irrigatedWetArea: number;
+                waterSource: string;
                 note: string;
             } = {
                 basinName: basinName.trim(),
@@ -380,6 +389,7 @@ export default function ProvinceWaterFeature() {
                 actualWater: calculatedActualWater,
                 irrigatedDryArea: parsedDryArea,
                 irrigatedWetArea: parsedWetArea,
+                waterSource: normalizedWaterSource,
                 note: note.trim(),
             };
 
@@ -442,6 +452,7 @@ export default function ProvinceWaterFeature() {
         setWaterPercent(String(entry.waterPercent || (entry.totalWater > 0 ? (entry.actualWater / entry.totalWater) * 100 : 0)));
         setIrrigatedDryArea(String(entry.irrigatedDryArea ?? 0));
         setIrrigatedWetArea(String(entry.irrigatedWetArea ?? 0));
+        setWaterSource(entry.waterSource ?? "");
         setNote(entry.note ?? "");
 
         if (entry.districtId) {
@@ -588,20 +599,6 @@ export default function ProvinceWaterFeature() {
                                 value={basinName}
                                 onChange={(e) => setBasinName(e.target.value)}
                                 placeholder="បញ្ចូលឈ្មោះអាងទឹក"
-                                required
-                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="location" className="mb-2 block text-sm font-medium text-slate-700">
-                                ទីតាំង
-                            </label>
-                            <input
-                                id="location"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                placeholder="ឧ. ភូមិ..., ឃុំ..., ស្រុក..."
                                 required
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                             />
@@ -759,6 +756,34 @@ export default function ProvinceWaterFeature() {
                             />
                         </div>
 
+                        <div>
+                            <label htmlFor="waterSource" className="mb-2 block text-sm font-medium text-slate-700">
+                                ប្រភពទឹក
+                            </label>
+                            <input
+                                id="waterSource"
+                                value={waterSource}
+                                onChange={(e) => setWaterSource(e.target.value)}
+                                placeholder="បញ្ចូលប្រភពទឹក"
+                                required
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="location" className="mb-2 block text-sm font-medium text-slate-700">
+                                ទីតាំង
+                            </label>
+                            <input
+                                id="location"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                placeholder="ឧ. ភូមិ..., ឃុំ..., ស្រុក..."
+                                required
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
+
                         <div className="sm:col-span-2">
                             <label htmlFor="note" className="mb-2 block text-sm font-medium text-slate-700">
                                 ផ្សេងៗ
@@ -858,7 +883,6 @@ export default function ProvinceWaterFeature() {
                                 ) : (
                                     <>
                                         <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះអាងទឹក</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ទីតាំង</th>
                                         <th className="border border-slate-400 px-2 py-2 text-left">ស្រុក</th>
                                         <th className="border border-slate-400 px-2 py-2 text-left">ឃុំ</th>
                                         <th className="border border-slate-400 px-2 py-2 text-right">សមត្ថភាពស្ដុកទឹក(ម៣)</th>
@@ -866,6 +890,7 @@ export default function ProvinceWaterFeature() {
                                         <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹកក្នុងអាង</th>
                                         <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីស្រោចស្រព -ប្រាំង(ហ.ត)</th>
                                         <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីស្រោចស្រព -វស្សា(ហ.ត)</th>
+                                        <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
                                         <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
                                     </>
                                 )}
@@ -896,7 +921,6 @@ export default function ProvinceWaterFeature() {
                                     <tr key={entry.id}>
                                         <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.basinName}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{entry.location}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.districtName}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.communeName || "-"}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.totalWater)}</td>
@@ -904,6 +928,7 @@ export default function ProvinceWaterFeature() {
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.irrigatedDryArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.irrigatedWetArea)}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{entry.waterSource || "-"}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.note || "-"}</td>
                                     </tr>
                                 ))}
@@ -946,7 +971,6 @@ export default function ProvinceWaterFeature() {
                             <tr>
                                 {isAdmin && <th className="px-4 py-3 font-semibold">ឈ្មោះខេត្ត</th>}
                                 <th className="px-4 py-3 font-semibold">ឈ្មោះអាងទឹក</th>
-                                <th className="px-4 py-3 font-semibold">ទីតាំង</th>
                                 <th className="px-4 py-3 font-semibold">ស្រុក</th>
                                 <th className="px-4 py-3 font-semibold">ឃុំ</th>
                                 <th className="px-4 py-3 font-semibold">សមត្ថភាពស្ដុកទឹក(ម៣)</th>
@@ -954,6 +978,8 @@ export default function ProvinceWaterFeature() {
                                 <th className="px-4 py-3 font-semibold">បរិមាណទឹកក្នុងអាង</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីស្រោចស្រព -ប្រាំង(ហ.ត)</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីស្រោចស្រព -វស្សា(ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">ប្រភពទឹក</th>
+                                <th className="px-4 py-3 font-semibold">ផ្សេងៗ</th>
                                 <th className="px-4 py-3 font-semibold">ថ្ងៃបញ្ចូល</th>
                                 <th className="px-4 py-3 font-semibold">កែប្រែ</th>
                             </tr>
@@ -970,7 +996,6 @@ export default function ProvinceWaterFeature() {
                                 <tr key={entry.id} className="border-t border-slate-100">
                                     {isAdmin && <td className="px-4 py-3">{entry.provinceName || "-"}</td>}
                                     <td className="px-4 py-3">{entry.basinName}</td>
-                                    <td className="px-4 py-3">{entry.location}</td>
                                     <td className="px-4 py-3">{entry.districtName}</td>
                                     <td className="px-4 py-3">{entry.communeName || "-"}</td>
                                     <td className="px-4 py-3">{formatNumber(entry.totalWater)}</td>
@@ -978,6 +1003,8 @@ export default function ProvinceWaterFeature() {
                                     <td className="px-4 py-3">{formatNumber(entry.actualWater)}</td>
                                     <td className="px-4 py-3">{formatNumber(entry.irrigatedDryArea)}</td>
                                     <td className="px-4 py-3">{formatNumber(entry.irrigatedWetArea)}</td>
+                                    <td className="px-4 py-3">{entry.waterSource || "-"}</td>
+                                    <td className="px-4 py-3">{entry.note || "-"}</td>
                                     <td className="px-4 py-3">{new Date(entry.createdAt).toLocaleDateString()}</td>
                                     <td className="px-4 py-3">
                                         <button

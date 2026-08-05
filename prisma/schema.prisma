@@ -96,6 +96,7 @@ model ProvinceWaterEntry {
   actualWater  Float     @default(0)
   irrigatedDryArea Float  @default(0)
   irrigatedWetArea Float  @default(0)
+  waterSource  String    @default("")
   note         String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

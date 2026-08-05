@@ -145,6 +145,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const irrigatedDryArea = parseNonNegative(req.body?.irrigatedDryArea) ?? 0;
             const irrigatedWetArea = parseNonNegative(req.body?.irrigatedWetArea) ?? 0;
             const actualWater = parseNonNegative(req.body?.actualWater);
+            const waterSource = normalizeText(req.body?.waterSource);
             const note = normalizeText(req.body?.note);
 
             if (!basinName) {
@@ -155,6 +156,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
             if (totalWater === null || waterPercent === null) {
                 throw new Error("Capacity and percentage must be non-negative numbers");
+            }
+            if (!waterSource) {
+                throw new Error("Water source is required");
             }
 
             const calculatedActualWater = calculateActualWater(totalWater, waterPercent);
@@ -177,6 +181,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     actualWater: calculatedActualWater,
                     irrigatedDryArea,
                     irrigatedWetArea,
+                    waterSource,
                     note: note || null,
                     provinceId,
                     districtId: resolvedLocation.districtId,
@@ -203,6 +208,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             actualWater: entry.actualWater,
                             irrigatedDryArea: entry.irrigatedDryArea,
                             irrigatedWetArea: entry.irrigatedWetArea,
+                            waterSource: entry.waterSource,
                         },
                     },
                 },
@@ -236,6 +242,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const waterPercent = parseNonNegative(req.body?.waterPercent);
             const irrigatedDryArea = parseNonNegative(req.body?.irrigatedDryArea) ?? 0;
             const irrigatedWetArea = parseNonNegative(req.body?.irrigatedWetArea) ?? 0;
+            const waterSource = normalizeText(req.body?.waterSource);
             const note = normalizeText(req.body?.note);
 
             if (!basinName) {
@@ -246,6 +253,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
             if (totalWater === null || waterPercent === null) {
                 throw new Error("Capacity and percentage must be non-negative numbers");
+            }
+            if (!waterSource) {
+                throw new Error("Water source is required");
             }
 
             const calculatedActualWater = calculateActualWater(totalWater, waterPercent);
@@ -269,6 +279,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     actualWater: calculatedActualWater,
                     irrigatedDryArea,
                     irrigatedWetArea,
+                    waterSource,
                     note: note || null,
                     districtId: resolvedLocation.districtId,
                 },
@@ -293,6 +304,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             actualWater: existing.actualWater,
                             irrigatedDryArea: existing.irrigatedDryArea,
                             irrigatedWetArea: existing.irrigatedWetArea,
+                            waterSource: existing.waterSource,
                         },
                         after: {
                             basinName: updated.basinName,
@@ -304,6 +316,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             actualWater: updated.actualWater,
                             irrigatedDryArea: updated.irrigatedDryArea,
                             irrigatedWetArea: updated.irrigatedWetArea,
+                            waterSource: updated.waterSource,
                         },
                     },
                 },
