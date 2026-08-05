@@ -935,7 +935,7 @@ export default function ProvinceWaterFeature() {
                         </tbody>
                         <tfoot>
                             <tr className="bg-slate-100 font-semibold">
-                                <td className="border border-slate-400 px-2 py-2" colSpan={isAdmin ? 2 : 5}>
+                                <td className="border border-slate-400 px-2 py-2" colSpan={isAdmin ? 2 : 4}>
                                     សរុប
                                 </td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.totalWater)}</td>
@@ -944,6 +944,7 @@ export default function ProvinceWaterFeature() {
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.irrigatedDryArea)}</td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.irrigatedWetArea)}</td>
                                 <td className="border border-slate-400 px-2 py-2"></td>
+                                {!isAdmin && <td className="border border-slate-400 px-2 py-2"></td>}
                             </tr>
                         </tfoot>
                     </table>
