@@ -845,9 +845,6 @@ export default function ProvinceWaterFeature() {
                                 <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
                                 {isAdmin ? (
                                     <>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">Sort</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">Code</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">Postal</th>
                                         <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះខេត្ត</th>
                                         <th className="border border-slate-400 px-2 py-2 text-right">សមត្ថភាពស្ដុកទឹក(ម៣)</th>
                                         <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹកគិតជា %</th>
@@ -875,7 +872,7 @@ export default function ProvinceWaterFeature() {
                         <tbody>
                             {reportRows.length === 0 && (
                                 <tr>
-                                    <td className="border border-slate-300 px-2 py-3 text-center text-slate-500" colSpan={isAdmin ? 11 : 11}>
+                                    <td className="border border-slate-300 px-2 py-3 text-center text-slate-500" colSpan={isAdmin ? 8 : 11}>
                                         No water report data yet.
                                     </td>
                                 </tr>
@@ -884,11 +881,6 @@ export default function ProvinceWaterFeature() {
                                 ? adminReportRows.map((row, index) => (
                                     <tr key={`${row.provinceName}-${index}`}>
                                         <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{row.provinceSortOrder ?? "-"}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{row.provinceCode ?? "-"}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">
-                                            {row.postalCode ? formatNumber(row.postalCode) : "-"}
-                                        </td>
                                         <td className="border border-slate-300 px-2 py-2">{row.provinceName}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.totalWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(row.totalWater, row.actualWater)}</td>
@@ -916,7 +908,7 @@ export default function ProvinceWaterFeature() {
                         </tbody>
                         <tfoot>
                             <tr className="bg-slate-100 font-semibold">
-                                <td className="border border-slate-400 px-2 py-2" colSpan={isAdmin ? 5 : 5}>
+                                <td className="border border-slate-400 px-2 py-2" colSpan={isAdmin ? 2 : 5}>
                                     សរុប
                                 </td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.totalWater)}</td>
