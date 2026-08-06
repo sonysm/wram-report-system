@@ -67,7 +67,6 @@ export default function DataForm() {
     const [householdPlan, setHouseholdPlan] = useState("0");
     const [householdDone, setHouseholdDone] = useState("0");
     const [unsalvageableArea, setUnsalvageableArea] = useState("0");
-    const [overUnderPlan, setOverUnderPlan] = useState("0");
     const [waterSource, setWaterSource] = useState("");
     const [note, setNote] = useState("");
 
@@ -154,7 +153,6 @@ export default function DataForm() {
         setHouseholdPlan("0");
         setHouseholdDone("0");
         setUnsalvageableArea("0");
-        setOverUnderPlan("0");
         setWaterSource("");
         setNote("");
         setEditingEntryId(null);
@@ -191,7 +189,7 @@ export default function DataForm() {
             const parsedHouseholdPlan = parseDecimalInput(householdPlan);
             const parsedHouseholdDone = parseDecimalInput(householdDone);
             const parsedUnsalvageableArea = parseDecimalInput(unsalvageableArea);
-            const parsedOverUnderPlan = Number.isFinite(Number(overUnderPlan)) ? Number(overUnderPlan) : 0;
+            const parsedOverUnderPlan = parsedPlanArea !== null && parsedPlanDone !== null ? parsedPlanArea - parsedPlanDone : 0;
 
             if (parsedPlanArea === null || parsedPlanDone === null) {
                 throw new Error("Plan area and plan done must be non-negative numbers");
@@ -291,7 +289,6 @@ export default function DataForm() {
         setHouseholdPlan(String(entry.householdPlan));
         setHouseholdDone(String(entry.householdDone));
         setUnsalvageableArea(String(entry.unsalvageableArea));
-        setOverUnderPlan(String(entry.overUnderPlan));
         setWaterSource(entry.waterSource ?? "");
         setNote(entry.note ?? "");
         setSelectedDistrictId(entry.district ? String(entry.district.id) : "");
@@ -299,6 +296,17 @@ export default function DataForm() {
         setStatus("");
         setMessage("Editing selected record. Save to confirm changes.");
     };
+
+    const computedOverUnderPlan = (() => {
+        const parsedPlanArea = parseDecimalInput(planArea);
+        const parsedPlanDone = parseDecimalInput(planDone);
+
+        if (parsedPlanArea === null || parsedPlanDone === null) {
+            return 0;
+        }
+
+        return parsedPlanArea - parsedPlanDone;
+    })();
 
     if (isLoading) {
         return <p className="text-sm text-slate-500">Loading form...</p>;
@@ -403,25 +411,19 @@ export default function DataForm() {
                     </div>
 
                     <div>
-                        <label htmlFor="overUnderPlan" className="mb-2 block text-sm font-medium text-slate-700">
+                        <p className="mb-2 block text-sm font-medium text-slate-700">
                             លើស-ក្រោមផែនការ (ហ.ត)
-                        </label>
-                        <input
-                            id="overUnderPlan"
-                            value={overUnderPlan}
-                            onChange={(e) => setOverUnderPlan(e.target.value)}
-                            placeholder="0"
-                            type="number"
-                            step="0.01"
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
+                        </p>
+                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-900">
+                            {computedOverUnderPlan.toFixed(2)}
+                        </div>
                     </div>
 
                     <div>
                         <p className="mb-2 block text-sm font-medium text-slate-700">លើស-ក្រោមផែនការ (%)</p>
                         <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-900">
                             {Number(planArea) > 0
-                                ? `${((Number(overUnderPlan) * 100) / Number(planArea)).toFixed(2)}%`
+                                ? `${((computedOverUnderPlan * 100) / Number(planArea)).toFixed(2)}%`
                                 : "0%"}
                         </div>
                     </div>

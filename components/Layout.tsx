@@ -61,7 +61,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/province-water", label: "Province Water" },
-    { href: "/reports", label: "Reports" },
+    { href: "/reports", label: "WRAM Reports" },
   ];
 
   if (isCheckingSession) {
