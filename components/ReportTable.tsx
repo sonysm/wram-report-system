@@ -239,7 +239,7 @@ export default function ReportTable() {
                 "បានអន្តរាគមន៍ (ហ.ត)",
                 "ផ្ទៃដីខូចខាត (ហ.ត)",
                 "ប្រភពទឹក-អាងស្ដុកទឹក",
-                "បរិមាណទឹក",
+                "បរិមាណទឹក %",
                 "ផ្សេងៗ",
             ];
 
@@ -416,7 +416,7 @@ export default function ReportTable() {
                     <p className="mt-2 text-2xl font-bold text-amber-900">{totals.householdPlan.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">បរិមាណទឹក</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">បរិមាណទឹក %</p>
                     <p className="mt-2 text-2xl font-bold text-rose-900">{totals.householdDone.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-slate-300 bg-slate-50 p-4">
@@ -468,7 +468,7 @@ export default function ReportTable() {
                                     <th className="border border-slate-400 px-2 py-2 text-right">បានអន្តរាគមន៍</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីខូចខាត(ហ.ត)</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក-អាងស្ដុកទឹក</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក %</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
                                 </tr>
                             </thead>
@@ -567,7 +567,7 @@ export default function ReportTable() {
                                     <th className="border border-slate-400 px-2 py-2 text-right">បានអន្តរាគមន៍</th>
                                     <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីខូចខាត(ហ.ត)</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក-អាងស្ដុកទឹក</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក %</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
                                 </tr>
                             </thead>

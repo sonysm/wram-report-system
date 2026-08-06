@@ -508,7 +508,7 @@ export default function DataForm() {
 
                     <div>
                         <label htmlFor="householdDone" className="mb-2 block text-sm font-medium text-slate-700">
-                            បរិមាណទឹក
+                            បរិមាណទឹក %
                         </label>
                         <input
                             id="householdDone"
@@ -584,7 +584,7 @@ export default function DataForm() {
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត (ហ.ត)</th>
                                 <th className="px-4 py-3 font-semibold">បានអន្តរាគមន៍ (ហ.ត)</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">បរិមាណទឹក</th>
+                                <th className="px-4 py-3 font-semibold">បរិមាណទឹក %</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីខូចខាត (ហ.ត)</th>
                                 <th className="px-4 py-3 font-semibold">ប្រភពទឹក-អាងស្ដុកទឹក</th>
                                 <th className="px-4 py-3 font-semibold">ផ្សេងៗ</th>
