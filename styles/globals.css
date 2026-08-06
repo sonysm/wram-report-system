@@ -10,7 +10,7 @@
 
 body {
   margin: 0;
-  font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-kh-moul), "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
   background-color: #f8fafc;
   color: #0f172a;
 }
