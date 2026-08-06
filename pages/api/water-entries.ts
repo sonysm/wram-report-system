@@ -56,43 +56,84 @@ async function resolveLocation(params: {
     provinceId: number;
     districtIdRaw: unknown;
     districtNameRaw: unknown;
+    communeIdRaw: unknown;
     communeNameRaw: unknown;
+    userId: number | null;
 }) {
     const districtId = parseInteger(params.districtIdRaw);
     const districtNameInput = normalizeText(params.districtNameRaw);
-    const communeName = normalizeText(params.communeNameRaw);
+
+    let resolvedDistrictId: number | null = null;
+    let resolvedDistrictName: string;
 
     if (districtId !== null) {
         const district = await prisma.district.findUnique({ where: { id: districtId } });
         if (!district || district.provinceId !== params.provinceId) {
             throw new Error("Selected district does not belong to your province");
         }
-
-        return {
-            districtId: district.id,
-            districtName: district.name,
-            communeName: communeName || null,
-        };
+        resolvedDistrictId = district.id;
+        resolvedDistrictName = district.name;
+    } else {
+        if (!districtNameInput) {
+            throw new Error("District name is required if district is not selected");
+        }
+        resolvedDistrictName = districtNameInput;
     }
 
-    if (!districtNameInput) {
-        throw new Error("District name is required if district is not selected");
+    // Resolve commune — upsert to DB when a name is provided
+    const communeId = parseInteger(params.communeIdRaw);
+    const communeNameInput = normalizeText(params.communeNameRaw);
+    let resolvedCommuneId: number | null = null;
+    let resolvedCommuneName: string | null = null;
+
+    if (communeId !== null) {
+        const commune = await prisma.commune.findUnique({ where: { id: communeId } });
+        if (commune) {
+            resolvedCommuneId = commune.id;
+            resolvedCommuneName = commune.name;
+        }
+    } else if (communeNameInput) {
+        const existing = await prisma.commune.findFirst({
+            where: {
+                provinceId: params.provinceId,
+                name: { equals: communeNameInput, mode: "insensitive" },
+            },
+        });
+        if (existing) {
+            resolvedCommuneId = existing.id;
+            resolvedCommuneName = existing.name;
+        } else {
+            const newCommune = await prisma.commune.create({
+                data: {
+                    name: communeNameInput,
+                    provinceId: params.provinceId,
+                    districtId: resolvedDistrictId,
+                    createdByUserId: params.userId,
+                },
+            });
+            resolvedCommuneId = newCommune.id;
+            resolvedCommuneName = newCommune.name;
+        }
     }
 
     return {
-        districtId: null,
-        districtName: districtNameInput,
-        communeName: communeName || null,
+        districtId: resolvedDistrictId,
+        districtName: resolvedDistrictName,
+        communeId: resolvedCommuneId,
+        communeName: resolvedCommuneName,
     };
 }
+
+const ENTRY_INCLUDE = {
+    district: { select: { id: true, name: true } },
+    commune: { select: { id: true, name: true } },
+    province: { select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true } },
+} as const;
 
 async function loadEntriesForProvince(provinceId: number) {
     return prisma.provinceWaterEntry.findMany({
         where: { provinceId },
-        include: {
-            district: { select: { id: true, name: true } },
-            province: { select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true } },
-        },
+        include: ENTRY_INCLUDE,
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     });
 }
@@ -100,10 +141,7 @@ async function loadEntriesForProvince(provinceId: number) {
 async function loadAdminEntries(provinceId?: number | null) {
     return prisma.provinceWaterEntry.findMany({
         where: provinceId ? { provinceId } : undefined,
-        include: {
-            district: { select: { id: true, name: true } },
-            province: { select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true } },
-        },
+        include: ENTRY_INCLUDE,
         orderBy: [{ province: { sortOrder: "asc" } }, { provinceId: "asc" }, { createdAt: "desc" }, { id: "desc" }],
     });
 }
@@ -167,7 +205,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 provinceId,
                 districtIdRaw: req.body?.districtId,
                 districtNameRaw: req.body?.districtName,
+                communeIdRaw: req.body?.communeId,
                 communeNameRaw: req.body?.communeName,
+                userId: authUser.isDemo ? null : authUser.id,
             });
 
             const entry = await prisma.provinceWaterEntry.create({
@@ -185,6 +225,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     note: note || null,
                     provinceId,
                     districtId: resolvedLocation.districtId,
+                    communeId: resolvedLocation.communeId,
                     userId: authUser.isDemo ? null : authUser.id,
                 },
             });
@@ -264,7 +305,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 provinceId: existing.provinceId,
                 districtIdRaw: req.body?.districtId,
                 districtNameRaw: req.body?.districtName,
+                communeIdRaw: req.body?.communeId,
                 communeNameRaw: req.body?.communeName,
+                userId: authUser.isDemo ? null : authUser.id,
             });
 
             const updated = await prisma.provinceWaterEntry.update({
@@ -282,6 +325,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     waterSource,
                     note: note || null,
                     districtId: resolvedLocation.districtId,
+                    communeId: resolvedLocation.communeId,
                 },
             });
 

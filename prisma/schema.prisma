@@ -50,6 +50,7 @@ model User {
   entries          Entry[]
   waterEntries     ProvinceWaterEntry[]
   createdDistricts District[] @relation("DistrictCreator")
+  createdCommunes  Commune[]  @relation("CommuneCreator")
   auditLogs        AuditLog[] @relation("AuditActor")
 
   @@index([isActive])
@@ -66,6 +67,7 @@ model Province {
   districts   District[]
   entries     Entry[]
   waterEntries ProvinceWaterEntry[]
+  communes     Commune[]
   auditLogs   AuditLog[]
 
   @@index([sortOrder])
@@ -81,6 +83,7 @@ model District {
   createdByUser   User?    @relation("DistrictCreator", fields: [createdByUserId], references: [id])
   entries         Entry[]
   waterEntries    ProvinceWaterEntry[]
+  communes        Commune[]
 
   @@unique([provinceId, name])
 }
@@ -102,12 +105,31 @@ model ProvinceWaterEntry {
   updatedAt    DateTime  @updatedAt
   provinceId   Int
   districtId   Int?
+  communeId    Int?
   userId       Int?
   province     Province  @relation(fields: [provinceId], references: [id])
   district     District? @relation(fields: [districtId], references: [id])
+  commune      Commune?  @relation(fields: [communeId], references: [id])
   user         User?     @relation(fields: [userId], references: [id])
 
   @@index([provinceId, createdAt])
+  @@index([districtId])
+  @@index([communeId])
+}
+
+model Commune {
+  id              Int      @id @default(autoincrement())
+  name            String
+  districtId      Int?
+  provinceId      Int
+  createdByUserId Int?
+  createdAt       DateTime @default(now())
+  province        Province  @relation(fields: [provinceId], references: [id])
+  district        District? @relation(fields: [districtId], references: [id])
+  createdByUser   User?     @relation("CommuneCreator", fields: [createdByUserId], references: [id])
+  waterEntries    ProvinceWaterEntry[]
+
+  @@unique([provinceId, name])
   @@index([districtId])
 }
 

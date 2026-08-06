@@ -15,6 +15,13 @@ interface District {
     provinceId: number;
 }
 
+interface Commune {
+    id: number;
+    name: string;
+    provinceId: number;
+    districtId: number | null;
+}
+
 interface ProvinceOption {
     id: number;
     code: string | null;
@@ -34,6 +41,7 @@ interface WaterEntry {
     basinName: string;
     location: string;
     districtName: string;
+    communeId: number | null;
     communeName: string | null;
     totalWater: number;
     waterPercent: number;
@@ -98,13 +106,14 @@ export default function ProvinceWaterFeature() {
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
     const [provinces, setProvinces] = useState<ProvinceOption[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
+    const [communes, setCommunes] = useState<Commune[]>([]);
     const [entries, setEntries] = useState<WaterEntry[]>([]);
 
     const [basinName, setBasinName] = useState("");
     const [location, setLocation] = useState("");
     const [selectedDistrictId, setSelectedDistrictId] = useState("");
     const [newDistrictName, setNewDistrictName] = useState("");
-    const [selectedCommuneName, setSelectedCommuneName] = useState("");
+    const [selectedCommuneId, setSelectedCommuneId] = useState("");
     const [newCommuneName, setNewCommuneName] = useState("");
     const [totalWater, setTotalWater] = useState("");
     const [waterPercent, setWaterPercent] = useState("");
@@ -153,6 +162,20 @@ export default function ProvinceWaterFeature() {
         setProvinces(payload.provinces ?? []);
     };
 
+    const loadCommunes = async (token: string) => {
+        const response = await fetch("/api/communes", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.error ?? "Unable to load communes");
+        }
+
+        const payload = await response.json();
+        setCommunes(payload.communes ?? []);
+    };
+
     const loadEntries = async (token: string) => {
         const response = await fetch("/api/water-entries", {
             headers: { Authorization: `Bearer ${token}` },
@@ -174,7 +197,8 @@ export default function ProvinceWaterFeature() {
             basinName: entry.basinName,
             location: entry.location,
             districtName: entry.districtName,
-            communeName: entry.communeName ?? null,
+            communeId: entry.commune?.id ?? null,
+            communeName: entry.commune?.name ?? entry.communeName ?? null,
             totalWater: Number(entry.totalWater ?? 0),
             waterPercent:
                 Number(entry.waterPercent ?? 0) ||
@@ -211,7 +235,7 @@ export default function ProvinceWaterFeature() {
             const me = await meResponse.json();
             setCurrentUser(me);
 
-            await Promise.all([loadProvinces(token), loadDistricts(token), loadEntries(token)]);
+            await Promise.all([loadProvinces(token), loadDistricts(token), loadCommunes(token), loadEntries(token)]);
             setAuthError("");
         } catch (error) {
             setAuthError(error instanceof Error ? error.message : "Unable to load user session");
@@ -230,7 +254,7 @@ export default function ProvinceWaterFeature() {
             return;
         }
 
-        await Promise.all([loadProvinces(token), loadDistricts(token), loadEntries(token)]);
+        await Promise.all([loadProvinces(token), loadDistricts(token), loadCommunes(token), loadEntries(token)]);
     };
 
     const resetForm = () => {
@@ -238,7 +262,7 @@ export default function ProvinceWaterFeature() {
         setLocation("");
         setSelectedDistrictId("");
         setNewDistrictName("");
-        setSelectedCommuneName("");
+        setSelectedCommuneId("");
         setNewCommuneName("");
         setTotalWater("");
         setWaterPercent("");
@@ -299,33 +323,16 @@ export default function ProvinceWaterFeature() {
     }, [districts, newDistrictName, selectedDistrictId]);
 
     const communeOptions = useMemo(() => {
-        const normalizedDistrict = activeDistrictName.toLowerCase();
-
-        const names = entries
-            .filter((entry) => {
-                if (!entry.communeName) {
-                    return false;
-                }
-
-                if (!normalizedDistrict) {
+        const districtIdNum = Number(selectedDistrictId);
+        return communes
+            .filter((c) => {
+                if (selectedDistrictId === "__new__" || !selectedDistrictId || Number.isNaN(districtIdNum)) {
                     return true;
                 }
-
-                return entry.districtName.toLowerCase() === normalizedDistrict;
+                return c.districtId === districtIdNum || c.districtId === null;
             })
-            .map((entry) => entry.communeName?.trim() ?? "")
-            .filter((name) => name !== "");
-
-        const deduped = new Map<string, string>();
-        for (const name of names) {
-            const key = name.toLowerCase();
-            if (!deduped.has(key)) {
-                deduped.set(key, name);
-            }
-        }
-
-        return Array.from(deduped.values()).sort((a, b) => a.localeCompare(b));
-    }, [activeDistrictName, entries]);
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }, [communes, selectedDistrictId]);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -352,6 +359,7 @@ export default function ProvinceWaterFeature() {
                 throw new Error("Basin name is required");
             }
 
+            setLocation("empty");
             if (!location.trim()) {
                 throw new Error("Location is required");
             }
@@ -365,6 +373,13 @@ export default function ProvinceWaterFeature() {
 
             const calculatedActualWater = calculateActualWater(parsedTotalWater, parsedWaterPercent);
 
+            const resolvedCommuneId = selectedCommuneId === "__new__" ? null : (Number(selectedCommuneId) || null);
+            const resolvedNewCommuneName = selectedCommuneId === "__new__" ? newCommuneName.trim() : "";
+
+            if (selectedCommuneId === "__new__" && !resolvedNewCommuneName) {
+                throw new Error("Please input commune name");
+            }
+
             const payload: {
                 id?: number;
                 provinceId?: number;
@@ -372,7 +387,8 @@ export default function ProvinceWaterFeature() {
                 location: string;
                 districtId?: number;
                 districtName?: string;
-                communeName: string;
+                communeId?: number;
+                communeName?: string;
                 totalWater: number;
                 waterPercent: number;
                 actualWater: number;
@@ -383,7 +399,6 @@ export default function ProvinceWaterFeature() {
             } = {
                 basinName: basinName.trim(),
                 location: location.trim(),
-                communeName: "",
                 totalWater: parsedTotalWater,
                 waterPercent: parsedWaterPercent,
                 actualWater: calculatedActualWater,
@@ -408,14 +423,11 @@ export default function ProvinceWaterFeature() {
                 payload.districtId = districtId;
             }
 
-            const resolvedCommuneName =
-                selectedCommuneName === "__new__" ? newCommuneName.trim() : selectedCommuneName.trim();
-
-            if (selectedCommuneName === "__new__" && !resolvedCommuneName) {
-                throw new Error("Please input commune name");
+            if (resolvedCommuneId !== null) {
+                payload.communeId = resolvedCommuneId;
+            } else if (resolvedNewCommuneName) {
+                payload.communeName = resolvedNewCommuneName;
             }
-
-            payload.communeName = resolvedCommuneName;
 
             if (editingId !== null) {
                 payload.id = editingId;
@@ -463,11 +475,14 @@ export default function ProvinceWaterFeature() {
             setNewDistrictName(entry.districtName);
         }
 
-        if (entry.communeName) {
-            setSelectedCommuneName(entry.communeName);
+        if (entry.communeId) {
+            setSelectedCommuneId(String(entry.communeId));
             setNewCommuneName("");
+        } else if (entry.communeName) {
+            setSelectedCommuneId("__new__");
+            setNewCommuneName(entry.communeName);
         } else {
-            setSelectedCommuneName("");
+            setSelectedCommuneId("");
             setNewCommuneName("");
         }
 
@@ -613,7 +628,7 @@ export default function ProvinceWaterFeature() {
                                 value={selectedDistrictId}
                                 onChange={(e) => {
                                     setSelectedDistrictId(e.target.value);
-                                    setSelectedCommuneName("");
+                                    setSelectedCommuneId("");
                                     setNewCommuneName("");
                                 }}
                                 required
@@ -639,7 +654,7 @@ export default function ProvinceWaterFeature() {
                                     value={newDistrictName}
                                     onChange={(e) => {
                                         setNewDistrictName(e.target.value);
-                                        setSelectedCommuneName("");
+                                        setSelectedCommuneId("");
                                         setNewCommuneName("");
                                     }}
                                     placeholder="បញ្ចូលឈ្មោះស្រុក"
@@ -654,21 +669,21 @@ export default function ProvinceWaterFeature() {
                             </label>
                             <select
                                 id="communeName"
-                                value={selectedCommuneName}
-                                onChange={(e) => setSelectedCommuneName(e.target.value)}
+                                value={selectedCommuneId}
+                                onChange={(e) => setSelectedCommuneId(e.target.value)}
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                             >
                                 <option value="">ជ្រើសរើសឃុំ</option>
-                                {communeOptions.map((name) => (
-                                    <option key={name} value={name}>
-                                        {name}
+                                {communeOptions.map((commune) => (
+                                    <option key={commune.id} value={commune.id}>
+                                        {commune.name}
                                     </option>
                                 ))}
                                 <option value="__new__">+ បញ្ចូលឃុំដោយដៃ</option>
                             </select>
                         </div>
 
-                        {selectedCommuneName === "__new__" && (
+                        {selectedCommuneId === "__new__" && (
                             <div>
                                 <label htmlFor="newCommuneName" className="mb-2 block text-sm font-medium text-slate-700">
                                     ឈ្មោះឃុំថ្មី
