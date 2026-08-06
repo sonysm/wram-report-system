@@ -15,6 +15,7 @@ interface ReportRow {
     householdPlan: number;
     householdDone: number;
     unsalvageableArea: number;
+    overUnderPlan: number;
     waterSource: string;
     note: string;
     recordCount: number;
@@ -32,6 +33,7 @@ export default function ReportTable() {
         householdPlan: 0,
         householdDone: 0,
         unsalvageableArea: 0,
+        overUnderPlan: 0,
     });
     const [scope, setScope] = useState<"all" | "province">("all");
     const [reportMode, setReportMode] = useState<ReportMode>("aggregate");
@@ -41,6 +43,16 @@ export default function ReportTable() {
     const [exportError, setExportError] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+
+    const now = new Date();
+    // 1. Get the day number (English numerals)
+    const day: number = now.getDate();
+    // 2. Get the Khmer month name (e.g., "សីហា")
+    const month: string = now.toLocaleDateString('km-KH', { month: 'long' });
+    // 3. Get the year in Khmer numerals (e.g., "២០២៦")
+    const year: string = now.toLocaleDateString('km-KH', { year: 'numeric' });
+    // 4. Combine into your template string
+    const dateString: string = `គិតត្រឹមថ្ងៃទី ${day} ខែ ${month} ឆ្នាំ ${year}`;
 
     const sanitizeFilePart = (value: string): string => {
         const slug = value
@@ -69,6 +81,17 @@ export default function ReportTable() {
         }
 
         return `${Math.round((planDone / planArea) * 100)}%`;
+    };
+
+    const formatOverUnderPlan = (planArea: number, planDone: number): string => {
+        return formatNumber(planDone - planArea);
+    };
+
+    const formatOverUnderPlanPercent = (planArea: number, planDone: number): string => {
+        if (planArea <= 0) {
+            return "0%";
+        }
+        return `${(((planDone - planArea) * 100) / planArea).toFixed(2)}%`;
     };
 
     const buildExcelLikeNote = (row: ReportRow): string => {
@@ -112,7 +135,7 @@ export default function ReportTable() {
 
                 const bodyStartRow = 7;
                 const clearUntilRow = Math.max(80, bodyStartRow + data.length + 5);
-                const bodyColumns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"];
+                const bodyColumns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"];
                 const templateStyleByColumn = new Map<string, unknown>();
 
                 for (const column of bodyColumns) {
@@ -152,35 +175,21 @@ export default function ReportTable() {
 
                 sortedRows.forEach((row, index) => {
                     const excelRow = bodyStartRow + index;
-                    const overPlan = row.planDone > row.planArea ? row.planDone - row.planArea : "";
                     const progress = row.planArea > 0 ? row.planDone / row.planArea : 0;
-                    const noteParts: string[] = [];
-
-                    if (row.note) {
-                        noteParts.push(row.note);
-                    }
-                    if (row.householdDone > 0) {
-                        noteParts.push(`បន្តរជួយ៖ ${row.householdDone.toLocaleString()}`);
-                    }
-                    if (row.unsalvageableArea > 0) {
-                        noteParts.push(`ផ្ទៃដីមិនអាចសង្គ្រោះបាន៖ ${row.unsalvageableArea.toLocaleString()}`);
-                    }
 
                     setTemplateCell(`A${excelRow}`, index + 1, "n");
                     setTemplateCell(`B${excelRow}`, row.provinceName, "s");
                     setTemplateCell(`C${excelRow}`, row.planArea, "n");
                     setTemplateCell(`D${excelRow}`, row.planDone, "n");
-                    if (overPlan === "") {
-                        setTemplateCell(`E${excelRow}`, "", "s");
-                    } else {
-                        setTemplateCell(`E${excelRow}`, overPlan, "n");
-                    }
+                    setTemplateCell(`E${excelRow}`, row.overUnderPlan, "n");
                     setTemplateCell(`F${excelRow}`, progress, "n");
                     setTemplateCell(`G${excelRow}`, row.actualArea, "n");
-                    setTemplateCell(`H${excelRow}`, row.interventionArea, "n");
-                    setTemplateCell(`I${excelRow}`, row.householdPlan, "n");
-                    setTemplateCell(`J${excelRow}`, row.waterSource || "", "s");
-                    setTemplateCell(`K${excelRow}`, noteParts.join(" | "), "s");
+                    setTemplateCell(`H${excelRow}`, row.householdPlan, "n");
+                    setTemplateCell(`I${excelRow}`, row.interventionArea, "n");
+                    setTemplateCell(`J${excelRow}`, row.unsalvageableArea, "n");
+                    setTemplateCell(`K${excelRow}`, row.waterSource || "", "s");
+                    setTemplateCell(`L${excelRow}`, row.householdDone, "n");
+                    setTemplateCell(`M${excelRow}`, row.note || "", "s");
                 });
 
                 const totalRow = bodyStartRow + sortedRows.length;
@@ -189,17 +198,15 @@ export default function ReportTable() {
                 setTemplateCell(`B${totalRow}`, "", "s");
                 setTemplateCell(`C${totalRow}`, totals.planArea, "n");
                 setTemplateCell(`D${totalRow}`, totals.planDone, "n");
-                setTemplateCell(
-                    `E${totalRow}`,
-                    totals.planDone > totals.planArea ? totals.planDone - totals.planArea : 0,
-                    "n",
-                );
+                setTemplateCell(`E${totalRow}`, totals.overUnderPlan, "n");
                 setTemplateCell(`F${totalRow}`, totalProgress, "n");
                 setTemplateCell(`G${totalRow}`, totals.actualArea, "n");
-                setTemplateCell(`H${totalRow}`, totals.interventionArea, "n");
-                setTemplateCell(`I${totalRow}`, totals.householdPlan, "n");
-                setTemplateCell(`J${totalRow}`, "", "s");
+                setTemplateCell(`H${totalRow}`, totals.householdPlan, "n");
+                setTemplateCell(`I${totalRow}`, totals.interventionArea, "n");
+                setTemplateCell(`J${totalRow}`, totals.unsalvageableArea, "n");
                 setTemplateCell(`K${totalRow}`, "", "s");
+                setTemplateCell(`L${totalRow}`, totals.householdDone, "n");
+                setTemplateCell(`M${totalRow}`, "", "s");
 
                 if (!worksheet["!merges"]) {
                     worksheet["!merges"] = [];
@@ -213,7 +220,7 @@ export default function ReportTable() {
                     worksheet["!merges"].push({ s: { c: 0, r: totalRow - 1 }, e: { c: 1, r: totalRow - 1 } });
                 }
 
-                worksheet["!ref"] = `A1:K${Math.max(totalRow, 40)}`;
+                worksheet["!ref"] = `A1:M${Math.max(totalRow, 40)}`;
                 XLSX.writeFile(workbook, "super-admin-province-totals.xlsx");
                 return;
             }
@@ -222,17 +229,18 @@ export default function ReportTable() {
             const showDistrictColumn = scope === "province";
             const headerRow = [
                 ...(showProvinceColumn ? ["ឈ្មោះខេត្ត"] : []),
-                ...(showDistrictColumn ? ["ស្រុក"] : []),
-                "ផ្ទៃដីផែនការ (ហត)",
-                "ផ្ទៃដីអនុវត្តន (ហត)",
-                "ផ្ទៃដីប៉ះពាល់ (ហត)",
-                "ផ្ទៃដីត្រូវអន្តរាគម (ហត)",
-                "បានជួយ (ហត)",
-                "បន្តរជួយ (ហត)",
-                "ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)",
-                "ប្រភពទឹក",
+                ...(showDistrictColumn ? ["ឈ្មោះក្រុង-ស្រុក"] : []),
+                "ផែនការដាំដុះ (ហ.ត)",
+                "ផ្ទៃដីអនុវត្ត (ហ.ត)",
+                "លើស-ក្រោមផែនការ (ហ.ត)",
+                "លើស-ក្រោមផែនការ (%)",
+                "ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត (ហ.ត)",
+                "ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)",
+                "បានអន្តរាគមន៍ (ហ.ត)",
+                "ផ្ទៃដីខូចខាត (ហ.ត)",
+                "ប្រភពទឹក-អាងស្ដុកទឹក",
+                "បរិមាណទឹក",
                 "ផ្សេងៗ",
-                "ភាគរយ អនុវត្តបាន",
             ];
 
             const dataRows = data.map((row) => [
@@ -240,14 +248,15 @@ export default function ReportTable() {
                 ...(showDistrictColumn ? [row.districtName] : []),
                 row.planArea,
                 row.planDone,
+                row.overUnderPlan,
+                Number(row.planArea) > 0 ? `${((row.overUnderPlan * 100) / row.planArea).toFixed(2)}%` : "0%",
                 row.actualArea,
-                row.interventionArea,
                 row.householdPlan,
-                row.householdDone,
+                row.interventionArea,
                 row.unsalvageableArea,
                 row.waterSource || "",
+                row.householdDone,
                 row.note || "",
-                row.planArea > 0 ? `${Math.round((row.planDone / row.planArea) * 100)}%` : "0%",
             ]);
 
             const worksheet = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows]);
@@ -307,6 +316,7 @@ export default function ReportTable() {
                         householdPlan: 0,
                         householdDone: 0,
                         unsalvageableArea: 0,
+                        overUnderPlan: 0,
                     },
                 );
             } catch (loadError) {
@@ -386,31 +396,31 @@ export default function ReportTable() {
 
             <div className="no-print grid gap-3 sm:grid-cols-3 lg:grid-cols-7">
                 <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">ផ្ទៃដីផែនការ (ហត)</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">ផែនការដាំដុះ (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-cyan-900">{totals.planArea.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">ផ្ទៃដីអនុវត្តន (ហត)</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">ផ្ទៃដីអនុវត្ត (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-indigo-900">{totals.planDone.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">ផ្ទៃដីប៉ះពាល់ (ហត)</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-emerald-900">{totals.actualArea.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-700">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-700">បានអន្តរាគមន៍ (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-violet-900">{totals.interventionArea.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">បានជួយ</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-amber-900">{totals.householdPlan.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">បន្តរជួយ</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">បរិមាណទឹក</p>
                     <p className="mt-2 text-2xl font-bold text-rose-900">{totals.householdDone.toLocaleString()}</p>
                 </div>
                 <div className="rounded-2xl border border-slate-300 bg-slate-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-700">ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-700">ផ្ទៃដីខូចខាត (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-slate-900">{totals.unsalvageableArea.toLocaleString()}</p>
                 </div>
             </div>
@@ -423,18 +433,21 @@ export default function ReportTable() {
                     </div>
 
                     <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
-                        <div className="text-left text-sm leading-relaxed">
-                            <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p>
-                            <p>មន្ទីធនធានទឹក នឹងឧតុនិយម ខេត្ត{viewerProvinceName ?? "-"}</p>
+                        <div className="text-center text-sm leading-relaxed">
+                            <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
+                            {/* <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p> */}
+                            <p>មន្ទីធនធានទឹក នឹងឧតុនិយម</p>
+                            <p>ខេត្ត {viewerProvinceName ?? "-"}</p>
                         </div>
 
                         <div className="text-center">
-                            <h2 className="print-title text-lg font-bold tracking-tight">របាយការណ៍សង្ខេបតាមស្រុក</h2>
-                            <p className="text-sm">
+                            <h2 className="print-title text-md tracking-tight">របាយការណ៍ស្ដីពីផ្ទៃដីប៉ះពាល់ ដោយសារគ្រោះជំនន់-រាំងស្ងួត លើដំណាំស្រូវ ឆ្នាំ២០២៦</h2>
+                            {/* <p className="text-sm">
                                 ខេត្ត: <strong>{viewerProvinceName ?? "-"}</strong>
-                            </p>
-                            <p className="text-xs text-slate-600">ថ្ងៃបង្កើតរបាយការណ៍: {printedDate}</p>
-                            <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p>
+                            </p> */}
+                            <br />
+                            <p className="text-sm text-slate-600"> {dateString} </p>
+                            {/* <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p> */}
                         </div>
 
                         <div aria-hidden="true" className="hidden sm:block"></div>
@@ -445,15 +458,17 @@ export default function ReportTable() {
                             <thead className="bg-slate-100">
                                 <tr>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ស្រុក</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បានជួយ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បន្តរជួយ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">មិនអាចសង្គ្រោះ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះក្រុង-ស្រុក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផែនការដាំដុះ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្ត</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(%)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-ជំនន់(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បានអន្តរាគមន៍</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីខូចខាត(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក-អាងស្ដុកទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
                                 </tr>
                             </thead>
@@ -464,12 +479,14 @@ export default function ReportTable() {
                                         <td className="border border-slate-300 px-2 py-2">{row.districtName}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.overUnderPlan)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{Number(row.planArea) > 0 ? `${((row.overUnderPlan * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualArea)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdPlan)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdDone)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.unsalvageableArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2">{row.waterSource || "-"}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdDone)}</td>
                                         <td className="border border-slate-300 px-2 py-2">{row.note || "-"}</td>
                                     </tr>
                                 ))}
@@ -481,12 +498,15 @@ export default function ReportTable() {
                                     </td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.overUnderPlan)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{Number(totals.planArea) > 0 ? `${((totals.overUnderPlan * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdPlan)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.unsalvageableArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}></td>
+                                    <td className="border border-slate-400 px-2 py-2"></td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2"></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -515,16 +535,18 @@ export default function ReportTable() {
                     </div>
 
                     <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
-                        <div className="text-left text-sm leading-relaxed">
+                        <div className="text-center text-sm leading-relaxed">
+                            <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
                             <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p>
-                            <p>អគ្គនាយកដ្ឋានកិច្ចការបច្ចេកទេស</p>
+                            {/* <p>អគ្គនាយកដ្ឋានកិច្ចការបច្ចេកទេស</p> */}
                         </div>
 
                         <div className="text-center">
-                            <h2 className="print-title text-lg font-bold tracking-tight">របាយការណ៍សង្ខេបតាមខេត្ត</h2>
-                            <p className="text-sm">ទិន្នន័យសរុបតាមខេត្ត</p>
-                            <p className="text-xs text-slate-600">ថ្ងៃបង្កើតរបាយការណ៍: {printedDate}</p>
-                            <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p>
+                            <h2 className="print-title text-md  tracking-tight">របាយការណ៍ស្ដីពីផ្ទៃដីប៉ះពាល់ ដោយសារគ្រោះជំនន់-រាំងស្ងួត លើដំណាំស្រូវ ឆ្នាំ២០២៦</h2>
+                            {/* <p className="text-sm">ទិន្នន័យសរុបតាមខេត្ត</p> */}
+                            <br />
+                            <p className="text-sm text-slate-600">{dateString}</p>
+                            {/* <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p> */}
                         </div>
 
                         <div aria-hidden="true" className="hidden sm:block"></div>
@@ -536,37 +558,36 @@ export default function ReportTable() {
                                 <tr>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះខេត្ត</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីផែនការ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្តន (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">លើសផែនការ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ភាគរយអនុវត្តបាន (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បានជួយ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">មិនអាចសង្គ្រោះ (ហត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផែនការដាំដុះ</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្ត</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(%)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-ជំនន់(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បានអន្តរាគមន៍</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីខូចខាត(ហ.ត)</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក-អាងស្ដុកទឹក</th>
+                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក</th>
                                     <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {sortedSuperAdminRows.map((row, index) => {
-                                    const overPlan = row.planDone > row.planArea ? row.planDone - row.planArea : 0;
-                                    const summaryNote = buildExcelLikeNote(row);
-
                                     return (
                                         <tr key={`${row.provinceId ?? "none"}-${index}`}>
                                             <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
                                             <td className="border border-slate-300 px-2 py-2">{row.provinceName}</td>
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{overPlan > 0 ? formatNumber(overPlan) : ""}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatProgressPercent(row.planArea, row.planDone)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.overUnderPlan)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{Number(row.planArea) > 0 ? `${((row.overUnderPlan * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualArea)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdPlan)}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
                                             <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.unsalvageableArea)}</td>
                                             <td className="border border-slate-300 px-2 py-2">{row.waterSource || "-"}</td>
-                                            <td className="border border-slate-300 px-2 py-2">{summaryNote || "-"}</td>
+                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdDone)}</td>
+                                            <td className="border border-slate-300 px-2 py-2">{row.note || "-"}</td>
                                         </tr>
                                     );
                                 })}
@@ -578,15 +599,15 @@ export default function ReportTable() {
                                     </td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">
-                                        {totals.planDone > totals.planArea ? formatNumber(totals.planDone - totals.planArea) : ""}
-                                    </td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatProgressPercent(totals.planArea, totals.planDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.overUnderPlan)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{Number(totals.planArea) > 0 ? `${((totals.overUnderPlan * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdPlan)}</td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
                                     <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.unsalvageableArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}></td>
+                                    <td className="border border-slate-400 px-2 py-2"></td>
+                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdDone)}</td>
+                                    <td className="border border-slate-400 px-2 py-2"></td>
                                 </tr>
                             </tfoot>
                         </table>

@@ -68,6 +68,7 @@ function parseRecordFields(rawBody: unknown): {
   householdPlan: number;
   householdDone: number;
   unsalvageableArea: number;
+  overUnderPlan: number;
   waterSource: string;
   note: string | null;
 } {
@@ -85,6 +86,7 @@ function parseRecordFields(rawBody: unknown): {
   const householdPlan = parseNonNegativeNumber(body.householdPlan) ?? 0;
   const householdDone = parseNonNegativeNumber(body.householdDone) ?? 0;
   const unsalvageableArea = parseNonNegativeNumber(body.unsalvageableArea) ?? 0;
+  const overUnderPlan = parseNumber(body.overUnderPlan) ?? 0;
   const waterSource = normalizeText(body.waterSource);
   const noteText = normalizeText(body.note);
 
@@ -100,6 +102,7 @@ function parseRecordFields(rawBody: unknown): {
     householdPlan,
     householdDone,
     unsalvageableArea,
+    overUnderPlan,
     waterSource,
     note: noteText ? noteText : null,
   };
@@ -218,6 +221,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           householdPlan: fields.householdPlan,
           householdDone: fields.householdDone,
           unsalvageableArea: fields.unsalvageableArea,
+          overUnderPlan: fields.overUnderPlan,
           waterSource: fields.waterSource,
           note: fields.note,
           provinceId,
@@ -299,6 +303,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           householdPlan: fields.householdPlan,
           householdDone: fields.householdDone,
           unsalvageableArea: fields.unsalvageableArea,
+          overUnderPlan: fields.overUnderPlan,
           waterSource: fields.waterSource,
           note: fields.note,
           districtId: district.id,

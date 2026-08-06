@@ -24,6 +24,7 @@ model Entry {
   householdPlan Float       @default(0)
   householdDone Float       @default(0)
   unsalvageableArea Float   @default(0)
+  overUnderPlan Float       @default(0)
   waterSource   String      @default("")
   note          String?
   createdAt     DateTime    @default(now())

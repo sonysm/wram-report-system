@@ -589,6 +589,16 @@ export default function ProvinceWaterFeature() {
     const printedDate = new Date().toLocaleDateString();
     const reportRows = isAdmin ? adminReportRows : entries;
 
+    const now = new Date();
+    // 1. Get the day number (English numerals)
+    const day: number = now.getDate();
+    // 2. Get the Khmer month name (e.g., "សីហា")
+    const month: string = now.toLocaleDateString('km-KH', { month: 'long' });
+    // 3. Get the year in Khmer numerals (e.g., "២០២៦")
+    const year: string = now.toLocaleDateString('km-KH', { year: 'numeric' });
+    // 4. Combine into your template string
+    const dateString: string = `គិតត្រឹមថ្ងៃទី ${day} ខែ ${month} ឆ្នាំ ${year}`;
+
     return (
         <div className="space-y-6">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
@@ -866,15 +876,17 @@ export default function ProvinceWaterFeature() {
                 </div>
 
                 <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
-                    <div className="text-left text-sm leading-relaxed">
-                        <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p>
-                        <p>មន្ទីធនធានទឹក និងឧតុនិយម</p>
+                    <div className="text-center text-sm leading-relaxed">
+                        <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
+                        <p> {isAdmin ? "ក្រសួងធនធានទឹក និងឧតុនិយម" : `ខេត្តមន្ទីធនធានទឹក និងឧតុនិយម`}</p>
+                        <p className="font-semibold">{isAdmin ? "" : `ខេត្ត ${currentUser?.provinceName ?? "-"}`}</p>
                     </div>
 
                     <div className="text-center">
-                        <h2 className="print-title text-lg font-bold tracking-tight">របាយការណ៍អាងទឹកតាមខេត្ត</h2>
-                        <p className="text-sm">{isAdmin ? "" : `ខេត្ត: ${currentUser?.provinceName ?? "-"}`}</p>
-                        <p className="text-xs text-slate-600">ថ្ងៃបង្កើតរបាយការណ៍: {printedDate}</p>
+                        <h2 className="print-title text-lg font-bold tracking-tight"> {isAdmin ? 'របាយការណ៍អាងទឹកតាមខេត្ត' : `របាយការណ៍អាងទឹកក្នុងខេត្ត ${currentUser?.provinceName ?? "-"}`}</h2>
+                        {/* <p className="text-sm">{isAdmin ? "" : `ខេត្ត: ${currentUser?.provinceName ?? "-"}`}</p> */}
+                        <br />
+                        <p className="text-sm text-slate-600">{dateString}</p>
                     </div>
 
                     <div aria-hidden="true" className="hidden sm:block"></div>

@@ -19,6 +19,7 @@ interface ReportRow {
     householdPlan: number;
     householdDone: number;
     unsalvageableArea: number;
+    overUnderPlan: number;
     waterSource: string;
     note: string;
     recordCount: number;
@@ -32,6 +33,7 @@ interface Totals {
     householdPlan: number;
     householdDone: number;
     unsalvageableArea: number;
+    overUnderPlan: number;
 }
 
 function createZeroTotals(): Totals {
@@ -43,6 +45,7 @@ function createZeroTotals(): Totals {
         householdPlan: 0,
         householdDone: 0,
         unsalvageableArea: 0,
+        overUnderPlan: 0,
     };
 }
 
@@ -56,6 +59,7 @@ function calculateTotals(rows: ReportRow[]): Totals {
             householdPlan: acc.householdPlan + row.householdPlan,
             householdDone: acc.householdDone + row.householdDone,
             unsalvageableArea: acc.unsalvageableArea + row.unsalvageableArea,
+            overUnderPlan: acc.overUnderPlan + row.overUnderPlan,
         }),
         createZeroTotals(),
     );
@@ -118,6 +122,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 householdPlan: entry.householdPlan,
                 householdDone: entry.householdDone,
                 unsalvageableArea: entry.unsalvageableArea,
+                overUnderPlan: entry.overUnderPlan,
                 waterSource: entry.waterSource,
                 note: entry.note ?? "",
                 recordCount: 1,
@@ -152,6 +157,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             householdPlan: true,
             householdDone: true,
             unsalvageableArea: true,
+            overUnderPlan: true,
         },
         _count: { _all: true },
     });
@@ -216,6 +222,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             householdPlan: grouped?._sum.householdPlan ?? 0,
             householdDone: grouped?._sum.householdDone ?? 0,
             unsalvageableArea: grouped?._sum.unsalvageableArea ?? 0,
+            overUnderPlan: grouped?._sum.overUnderPlan ?? 0,
             waterSource: latestMeta?.waterSource ?? "",
             note: latestMeta?.note ?? "",
             recordCount: grouped?._count._all ?? 0,

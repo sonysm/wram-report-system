@@ -24,6 +24,7 @@ interface EntryRecord {
     householdPlan: number;
     householdDone: number;
     unsalvageableArea: number;
+    overUnderPlan: number;
     waterSource: string;
     note: string | null;
     createdAt: string;
@@ -66,6 +67,7 @@ export default function DataForm() {
     const [householdPlan, setHouseholdPlan] = useState("0");
     const [householdDone, setHouseholdDone] = useState("0");
     const [unsalvageableArea, setUnsalvageableArea] = useState("0");
+    const [overUnderPlan, setOverUnderPlan] = useState("0");
     const [waterSource, setWaterSource] = useState("");
     const [note, setNote] = useState("");
 
@@ -152,6 +154,7 @@ export default function DataForm() {
         setHouseholdPlan("0");
         setHouseholdDone("0");
         setUnsalvageableArea("0");
+        setOverUnderPlan("0");
         setWaterSource("");
         setNote("");
         setEditingEntryId(null);
@@ -188,6 +191,7 @@ export default function DataForm() {
             const parsedHouseholdPlan = parseDecimalInput(householdPlan);
             const parsedHouseholdDone = parseDecimalInput(householdDone);
             const parsedUnsalvageableArea = parseDecimalInput(unsalvageableArea);
+            const parsedOverUnderPlan = Number.isFinite(Number(overUnderPlan)) ? Number(overUnderPlan) : 0;
 
             if (parsedPlanArea === null || parsedPlanDone === null) {
                 throw new Error("Plan area and plan done must be non-negative numbers");
@@ -219,6 +223,7 @@ export default function DataForm() {
                 householdPlan: number;
                 householdDone: number;
                 unsalvageableArea: number;
+                overUnderPlan: number;
                 waterSource: string;
                 note: string;
             } = {
@@ -229,6 +234,7 @@ export default function DataForm() {
                 householdPlan: parsedHouseholdPlan,
                 householdDone: parsedHouseholdDone,
                 unsalvageableArea: parsedUnsalvageableArea,
+                overUnderPlan: parsedOverUnderPlan,
                 waterSource: normalizedWaterSource,
                 note: note.trim(),
             };
@@ -285,6 +291,7 @@ export default function DataForm() {
         setHouseholdPlan(String(entry.householdPlan));
         setHouseholdDone(String(entry.householdDone));
         setUnsalvageableArea(String(entry.unsalvageableArea));
+        setOverUnderPlan(String(entry.overUnderPlan));
         setWaterSource(entry.waterSource ?? "");
         setNote(entry.note ?? "");
         setSelectedDistrictId(entry.district ? String(entry.district.id) : "");
@@ -358,12 +365,12 @@ export default function DataForm() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="sm:col-span-2">
-                        <p className="text-xs text-slate-500">(ហត) គិតជាហត្តា</p>
+                        <p className="text-xs text-slate-500">(ហ.ត) គិតជាហត្តា</p>
                     </div>
 
                     <div>
                         <label htmlFor="planArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីផែនការ (ហត)
+                            ផែនការដាំដុះ (ហ.ត)
                         </label>
                         <input
                             id="planArea"
@@ -380,7 +387,7 @@ export default function DataForm() {
 
                     <div>
                         <label htmlFor="planDone" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីអនុវត្តន (ហត)
+                            ផ្ទៃដីអនុវត្ត (ហ.ត)
                         </label>
                         <input
                             id="planDone"
@@ -396,8 +403,32 @@ export default function DataForm() {
                     </div>
 
                     <div>
+                        <label htmlFor="overUnderPlan" className="mb-2 block text-sm font-medium text-slate-700">
+                            លើស-ក្រោមផែនការ (ហ.ត)
+                        </label>
+                        <input
+                            id="overUnderPlan"
+                            value={overUnderPlan}
+                            onChange={(e) => setOverUnderPlan(e.target.value)}
+                            placeholder="0"
+                            type="number"
+                            step="0.01"
+                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                        />
+                    </div>
+
+                    <div>
+                        <p className="mb-2 block text-sm font-medium text-slate-700">លើស-ក្រោមផែនការ (%)</p>
+                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-900">
+                            {Number(planArea) > 0
+                                ? `${((Number(overUnderPlan) * 100) / Number(planArea)).toFixed(2)}%`
+                                : "0%"}
+                        </div>
+                    </div>
+
+                    <div>
                         <label htmlFor="actualArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីប៉ះពាល់ (ហត)
+                            ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត (ហ.ត)
                         </label>
                         <input
                             id="actualArea"
@@ -412,24 +443,8 @@ export default function DataForm() {
                     </div>
 
                     <div>
-                        <label htmlFor="interventionArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីត្រូវអន្តរាគម (ហត)
-                        </label>
-                        <input
-                            id="interventionArea"
-                            value={interventionArea}
-                            onChange={(e) => setInterventionArea(e.target.value)}
-                            placeholder="0"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-
-                    <div>
                         <label htmlFor="householdPlan" className="mb-2 block text-sm font-medium text-slate-700">
-                            បានជួយ
+                            ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)
                         </label>
                         <input
                             id="householdPlan"
@@ -444,13 +459,29 @@ export default function DataForm() {
                     </div>
 
                     <div>
-                        <label htmlFor="householdDone" className="mb-2 block text-sm font-medium text-slate-700">
-                            បន្តរជួយ
+                        <label htmlFor="interventionArea" className="mb-2 block text-sm font-medium text-slate-700">
+                            បានអន្តរាគមន៍ (ហ.ត)
                         </label>
                         <input
-                            id="householdDone"
-                            value={householdDone}
-                            onChange={(e) => setHouseholdDone(e.target.value)}
+                            id="interventionArea"
+                            value={interventionArea}
+                            onChange={(e) => setInterventionArea(e.target.value)}
+                            placeholder="0"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="unsalvageableArea" className="mb-2 block text-sm font-medium text-slate-700">
+                            ផ្ទៃដីខូចខាត (ហ.ត)
+                        </label>
+                        <input
+                            id="unsalvageableArea"
+                            value={unsalvageableArea}
+                            onChange={(e) => setUnsalvageableArea(e.target.value)}
                             placeholder="0"
                             type="number"
                             step="0.01"
@@ -461,7 +492,7 @@ export default function DataForm() {
 
                     <div>
                         <label htmlFor="waterSource" className="mb-2 block text-sm font-medium text-slate-700">
-                            ប្រភពទឹក
+                            ប្រភពទឹក-អាងស្ដុកទឹក
                         </label>
                         <input
                             id="waterSource"
@@ -474,13 +505,13 @@ export default function DataForm() {
                     </div>
 
                     <div>
-                        <label htmlFor="unsalvageableArea" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)
+                        <label htmlFor="householdDone" className="mb-2 block text-sm font-medium text-slate-700">
+                            បរិមាណទឹក
                         </label>
                         <input
-                            id="unsalvageableArea"
-                            value={unsalvageableArea}
-                            onChange={(e) => setUnsalvageableArea(e.target.value)}
+                            id="householdDone"
+                            value={householdDone}
+                            onChange={(e) => setHouseholdDone(e.target.value)}
                             placeholder="0"
                             type="number"
                             step="0.01"
@@ -502,7 +533,7 @@ export default function DataForm() {
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />
                     </div>
-                </div>
+                </div >
 
                 <div className="flex flex-col gap-3 sm:flex-row">
                     <button
@@ -524,17 +555,19 @@ export default function DataForm() {
                     )}
                 </div>
 
-                {message && (
-                    <p
-                        className={`rounded-lg px-3 py-2 text-sm ${status === "success"
-                            ? "border border-emerald-300 bg-emerald-50 text-emerald-800"
-                            : "border border-rose-300 bg-rose-50 text-rose-700"
-                            }`}
-                    >
-                        {message}
-                    </p>
-                )}
-            </form>
+                {
+                    message && (
+                        <p
+                            className={`rounded-lg px-3 py-2 text-sm ${status === "success"
+                                ? "border border-emerald-300 bg-emerald-50 text-emerald-800"
+                                : "border border-rose-300 bg-rose-50 text-rose-700"
+                                }`}
+                        >
+                            {message}
+                        </p>
+                    )
+                }
+            </form >
 
             <div>
                 <h3 className="text-base font-semibold text-slate-900">Recent records</h3>
@@ -542,15 +575,16 @@ export default function DataForm() {
                     <table className="min-w-full text-sm">
                         <thead className="bg-slate-100 text-left text-slate-700">
                             <tr>
-                                <th className="px-4 py-3 font-semibold">ស្រុក</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីផែនការ (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីអនុវត្តន (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់ (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីត្រូវអន្តរាគម (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">បានជួយ (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">បន្តរជួយ (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីមិនអាចសង្គ្រោះបាន (ហត)</th>
-                                <th className="px-4 py-3 font-semibold">ប្រភពទឹក</th>
+                                <th className="px-4 py-3 font-semibold">ឈ្មោះក្រុង-ស្រុក</th>
+                                <th className="px-4 py-3 font-semibold">ផែនការដាំដុះ (ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីអនុវត្ត (ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">លើស-ក្រោមផែនការ (ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត (ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">បានអន្តរាគមន៍ (ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">បរិមាណទឹក</th>
+                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីខូចខាត (ហ.ត)</th>
+                                <th className="px-4 py-3 font-semibold">ប្រភពទឹក-អាងស្ដុកទឹក</th>
                                 <th className="px-4 py-3 font-semibold">ផ្សេងៗ</th>
                                 <th className="px-4 py-3 font-semibold">ថ្ងៃបញ្ចូល</th>
                                 <th className="px-4 py-3 font-semibold">កែប្រែ</th>
@@ -569,6 +603,7 @@ export default function DataForm() {
                                     <td className="px-4 py-3">{entry.district?.name ?? "-"}</td>
                                     <td className="px-4 py-3">{entry.planArea}</td>
                                     <td className="px-4 py-3">{entry.planDone}</td>
+                                    <td className="px-4 py-3">{entry.overUnderPlan}</td>
                                     <td className="px-4 py-3">{entry.actualArea}</td>
                                     <td className="px-4 py-3">{entry.interventionArea}</td>
                                     <td className="px-4 py-3">{entry.householdPlan}</td>
@@ -592,6 +627,6 @@ export default function DataForm() {
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
