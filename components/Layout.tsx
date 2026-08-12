@@ -59,9 +59,9 @@ export default function Layout({ children }: { children: ReactNode }) {
   };
 
   const navItems = [
-    { href: "/", label: "Home" },
-    { href: "/province-water", label: "Province Water" },
-    { href: "/reports", label: "WRAM Reports" },
+    { href: "/", label: "ទំព័រដើម" },
+    { href: "/province-water", label: "អាងស្ដុកទឹក" },
+    { href: "/reports", label: "របាយការណ៏ទិន្ន័យផលប៉ះពាល់" },
   ];
 
   if (isCheckingSession) {
