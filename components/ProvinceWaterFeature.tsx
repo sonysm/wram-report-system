@@ -12,12 +12,14 @@ interface CurrentUser {
 interface District {
     id: number;
     name: string;
+    khmerName?: string | null;
     provinceId: number;
 }
 
 interface Commune {
     id: number;
     name: string;
+    khmerName?: string | null;
     provinceId: number;
     districtId: number | null;
 }
@@ -112,10 +114,8 @@ export default function ProvinceWaterFeature() {
     const [basinName, setBasinName] = useState("");
     const [location, setLocation] = useState("");
     const [selectedDistrictId, setSelectedDistrictId] = useState("");
-    const [newDistrictName, setNewDistrictName] = useState("");
-    const [selectedCommuneId, setSelectedCommuneId] = useState("");
-    const [newCommuneName, setNewCommuneName] = useState("");
-    const [totalWater, setTotalWater] = useState("");
+        const [selectedCommuneId, setSelectedCommuneId] = useState("");
+        const [totalWater, setTotalWater] = useState("");
     const [waterPercent, setWaterPercent] = useState("");
     const [irrigatedDryArea, setIrrigatedDryArea] = useState("");
     const [irrigatedWetArea, setIrrigatedWetArea] = useState("");
@@ -261,10 +261,8 @@ export default function ProvinceWaterFeature() {
         setBasinName("");
         setLocation("");
         setSelectedDistrictId("");
-        setNewDistrictName("");
-        setSelectedCommuneId("");
-        setNewCommuneName("");
-        setTotalWater("");
+                setSelectedCommuneId("");
+                setTotalWater("");
         setWaterPercent("");
         setIrrigatedDryArea("");
         setIrrigatedWetArea("");
@@ -309,10 +307,6 @@ export default function ProvinceWaterFeature() {
     }, [entries]);
 
     const activeDistrictName = useMemo(() => {
-        if (selectedDistrictId === "__new__") {
-            return newDistrictName.trim();
-        }
-
         const districtId = Number(selectedDistrictId);
         if (!selectedDistrictId || Number.isNaN(districtId)) {
             return "";
@@ -320,13 +314,13 @@ export default function ProvinceWaterFeature() {
 
         const district = districts.find((item) => item.id === districtId);
         return district?.name ?? "";
-    }, [districts, newDistrictName, selectedDistrictId]);
+    }, [districts, selectedDistrictId]);
 
     const communeOptions = useMemo(() => {
         const districtIdNum = Number(selectedDistrictId);
         return communes
             .filter((c) => {
-                if (selectedDistrictId === "__new__" || !selectedDistrictId || Number.isNaN(districtIdNum)) {
+                if (!selectedDistrictId || Number.isNaN(districtIdNum)) {
                     return true;
                 }
                 return c.districtId === districtIdNum || c.districtId === null;
@@ -373,12 +367,7 @@ export default function ProvinceWaterFeature() {
 
             const calculatedActualWater = calculateActualWater(parsedTotalWater, parsedWaterPercent);
 
-            const resolvedCommuneId = selectedCommuneId === "__new__" ? null : (Number(selectedCommuneId) || null);
-            const resolvedNewCommuneName = selectedCommuneId === "__new__" ? newCommuneName.trim() : "";
-
-            if (selectedCommuneId === "__new__" && !resolvedNewCommuneName) {
-                throw new Error("Please input commune name");
-            }
+            const resolvedCommuneId = Number(selectedCommuneId) || null;
 
             const payload: {
                 id?: number;
@@ -408,25 +397,14 @@ export default function ProvinceWaterFeature() {
                 note: note.trim(),
             };
 
-            if (selectedDistrictId === "__new__") {
-                if (!newDistrictName.trim()) {
-                    throw new Error("Please input district name");
-                }
-
-                payload.districtName = newDistrictName.trim();
-            } else {
-                const districtId = Number(selectedDistrictId);
-                if (!selectedDistrictId || Number.isNaN(districtId)) {
-                    throw new Error("Please select district or choose custom district");
-                }
-
-                payload.districtId = districtId;
+            const districtId = Number(selectedDistrictId);
+            if (!selectedDistrictId || Number.isNaN(districtId)) {
+                throw new Error("Please select district");
             }
+            payload.districtId = districtId;
 
             if (resolvedCommuneId !== null) {
                 payload.communeId = resolvedCommuneId;
-            } else if (resolvedNewCommuneName) {
-                payload.communeName = resolvedNewCommuneName;
             }
 
             if (editingId !== null) {
@@ -469,21 +447,14 @@ export default function ProvinceWaterFeature() {
 
         if (entry.districtId) {
             setSelectedDistrictId(String(entry.districtId));
-            setNewDistrictName("");
         } else {
-            setSelectedDistrictId("__new__");
-            setNewDistrictName(entry.districtName);
+            setSelectedDistrictId("");
         }
 
         if (entry.communeId) {
             setSelectedCommuneId(String(entry.communeId));
-            setNewCommuneName("");
-        } else if (entry.communeName) {
-            setSelectedCommuneId("__new__");
-            setNewCommuneName(entry.communeName);
         } else {
             setSelectedCommuneId("");
-            setNewCommuneName("");
         }
 
         setStatus("");
@@ -639,39 +610,20 @@ export default function ProvinceWaterFeature() {
                                 onChange={(e) => {
                                     setSelectedDistrictId(e.target.value);
                                     setSelectedCommuneId("");
-                                    setNewCommuneName("");
-                                }}
+                                                                    }}
                                 required
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                             >
                                 <option value="">ជ្រើសរើសស្រុក</option>
                                 {districts.map((district) => (
                                     <option key={district.id} value={district.id}>
-                                        {district.name}
+                                        {district.khmerName ? `${district.khmerName} - ${district.name}` : district.name}
                                     </option>
                                 ))}
-                                <option value="__new__">+ បញ្ចូលស្រុកដោយដៃ</option>
-                            </select>
+                                                            </select>
                         </div>
 
-                        {selectedDistrictId === "__new__" && (
-                            <div>
-                                <label htmlFor="newDistrictName" className="mb-2 block text-sm font-medium text-slate-700">
-                                    ឈ្មោះស្រុកថ្មី
-                                </label>
-                                <input
-                                    id="newDistrictName"
-                                    value={newDistrictName}
-                                    onChange={(e) => {
-                                        setNewDistrictName(e.target.value);
-                                        setSelectedCommuneId("");
-                                        setNewCommuneName("");
-                                    }}
-                                    placeholder="បញ្ចូលឈ្មោះស្រុក"
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                                />
-                            </div>
-                        )}
+                        
 
                         <div>
                             <label htmlFor="communeName" className="mb-2 block text-sm font-medium text-slate-700">
@@ -686,27 +638,13 @@ export default function ProvinceWaterFeature() {
                                 <option value="">ជ្រើសរើសឃុំ</option>
                                 {communeOptions.map((commune) => (
                                     <option key={commune.id} value={commune.id}>
-                                        {commune.name}
+                                        {commune.khmerName ? `${commune.khmerName} - ${commune.name}` : commune.name}
                                     </option>
                                 ))}
-                                <option value="__new__">+ បញ្ចូលឃុំដោយដៃ</option>
-                            </select>
+                                                            </select>
                         </div>
 
-                        {selectedCommuneId === "__new__" && (
-                            <div>
-                                <label htmlFor="newCommuneName" className="mb-2 block text-sm font-medium text-slate-700">
-                                    ឈ្មោះឃុំថ្មី
-                                </label>
-                                <input
-                                    id="newCommuneName"
-                                    value={newCommuneName}
-                                    onChange={(e) => setNewCommuneName(e.target.value)}
-                                    placeholder="បញ្ចូលឈ្មោះឃុំ"
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                                />
-                            </div>
-                        )}
+                        
 
                         <div>
                             <label htmlFor="totalWater" className="mb-2 block text-sm font-medium text-slate-700">

@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const districts = await prisma.district.findMany({
                 where: { provinceId: authUser.provinceId },
-                select: { id: true, name: true, provinceId: true },
+                select: { id: true, name: true, khmerName: true, provinceId: true },
                 orderBy: { name: "asc" },
             });
 
@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (provinceIdFromQuery !== null) {
             const districts = await prisma.district.findMany({
                 where: { provinceId: provinceIdFromQuery },
-                select: { id: true, name: true, provinceId: true },
+                select: { id: true, name: true, khmerName: true, provinceId: true },
                 orderBy: { name: "asc" },
             });
             return res.json({ districts });
@@ -54,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const districts = await prisma.district.findMany({
             select: {
                 id: true,
-                name: true,
+                name: true, khmerName: true,
                 provinceId: true,
                 province: { select: { name: true, khmerName: true } },
             },

@@ -12,6 +12,7 @@ interface CurrentUser {
 interface District {
     id: number;
     name: string;
+    khmerName?: string | null;
     provinceId: number;
 }
 
@@ -58,8 +59,7 @@ export default function DataForm() {
     const [districts, setDistricts] = useState<District[]>([]);
     const [entries, setEntries] = useState<EntryRecord[]>([]);
     const [selectedDistrictId, setSelectedDistrictId] = useState("");
-    const [newDistrictName, setNewDistrictName] = useState("");
-
+    
     const [planArea, setPlanArea] = useState("");
     const [planDone, setPlanDone] = useState("");
     const [actualArea, setActualArea] = useState("0");
@@ -145,8 +145,7 @@ export default function DataForm() {
 
     const resetForm = () => {
         setSelectedDistrictId("");
-        setNewDistrictName("");
-        setPlanArea("");
+                setPlanArea("");
         setPlanDone("");
         setActualArea("0");
         setInterventionArea("0");
@@ -237,19 +236,12 @@ export default function DataForm() {
                 note: note.trim(),
             };
 
-            if (selectedDistrictId === "__new__") {
-                const districtName = newDistrictName.trim();
-                if (!districtName) {
-                    throw new Error("Please enter a district name");
-                }
-                payload.districtName = districtName;
-            } else {
+            
                 const districtId = Number(selectedDistrictId);
                 if (!selectedDistrictId || Number.isNaN(districtId)) {
                     throw new Error("Please select a district");
                 }
                 payload.districtId = districtId;
-            }
 
             if (editingEntryId !== null) {
                 payload.id = editingEntryId;
@@ -292,8 +284,7 @@ export default function DataForm() {
         setWaterSource(entry.waterSource ?? "");
         setNote(entry.note ?? "");
         setSelectedDistrictId(entry.district ? String(entry.district.id) : "");
-        setNewDistrictName("");
-        setStatus("");
+                setStatus("");
         setMessage("Editing selected record. Save to confirm changes.");
     };
 
@@ -349,27 +340,13 @@ export default function DataForm() {
                         <option value="">ជ្រើសរើសស្រុក</option>
                         {districts.map((district) => (
                             <option key={district.id} value={district.id}>
-                                {district.name}
+                                {district.khmerName ? `${district.khmerName} - ${district.name}` : district.name}
                             </option>
                         ))}
-                        <option value="__new__">+ បន្ថែមស្រុកថ្មី</option>
-                    </select>
+                                            </select>
                 </div>
 
-                {selectedDistrictId === "__new__" && (
-                    <div>
-                        <label htmlFor="newDistrict" className="mb-2 block text-sm font-medium text-slate-700">
-                            ឈ្មោះស្រុកថ្មី
-                        </label>
-                        <input
-                            id="newDistrict"
-                            value={newDistrictName}
-                            onChange={(e) => setNewDistrictName(e.target.value)}
-                            placeholder="បញ្ចូលឈ្មោះស្រុក"
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-                )}
+                
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="sm:col-span-2">

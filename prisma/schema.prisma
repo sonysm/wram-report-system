@@ -77,6 +77,8 @@ model Province {
 model District {
   id              Int      @id @default(autoincrement())
   name            String
+  khmerName       String   @default("")
+  geocode         String?
   provinceId      Int
   createdByUserId Int?
   createdAt       DateTime @default(now())
@@ -121,6 +123,9 @@ model ProvinceWaterEntry {
 model Commune {
   id              Int      @id @default(autoincrement())
   name            String
+  khmerName       String   @default("")
+  geocode         String?
+  numVillages     Int?
   districtId      Int?
   provinceId      Int
   createdByUserId Int?

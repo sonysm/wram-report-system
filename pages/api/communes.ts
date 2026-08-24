@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     provinceId: authUser.provinceId,
                     ...(districtIdFromQuery !== null ? { districtId: districtIdFromQuery } : {}),
                 },
-                select: { id: true, name: true, provinceId: true, districtId: true },
+                select: { id: true, name: true, khmerName: true, provinceId: true, districtId: true },
                 orderBy: { name: "asc" },
             });
 
@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 ...(provinceIdFromQuery !== null ? { provinceId: provinceIdFromQuery } : {}),
                 ...(districtIdFromQuery !== null ? { districtId: districtIdFromQuery } : {}),
             },
-            select: { id: true, name: true, provinceId: true, districtId: true },
+            select: { id: true, name: true, khmerName: true, provinceId: true, districtId: true },
             orderBy: { name: "asc" },
             take: 2000,
         });
