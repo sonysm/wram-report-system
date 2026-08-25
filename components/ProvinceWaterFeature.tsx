@@ -834,31 +834,40 @@ export default function ProvinceWaterFeature() {
                     <table className="print-table min-w-full border-collapse text-xs sm:text-sm">
                         <thead className="bg-slate-100">
                             <tr>
-                                <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
+                                <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ល.រ</th>
                                 {isAdmin ? (
                                     <>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះខេត្ត</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">សមត្ថភាពស្ដុកទឹក(ម៣)</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹកគិតជា %</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹកក្នុងអាង</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីស្រោចស្រព -ប្រាំង(ហ.ត)</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីស្រោចស្រព -វស្សា(ហ.ត)</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
+                                        <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ឈ្មោះខេត្ត</th>
+                                        <th colSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹកក្នុងអាង</th>
+                                        <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្ទៃដីស្រោចស្រព</th>
+                                        <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
                                     </>
                                 ) : (
                                     <>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះអាងទឹក</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ស្រុក</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ឃុំ</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">សមត្ថភាពស្ដុកទឹក(ម៣)</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹកគិតជា %</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹកក្នុងអាង</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីស្រោចស្រព -ប្រាំង(ហ.ត)</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីស្រោចស្រព -វស្សា(ហ.ត)</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក</th>
-                                        <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
+                                        <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ឈ្មោះអាងស្តុកទឹក</th>
+                                        <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ទីតាំង</th>
+                                        <th colSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹកក្នុងអាង</th>
+                                        <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្ទៃដីស្រោចស្រព</th>
+                                        <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ប្រភពទឹក</th>
+                                        <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
                                     </>
                                 )}
+                            </tr>
+                            <tr>
+                                {!isAdmin && (
+                                    <>
+                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ឃុំ</th>
+                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ស្រុក</th>
+                                    </>
+                                )}
+                                <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">សមត្ថភាពស្តុកទឹកសរុប (ម៣)</th>
+                                <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹកក្នុងអាង</th>
+                                <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ប្រាំង(ហ.ត)</th>
+                                <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">វស្សា(ហ.ត)</th>
+                            </tr>
+                            <tr>
+                                <th className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹក(ម៣)</th>
+                                <th className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹក(%)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -872,11 +881,11 @@ export default function ProvinceWaterFeature() {
                             {isAdmin
                                 ? adminReportRows.map((row, index) => (
                                     <tr key={`${row.provinceName}-${index}`}>
-                                        <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-center">{index + 1}</td>
                                         <td className="border border-slate-300 px-2 py-2">{row.provinceName}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.totalWater)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(row.totalWater, row.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualWater)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(row.totalWater, row.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.irrigatedDryArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.irrigatedWetArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2">{row.note || "-"}</td>
@@ -884,13 +893,13 @@ export default function ProvinceWaterFeature() {
                                 ))
                                 : entries.map((entry, index) => (
                                     <tr key={entry.id}>
-                                        <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-center">{index + 1}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.basinName}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{entry.districtName}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.communeName || "-"}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{entry.districtName}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.totalWater)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.actualWater)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.irrigatedDryArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.irrigatedWetArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.waterSource || "-"}</td>
@@ -900,16 +909,22 @@ export default function ProvinceWaterFeature() {
                         </tbody>
                         <tfoot>
                             <tr className="bg-slate-100 font-semibold">
-                                <td className="border border-slate-400 px-2 py-2" colSpan={isAdmin ? 2 : 4}>
+                                <td className="border border-slate-400 px-2 py-2 text-center" colSpan={isAdmin ? 2 : 4}>
                                     សរុប
                                 </td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.totalWater)}</td>
-                                <td className="border border-slate-400 px-2 py-2 text-right">{formatPercent(totals.totalWater, totals.actualWater)}</td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualWater)}</td>
+                                <td className="border border-slate-400 px-2 py-2 text-right">{formatPercent(totals.totalWater, totals.actualWater)}</td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.irrigatedDryArea)}</td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.irrigatedWetArea)}</td>
-                                <td className="border border-slate-400 px-2 py-2"></td>
-                                {!isAdmin && <td className="border border-slate-400 px-2 py-2"></td>}
+                                {isAdmin ? (
+                                    <td className="border border-slate-400 px-2 py-2"></td>
+                                ) : (
+                                    <>
+                                        <td className="border border-slate-400 px-2 py-2"></td>
+                                        <td className="border border-slate-400 px-2 py-2"></td>
+                                    </>
+                                )}
                             </tr>
                         </tfoot>
                     </table>
@@ -933,46 +948,54 @@ export default function ProvinceWaterFeature() {
                 <h3 className="text-base font-semibold text-slate-900">Recent Water Entries</h3>
                 <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
                     <table className="min-w-full text-sm">
-                        <thead className="bg-slate-100 text-left text-slate-700">
+                        <thead className="bg-slate-100 text-center text-slate-700">
                             <tr>
-                                {isAdmin && <th className="px-4 py-3 font-semibold">ឈ្មោះខេត្ត</th>}
-                                <th className="px-4 py-3 font-semibold">ឈ្មោះអាងទឹក</th>
-                                <th className="px-4 py-3 font-semibold">ស្រុក</th>
-                                <th className="px-4 py-3 font-semibold">ឃុំ</th>
-                                <th className="px-4 py-3 font-semibold">សមត្ថភាពស្ដុកទឹក(ម៣)</th>
-                                <th className="px-4 py-3 font-semibold">បរិមាណទឹកគិតជា %</th>
-                                <th className="px-4 py-3 font-semibold">បរិមាណទឹកក្នុងអាង</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីស្រោចស្រព -ប្រាំង(ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីស្រោចស្រព -វស្សា(ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">ប្រភពទឹក</th>
-                                <th className="px-4 py-3 font-semibold">ផ្សេងៗ</th>
-                                <th className="px-4 py-3 font-semibold">ថ្ងៃបញ្ចូល</th>
-                                <th className="px-4 py-3 font-semibold">កែប្រែ</th>
+                                {isAdmin && <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ឈ្មោះខេត្ត</th>}
+                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ឈ្មោះអាងស្តុកទឹក</th>
+                                <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">ទីតាំង</th>
+                                <th colSpan={3} className="px-4 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
+                                <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">ផ្ទៃដីស្រោចស្រព</th>
+                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ប្រភពទឹក</th>
+                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ផ្សេងៗ</th>
+                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ថ្ងៃបញ្ចូល</th>
+                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">កែប្រែ</th>
+                            </tr>
+                            <tr>
+                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ឃុំ</th>
+                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ស្រុក</th>
+                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">សមត្ថភាពស្តុកទឹកសរុប (ម៣)</th>
+                                <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
+                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ប្រាំង(ហ.ត)</th>
+                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">វស្សា(ហ.ត)</th>
+                            </tr>
+                            <tr>
+                                <th className="px-4 py-2 font-semibold border-b border-slate-200">បរិមាណទឹក(ម៣)</th>
+                                <th className="px-4 py-2 font-semibold border-b border-slate-200">បរិមាណទឹក(%)</th>
                             </tr>
                         </thead>
                         <tbody>
                             {entries.length === 0 && (
                                 <tr>
-                                    <td colSpan={isAdmin ? 12 : 11} className="px-4 py-6 text-center text-slate-500">
+                                    <td colSpan={isAdmin ? 13 : 12} className="px-4 py-6 text-center text-slate-500">
                                         No water entries yet.
                                     </td>
                                 </tr>
                             )}
                             {entries.map((entry) => (
                                 <tr key={entry.id} className="border-t border-slate-100">
-                                    {isAdmin && <td className="px-4 py-3">{entry.provinceName || "-"}</td>}
-                                    <td className="px-4 py-3">{entry.basinName}</td>
-                                    <td className="px-4 py-3">{entry.districtName}</td>
-                                    <td className="px-4 py-3">{entry.communeName || "-"}</td>
-                                    <td className="px-4 py-3">{formatNumber(entry.totalWater)}</td>
-                                    <td className="px-4 py-3">{formatPercent(entry.totalWater, entry.actualWater)}</td>
-                                    <td className="px-4 py-3">{formatNumber(entry.actualWater)}</td>
-                                    <td className="px-4 py-3">{formatNumber(entry.irrigatedDryArea)}</td>
-                                    <td className="px-4 py-3">{formatNumber(entry.irrigatedWetArea)}</td>
-                                    <td className="px-4 py-3">{entry.waterSource || "-"}</td>
-                                    <td className="px-4 py-3">{entry.note || "-"}</td>
-                                    <td className="px-4 py-3">{new Date(entry.createdAt).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3">
+                                    {isAdmin && <td className="px-4 py-3 text-center">{entry.provinceName || "-"}</td>}
+                                    <td className="px-4 py-3 text-center">{entry.basinName}</td>
+                                    <td className="px-4 py-3 text-center">{entry.communeName || "-"}</td>
+                                    <td className="px-4 py-3 text-center">{entry.districtName}</td>
+                                    <td className="px-4 py-3 text-right">{formatNumber(entry.totalWater)}</td>
+                                    <td className="px-4 py-3 text-right">{formatNumber(entry.actualWater)}</td>
+                                    <td className="px-4 py-3 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
+                                    <td className="px-4 py-3 text-right">{formatNumber(entry.irrigatedDryArea)}</td>
+                                    <td className="px-4 py-3 text-right">{formatNumber(entry.irrigatedWetArea)}</td>
+                                    <td className="px-4 py-3 text-center">{entry.waterSource || "-"}</td>
+                                    <td className="px-4 py-3 text-center">{entry.note || "-"}</td>
+                                    <td className="px-4 py-3 text-center">{new Date(entry.createdAt).toLocaleDateString()}</td>
+                                    <td className="px-4 py-3 text-center">
                                         <button
                                             type="button"
                                             onClick={() => handleEdit(entry)}
