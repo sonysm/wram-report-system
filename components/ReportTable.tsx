@@ -44,15 +44,12 @@ export default function ReportTable() {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
 
+    const toKhmerNumeral = (n: number | string) => n.toString().replace(/\d/g, (d) => '០១២៣៤៥៦៧៨៩'[d as any]);
     const now = new Date();
-    // 1. Get the day number (English numerals)
-    const day: number = now.getDate();
-    // 2. Get the Khmer month name (e.g., "សីហា")
-    const month: string = now.toLocaleDateString('km-KH', { month: 'long' });
-    // 3. Get the year in Khmer numerals (e.g., "២០២៦")
-    const year: string = now.toLocaleDateString('km-KH', { year: 'numeric' });
-    // 4. Combine into your template string
-    const dateString: string = `គិតត្រឹមថ្ងៃទី ${day} ខែ ${month} ឆ្នាំ ${year}`;
+    const day = toKhmerNumeral(now.getDate().toString().padStart(2, "0"));
+    const month = now.toLocaleDateString('km-KH', { month: 'long' });
+    const year = toKhmerNumeral(now.getFullYear());
+    const dateString = `គិតត្រឹមថ្ងៃទី${day} ខែ${month} ឆ្នាំ${year}`;
 
     const sanitizeFilePart = (value: string): string => {
         const slug = value
@@ -427,86 +424,96 @@ export default function ReportTable() {
 
             {isProvincePreview && (
                 <section className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
-                    <div className="space-y-2 text-center text-slate-900">
-                        <p className="text-sm font-semibold tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                    <div className="space-y-2 text-center text-slate-900 font-moul">
+                        <p className="text-sm tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</p>
                         <p className="text-sm">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
                     </div>
 
-                    <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
-                        <div className="text-center text-sm leading-relaxed">
-                            <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
-                            {/* <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p> */}
-                            <p>មន្ទីធនធានទឹក នឹងឧតុនិយម</p>
+                    <div className="mt-3 flex flex-col text-slate-900 font-moul">
+                        <div className="text-left text-sm leading-relaxed">
+                            <p>មន្ទីរធនធានទឹក និងឧតុនិយម</p>
                             <p>ខេត្ត {viewerProvinceName ?? "-"}</p>
                         </div>
+                    </div>
 
-                        <div className="text-center">
-                            <h2 className="print-title text-md tracking-tight">របាយការណ៍ស្ដីពីផ្ទៃដីប៉ះពាល់ ដោយសារគ្រោះជំនន់-រាំងស្ងួត លើដំណាំស្រូវ ឆ្នាំ២០២៦</h2>
-                            {/* <p className="text-sm">
-                                ខេត្ត: <strong>{viewerProvinceName ?? "-"}</strong>
-                            </p> */}
-                            <br />
-                            <p className="text-sm text-slate-600"> {dateString} </p>
-                            {/* <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p> */}
-                        </div>
-
-                        <div aria-hidden="true" className="hidden sm:block"></div>
+                    <div className="mt-6 text-center text-slate-900">
+                        <h2 className="print-title text-md font-moul tracking-tight">តារាងទិន្នន័យការងារបង្កបង្កើនផលស្រូវរដូវវស្សា និងផលប៉ះពាល់ដោយគ្រោះរាំងស្ងួតឆ្នាំ{year} ({dateString})</h2>
                     </div>
 
                     <div className="mt-5 overflow-hidden rounded-xl border border-slate-400">
                         <table className="print-table min-w-full border-collapse text-xs sm:text-sm">
-                            <thead className="bg-slate-100">
+                            <thead className="bg-[#a3c977] text-[#000000]">
                                 <tr>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះក្រុង-ស្រុក</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផែនការដាំដុះ</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្ត</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(%)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-ជំនន់(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បានអន្តរាគមន៍</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីខូចខាត(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក-អាងស្ដុកទឹក</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក %</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ល.រ</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ឈ្មោះក្រុង-ស្រុក</th>
+                                    <th colSpan={3} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដី(ហ.ត)</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ភាគរយ<br />អនុវត្តបាន</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីប៉ះពាល់(ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center ">ផ្ទៃដីអន្តរាគមន៍ (ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន(ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីស្រូវខូចខាត(ហ.ត)</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ប្រភពទឹក</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
+                                </tr>
+                                <tr>
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ផែនការ</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">អនុវត្តបាន</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">លើសផែនការ</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {data.map((row, index) => (
                                     <tr key={`${row.districtId ?? "none"}-${index}`}>
-                                        <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{row.districtName}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.overUnderPlan)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{Number(row.planArea) > 0 ? `${((row.overUnderPlan * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualArea)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdPlan)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.unsalvageableArea)}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{row.waterSource || "-"}</td>
-                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdDone)}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{row.note || "-"}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-center">{index + 1}</td>
+                                        <td className="border border-slate-400 px-2 py-2">{row.districtName}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.overUnderPlan > 0 ? formatNumber(row.overUnderPlan) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-center">{Number(row.planArea) > 0 ? `${((row.planDone * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.actualArea > 0 ? formatNumber(row.actualArea) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionArea > 0 ? formatNumber(row.interventionArea) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDone > 0 ? formatNumber(row.householdDone) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableArea > 0 ? formatNumber(row.unsalvageableArea) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                        <td className="border border-slate-400 px-2 py-2">{row.waterSource || ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2">{row.note || ""}</td>
                                     </tr>
                                 ))}
                             </tbody>
                             <tfoot>
-                                <tr className="bg-slate-100 font-semibold">
-                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}>
+                                <tr className="bg-[#a3c977]/30 font-semibold">
+                                    <td className="border border-slate-500 px-2 py-2 text-center font-moul" colSpan={2}>
                                         សរុប
                                     </td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.overUnderPlan)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{Number(totals.planArea) > 0 ? `${((totals.overUnderPlan * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdPlan)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.unsalvageableArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2"></td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdDone)}</td>
-                                    <td className="border border-slate-400 px-2 py-2"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.overUnderPlan > 0 ? formatNumber(totals.overUnderPlan) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-center">{Number(totals.planArea) > 0 ? `${((totals.planDone * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.actualArea > 0 ? formatNumber(totals.actualArea) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdPlan > 0 ? formatNumber(totals.householdPlan) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionArea > 0 ? formatNumber(totals.interventionArea) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDone > 0 ? formatNumber(totals.householdDone) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableArea > 0 ? formatNumber(totals.unsalvageableArea) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2"></td>
+                                    <td className="border border-slate-500 px-2 py-2"></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -529,85 +536,99 @@ export default function ReportTable() {
 
             {isSuperAdminPreview && (
                 <section className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
-                    <div className="space-y-2 text-center text-slate-900">
-                        <p className="text-sm font-semibold tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                    <div className="space-y-2 text-center text-slate-900 font-moul">
+                        <p className="text-sm tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</p>
                         <p className="text-sm">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
                     </div>
 
-                    <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
-                        <div className="text-center text-sm leading-relaxed">
-                            <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
-                            <p className="font-semibold">ក្រសួងធនធានទឹក និងឧតុនិយម</p>
-                            {/* <p>អគ្គនាយកដ្ឋានកិច្ចការបច្ចេកទេស</p> */}
+                    <div className="mt-3 flex flex-col text-slate-900 font-moul">
+                        <div className="text-left text-sm leading-relaxed">
+                            <p>ក្រសួងធនធានទឹក និងឧតុនិយម</p>
+                            <p>អគ្គនាយកដ្ឋានកិច្ចការរដ្ឋបាល</p>
+                            <p>នាយកដ្ឋានផែនការ និងសហប្រតិបត្តិការអន្តរជាតិ</p>
                         </div>
+                    </div>
 
-                        <div className="text-center">
-                            <h2 className="print-title text-md  tracking-tight">របាយការណ៍ស្ដីពីផ្ទៃដីប៉ះពាល់ ដោយសារគ្រោះជំនន់-រាំងស្ងួត លើដំណាំស្រូវ ឆ្នាំ២០២៦</h2>
-                            {/* <p className="text-sm">ទិន្នន័យសរុបតាមខេត្ត</p> */}
-                            <br />
-                            <p className="text-sm text-slate-600">{dateString}</p>
-                            {/* <p className="text-xs text-slate-600">(ហត) គិតជាហត្តា</p> */}
-                        </div>
-
-                        <div aria-hidden="true" className="hidden sm:block"></div>
+                    <div className="mt-6 text-center text-slate-900">
+                        <h2 className="print-title text-md font-moul tracking-tight">តារាងទិន្នន័យការងារបង្កបង្កើនផលស្រូវរដូវវស្សា និងផលប៉ះពាល់ដោយគ្រោះរាំងស្ងួតឆ្នាំ{year} ({dateString})</h2>
                     </div>
 
                     <div className="mt-5 overflow-hidden rounded-xl border border-slate-400">
                         <table className="print-table min-w-full border-collapse text-xs sm:text-sm">
-                            <thead className="bg-slate-100">
+                            <thead className="text-[#000000]">
                                 <tr>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ល.រ</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ឈ្មោះខេត្ត</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផែនការដាំដុះ</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីអនុវត្ត</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">លើស-ក្រោមផែនការ(%)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីប៉ះពាល់-ជំនន់(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បានអន្តរាគមន៍</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">ផ្ទៃដីខូចខាត(ហ.ត)</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ប្រភពទឹក-អាងស្ដុកទឹក</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-right">បរិមាណទឹក %</th>
-                                    <th className="border border-slate-400 px-2 py-2 text-left">ផ្សេងៗ</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ល.រ</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ឈ្មោះខេត្ត</th>
+                                    <th colSpan={3} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដី(ហ.ត)</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ភាគរយ<br />អនុវត្តបាន</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីប៉ះពាល់(ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីអន្តរាគមន៍ (ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន(ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីស្រូវខូចខាត(ហ.ត)</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ប្រភពទឹក</th>
+                                    <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
+                                </tr>
+                                <tr>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ផែនការ</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">អនុវត្តបាន</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">លើសផែនការ</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
+
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {sortedSuperAdminRows.map((row, index) => {
                                     return (
                                         <tr key={`${row.provinceId ?? "none"}-${index}`}>
-                                            <td className="border border-slate-300 px-2 py-2">{index + 1}</td>
-                                            <td className="border border-slate-300 px-2 py-2">{row.provinceName}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.overUnderPlan)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{Number(row.planArea) > 0 ? `${((row.overUnderPlan * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.actualArea)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdPlan)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.interventionArea)}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.unsalvageableArea)}</td>
-                                            <td className="border border-slate-300 px-2 py-2">{row.waterSource || "-"}</td>
-                                            <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.householdDone)}</td>
-                                            <td className="border border-slate-300 px-2 py-2">{row.note || "-"}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-center">{index + 1}</td>
+                                            <td className="border border-slate-400 px-2 py-2">{row.provinceName}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.overUnderPlan > 0 ? formatNumber(row.overUnderPlan) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-center">{Number(row.planArea) > 0 ? `${((row.planDone * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.actualArea > 0 ? formatNumber(row.actualArea) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionArea > 0 ? formatNumber(row.interventionArea) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDone > 0 ? formatNumber(row.householdDone) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableArea > 0 ? formatNumber(row.unsalvageableArea) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                            <td className="border border-slate-400 px-2 py-2">{row.waterSource || ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2">{row.note || ""}</td>
                                         </tr>
                                     );
                                 })}
                             </tbody>
                             <tfoot>
-                                <tr className="bg-slate-100 font-semibold">
-                                    <td className="border border-slate-400 px-2 py-2" colSpan={2}>
+                                <tr className="bg-[#a3c977]/30 font-semibold">
+                                    <td className="border border-slate-500 px-2 py-2 text-center font-moul" colSpan={2}>
                                         សរុប
                                     </td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.overUnderPlan)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{Number(totals.planArea) > 0 ? `${((totals.overUnderPlan * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.actualArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdPlan)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.interventionArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.unsalvageableArea)}</td>
-                                    <td className="border border-slate-400 px-2 py-2"></td>
-                                    <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.householdDone)}</td>
-                                    <td className="border border-slate-400 px-2 py-2"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.overUnderPlan > 0 ? formatNumber(totals.overUnderPlan) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-center">{Number(totals.planArea) > 0 ? `${((totals.planDone * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.actualArea > 0 ? formatNumber(totals.actualArea) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdPlan > 0 ? formatNumber(totals.householdPlan) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionArea > 0 ? formatNumber(totals.interventionArea) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDone > 0 ? formatNumber(totals.householdDone) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableArea > 0 ? formatNumber(totals.unsalvageableArea) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2"></td>
+                                    <td className="border border-slate-500 px-2 py-2"></td>
                                 </tr>
                             </tfoot>
                         </table>

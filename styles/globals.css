@@ -15,6 +15,10 @@ body {
   color: #0f172a;
 }
 
+@utility font-moul {
+  font-family: var(--font-kh-moul), sans-serif;
+}
+
 @page {
   size: A4 landscape;
   margin: 8mm;

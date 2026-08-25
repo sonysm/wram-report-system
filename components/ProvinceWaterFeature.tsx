@@ -114,8 +114,8 @@ export default function ProvinceWaterFeature() {
     const [basinName, setBasinName] = useState("");
     const [location, setLocation] = useState("");
     const [selectedDistrictId, setSelectedDistrictId] = useState("");
-        const [selectedCommuneId, setSelectedCommuneId] = useState("");
-        const [totalWater, setTotalWater] = useState("");
+    const [selectedCommuneId, setSelectedCommuneId] = useState("");
+    const [totalWater, setTotalWater] = useState("");
     const [waterPercent, setWaterPercent] = useState("");
     const [irrigatedDryArea, setIrrigatedDryArea] = useState("");
     const [irrigatedWetArea, setIrrigatedWetArea] = useState("");
@@ -261,8 +261,8 @@ export default function ProvinceWaterFeature() {
         setBasinName("");
         setLocation("");
         setSelectedDistrictId("");
-                setSelectedCommuneId("");
-                setTotalWater("");
+        setSelectedCommuneId("");
+        setTotalWater("");
         setWaterPercent("");
         setIrrigatedDryArea("");
         setIrrigatedWetArea("");
@@ -610,7 +610,7 @@ export default function ProvinceWaterFeature() {
                                 onChange={(e) => {
                                     setSelectedDistrictId(e.target.value);
                                     setSelectedCommuneId("");
-                                                                    }}
+                                }}
                                 required
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                             >
@@ -620,10 +620,10 @@ export default function ProvinceWaterFeature() {
                                         {district.khmerName ? `${district.khmerName} - ${district.name}` : district.name}
                                     </option>
                                 ))}
-                                                            </select>
+                            </select>
                         </div>
 
-                        
+
 
                         <div>
                             <label htmlFor="communeName" className="mb-2 block text-sm font-medium text-slate-700">
@@ -641,10 +641,10 @@ export default function ProvinceWaterFeature() {
                                         {commune.khmerName ? `${commune.khmerName} - ${commune.name}` : commune.name}
                                     </option>
                                 ))}
-                                                            </select>
+                            </select>
                         </div>
 
-                        
+
 
                         <div>
                             <label htmlFor="totalWater" className="mb-2 block text-sm font-medium text-slate-700">
@@ -816,7 +816,7 @@ export default function ProvinceWaterFeature() {
                 <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
                     <div className="text-center text-sm leading-relaxed">
                         <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
-                        <p> {isAdmin ? "ក្រសួងធនធានទឹក និងឧតុនិយម" : `ខេត្តមន្ទីធនធានទឹក និងឧតុនិយម`}</p>
+                        <p> {isAdmin ? "ក្រសួងធនធានទឹក និងឧតុនិយម" : `មន្ទីធនធានទឹក និងឧតុនិយម`}</p>
                         <p className="font-semibold">{isAdmin ? "" : `ខេត្ត ${currentUser?.provinceName ?? "-"}`}</p>
                     </div>
 
