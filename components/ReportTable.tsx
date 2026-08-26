@@ -442,7 +442,7 @@ export default function ReportTable() {
 
                     <div className="mt-5 overflow-hidden rounded-xl border border-slate-400">
                         <table className="print-table min-w-full border-collapse text-xs sm:text-sm">
-                            <thead className="bg-[#a3c977] text-[#000000]">
+                            <thead className="text-[#000000]">
                                 <tr>
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ល.រ</th>
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ឈ្មោះក្រុង-ស្រុក</th>
@@ -456,21 +456,21 @@ export default function ReportTable() {
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
                                 </tr>
                                 <tr>
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ផែនការ</th>
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">អនុវត្តបាន</th>
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">លើសផែនការ</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ផែនការ</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">អនុវត្តបាន</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">លើសផែនការ</th>
 
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
 
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
 
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
 
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">រាំងស្ងួត</th>
-                                    <th className="border border-slate-500 px-2 py-2 text-center font-moul">ជំនន់</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -497,7 +497,7 @@ export default function ReportTable() {
                             </tbody>
                             <tfoot>
                                 <tr className="bg-[#a3c977]/30 font-semibold">
-                                    <td className="border border-slate-500 px-2 py-2 text-center font-moul" colSpan={2}>
+                                    <td className="border border-slate-500 px-2 py-2 text-center" colSpan={2}>
                                         សរុប
                                     </td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>

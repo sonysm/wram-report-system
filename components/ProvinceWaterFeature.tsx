@@ -856,8 +856,8 @@ export default function ProvinceWaterFeature() {
                             <tr>
                                 {!isAdmin && (
                                     <>
-                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ឃុំ</th>
                                         <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ស្រុក</th>
+                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">(ឃុ - ស្កាត់)</th>
                                     </>
                                 )}
                                 <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">សមត្ថភាពស្តុកទឹកសរុប (ម៣)</th>
@@ -895,8 +895,8 @@ export default function ProvinceWaterFeature() {
                                     <tr key={entry.id}>
                                         <td className="border border-slate-300 px-2 py-2 text-center">{index + 1}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.basinName}</td>
-                                        <td className="border border-slate-300 px-2 py-2">{entry.communeName || "-"}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.districtName}</td>
+                                        <td className="border border-slate-300 px-2 py-2">{entry.communeName || "-"}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.totalWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
@@ -961,8 +961,8 @@ export default function ProvinceWaterFeature() {
                                 <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">កែប្រែ</th>
                             </tr>
                             <tr>
-                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ឃុំ</th>
                                 <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ស្រុក</th>
+                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">(ឃុ - ស្កាត់)</th>
                                 <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">សមត្ថភាពស្តុកទឹកសរុប (ម៣)</th>
                                 <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
                                 <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ប្រាំង(ហ.ត)</th>
@@ -985,8 +985,8 @@ export default function ProvinceWaterFeature() {
                                 <tr key={entry.id} className="border-t border-slate-100">
                                     {isAdmin && <td className="px-4 py-3 text-center">{entry.provinceName || "-"}</td>}
                                     <td className="px-4 py-3 text-center">{entry.basinName}</td>
-                                    <td className="px-4 py-3 text-center">{entry.communeName || "-"}</td>
                                     <td className="px-4 py-3 text-center">{entry.districtName}</td>
+                                    <td className="px-4 py-3 text-center">{entry.communeName || "-"}</td>
                                     <td className="px-4 py-3 text-right">{formatNumber(entry.totalWater)}</td>
                                     <td className="px-4 py-3 text-right">{formatNumber(entry.actualWater)}</td>
                                     <td className="px-4 py-3 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
