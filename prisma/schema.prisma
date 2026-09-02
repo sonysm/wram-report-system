@@ -14,76 +14,76 @@ model Department {
 }
 
 model Entry {
-  id            Int         @id @default(autoincrement())
-  category      String?
-  value         Float?
-  planArea      Float       @default(0)
-  planDone      Float       @default(0)
-  actualArea    Float       @default(0)
-  interventionArea Float    @default(0)
-  householdPlan Float       @default(0)
-  householdDone Float       @default(0)
-  unsalvageableArea Float   @default(0)
-  overUnderPlan Float       @default(0)
-  waterSource   String      @default("")
-  note          String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  department    Department? @relation(fields: [departmentId], references: [id])
-  departmentId  Int?
-  userId        Int?
-  provinceId    Int?
-  districtId    Int?
-  user          User?       @relation(fields: [userId], references: [id])
-  province      Province?   @relation(fields: [provinceId], references: [id])
-  district      District?   @relation(fields: [districtId], references: [id])
-  auditLogs     AuditLog[]
+  id                Int         @id @default(autoincrement())
+  category          String?
+  value             Float?
+  planArea          Float       @default(0)
+  planDone          Float       @default(0)
+  actualArea        Float       @default(0)
+  interventionArea  Float       @default(0)
+  householdPlan     Float       @default(0)
+  householdDone     Float       @default(0)
+  unsalvageableArea Float       @default(0)
+  overUnderPlan     Float       @default(0)
+  waterSource       String      @default("")
+  note              String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  department        Department? @relation(fields: [departmentId], references: [id])
+  departmentId      Int?
+  userId            Int?
+  provinceId        Int?
+  districtId        Int?
+  user              User?       @relation(fields: [userId], references: [id])
+  province          Province?   @relation(fields: [provinceId], references: [id])
+  district          District?   @relation(fields: [districtId], references: [id])
+  auditLogs         AuditLog[]
 }
 
 model User {
-  id               Int        @id @default(autoincrement())
-  username         String     @unique
+  id               Int                  @id @default(autoincrement())
+  username         String               @unique
   passwordHash     String
-  role             String     @default("user")
-  isActive         Boolean    @default(true)
+  role             String               @default("user")
+  isActive         Boolean              @default(true)
   provinceId       Int?
-  province         Province?  @relation(fields: [provinceId], references: [id])
+  province         Province?            @relation(fields: [provinceId], references: [id])
   entries          Entry[]
   waterEntries     ProvinceWaterEntry[]
-  createdDistricts District[] @relation("DistrictCreator")
-  createdCommunes  Commune[]  @relation("CommuneCreator")
-  auditLogs        AuditLog[] @relation("AuditActor")
+  createdDistricts District[]           @relation("DistrictCreator")
+  createdCommunes  Commune[]            @relation("CommuneCreator")
+  auditLogs        AuditLog[]           @relation("AuditActor")
 
   @@index([isActive])
 }
 
 model Province {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
-  khmerName   String     @default("")
-  code        String?    @unique
-  postalCode  Int?
-  sortOrder   Int?
-  users       User[]
-  districts   District[]
-  entries     Entry[]
+  id           Int                  @id @default(autoincrement())
+  name         String               @unique
+  khmerName    String               @default("")
+  code         String?              @unique
+  postalCode   Int?
+  sortOrder    Int?
+  users        User[]
+  districts    District[]
+  entries      Entry[]
   waterEntries ProvinceWaterEntry[]
   communes     Commune[]
-  auditLogs   AuditLog[]
+  auditLogs    AuditLog[]
 
   @@index([sortOrder])
 }
 
 model District {
-  id              Int      @id @default(autoincrement())
+  id              Int                  @id @default(autoincrement())
   name            String
-  khmerName       String   @default("")
+  khmerName       String               @default("")
   geocode         String?
   provinceId      Int
   createdByUserId Int?
-  createdAt       DateTime @default(now())
-  province        Province @relation(fields: [provinceId], references: [id])
-  createdByUser   User?    @relation("DistrictCreator", fields: [createdByUserId], references: [id])
+  createdAt       DateTime             @default(now())
+  province        Province             @relation(fields: [provinceId], references: [id])
+  createdByUser   User?                @relation("DistrictCreator", fields: [createdByUserId], references: [id])
   entries         Entry[]
   waterEntries    ProvinceWaterEntry[]
   communes        Commune[]
@@ -92,28 +92,29 @@ model District {
 }
 
 model ProvinceWaterEntry {
-  id           Int       @id @default(autoincrement())
-  basinName    String
-  location     String
-  districtName String
-  communeName  String?
-  totalWater   Float     @default(0)
-  waterPercent  Float     @default(0)
-  actualWater  Float     @default(0)
-  irrigatedDryArea Float  @default(0)
-  irrigatedWetArea Float  @default(0)
-  waterSource  String    @default("")
-  note         String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  provinceId   Int
-  districtId   Int?
-  communeId    Int?
-  userId       Int?
-  province     Province  @relation(fields: [provinceId], references: [id])
-  district     District? @relation(fields: [districtId], references: [id])
-  commune      Commune?  @relation(fields: [communeId], references: [id])
-  user         User?     @relation(fields: [userId], references: [id])
+  id               Int       @id @default(autoincrement())
+  basinName        String
+  location         String
+  districtName     String
+  communeName      String?
+  totalWater       Float     @default(0)
+  waterPercent     Float     @default(0)
+  actualWater      Float     @default(0)
+  irrigatedDryArea Float     @default(0)
+  irrigatedWetArea Float     @default(0)
+  otherCrop        Float     @default(0)
+  waterSource      String    @default("")
+  note             String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  provinceId       Int
+  districtId       Int?
+  communeId        Int?
+  userId           Int?
+  province         Province  @relation(fields: [provinceId], references: [id])
+  district         District? @relation(fields: [districtId], references: [id])
+  commune          Commune?  @relation(fields: [communeId], references: [id])
+  user             User?     @relation(fields: [userId], references: [id])
 
   @@index([provinceId, createdAt])
   @@index([districtId])
@@ -121,18 +122,18 @@ model ProvinceWaterEntry {
 }
 
 model Commune {
-  id              Int      @id @default(autoincrement())
+  id              Int                  @id @default(autoincrement())
   name            String
-  khmerName       String   @default("")
+  khmerName       String               @default("")
   geocode         String?
   numVillages     Int?
   districtId      Int?
   provinceId      Int
   createdByUserId Int?
-  createdAt       DateTime @default(now())
-  province        Province  @relation(fields: [provinceId], references: [id])
-  district        District? @relation(fields: [districtId], references: [id])
-  createdByUser   User?     @relation("CommuneCreator", fields: [createdByUserId], references: [id])
+  createdAt       DateTime             @default(now())
+  province        Province             @relation(fields: [provinceId], references: [id])
+  district        District?            @relation(fields: [districtId], references: [id])
+  createdByUser   User?                @relation("CommuneCreator", fields: [createdByUserId], references: [id])
   waterEntries    ProvinceWaterEntry[]
 
   @@unique([provinceId, name])

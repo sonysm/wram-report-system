@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
             include: {
                 province: { select: { id: true, code: true, name: true, khmerName: true, postalCode: true, sortOrder: true } },
-                district: { select: { id: true, name: true } },
+                district: { select: { id: true, name: true, khmerName: true } },
             },
             orderBy: [{ districtId: "asc" }, { createdAt: "desc" }],
         });
@@ -114,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 postalCode: entry.province?.postalCode ?? null,
                 provinceSortOrder: entry.province?.sortOrder ?? null,
                 districtId: entry.districtId,
-                districtName: entry.district?.name ?? "Unknown District",
+                districtName: entry.district?.khmerName || entry.district?.name || "Unknown District",
                 planArea: entry.planArea,
                 planDone: entry.planDone,
                 actualArea: entry.actualArea,

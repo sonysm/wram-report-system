@@ -90,9 +90,9 @@ function parseRecordFields(rawBody: unknown): {
   const waterSource = normalizeText(body.waterSource);
   const noteText = normalizeText(body.note);
 
-  if (!waterSource) {
-    throw new Error("Water source is required");
-  }
+  // if (!waterSource) {
+  //   throw new Error("Water source is required");
+  // }
 
   return {
     planArea,
@@ -230,7 +230,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         include: {
           province: { select: { id: true, name: true, khmerName: true } },
-          district: { select: { id: true, name: true } },
+          district: { select: { id: true, name: true, khmerName: true } },
         },
       });
 
@@ -310,7 +310,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         include: {
           province: { select: { id: true, name: true, khmerName: true } },
-          district: { select: { id: true, name: true } },
+          district: { select: { id: true, name: true, khmerName: true } },
         },
       });
 
@@ -360,7 +360,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: authUser.role === "admin" ? {} : { provinceId: authUser.provinceId ?? -1 },
       include: {
         province: { select: { id: true, name: true, khmerName: true } },
-        district: { select: { id: true, name: true } },
+        district: { select: { id: true, name: true, khmerName: true } },
         user: { select: { id: true, username: true } },
       },
       orderBy: { createdAt: "desc" },

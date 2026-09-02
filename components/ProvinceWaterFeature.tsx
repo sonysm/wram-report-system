@@ -1,3 +1,12 @@
+/*
+ * Filename: /Users/sonysum/Documents/Web-Project/wram-report-system/components/ProvinceWaterFeature.tsx
+ * Path: /Users/sonysum/Documents/Web-Project/wram-report-system
+ * Created Date: Wednesday, September 2nd 2026, 4:36:50 pm
+ * Author: Sum Sony
+ * 
+ * Copyright (c) 2026 Code Frog
+ */
+
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -50,6 +59,7 @@ interface WaterEntry {
     actualWater: number;
     irrigatedDryArea: number;
     irrigatedWetArea: number;
+    otherCrop: number;
     waterSource: string;
     note: string | null;
     districtId: number | null;
@@ -119,6 +129,7 @@ export default function ProvinceWaterFeature() {
     const [waterPercent, setWaterPercent] = useState("");
     const [irrigatedDryArea, setIrrigatedDryArea] = useState("");
     const [irrigatedWetArea, setIrrigatedWetArea] = useState("");
+    const [otherCrop, setOtherCrop] = useState("");
     const [waterSource, setWaterSource] = useState("");
     const [note, setNote] = useState("");
 
@@ -266,6 +277,7 @@ export default function ProvinceWaterFeature() {
         setWaterPercent("");
         setIrrigatedDryArea("");
         setIrrigatedWetArea("");
+        setOtherCrop("");
         setWaterSource("");
         setNote("");
         setEditingId(null);
@@ -301,8 +313,12 @@ export default function ProvinceWaterFeature() {
                 actualWater: acc.actualWater + entry.actualWater,
                 irrigatedDryArea: acc.irrigatedDryArea + entry.irrigatedDryArea,
                 irrigatedWetArea: acc.irrigatedWetArea + entry.irrigatedWetArea,
+                otherCrop: (acc.otherCrop || 0) + (entry.otherCrop || 0),
             }),
-            { totalWater: 0, actualWater: 0, irrigatedDryArea: 0, irrigatedWetArea: 0 },
+            {
+                totalWater: 0, actualWater: 0, irrigatedDryArea: 0, irrigatedWetArea: 0,
+                otherCrop: 0
+            },
         );
     }, [entries]);
 
@@ -347,6 +363,7 @@ export default function ProvinceWaterFeature() {
             const parsedWaterPercent = parseNonNegativeInput(waterPercent);
             const parsedDryArea = parseNonNegativeInput(irrigatedDryArea) ?? 0;
             const parsedWetArea = parseNonNegativeInput(irrigatedWetArea) ?? 0;
+            const parsedOtherCrop = parseNonNegativeInput(otherCrop) ?? 0;
             const normalizedWaterSource = waterSource.trim();
 
             if (!basinName.trim()) {
@@ -383,6 +400,7 @@ export default function ProvinceWaterFeature() {
                 actualWater: number;
                 irrigatedDryArea: number;
                 irrigatedWetArea: number;
+                otherCrop: number;
                 waterSource: string;
                 note: string;
             } = {
@@ -393,6 +411,7 @@ export default function ProvinceWaterFeature() {
                 actualWater: calculatedActualWater,
                 irrigatedDryArea: parsedDryArea,
                 irrigatedWetArea: parsedWetArea,
+                otherCrop: parsedOtherCrop,
                 waterSource: normalizedWaterSource,
                 note: note.trim(),
             };
@@ -442,6 +461,7 @@ export default function ProvinceWaterFeature() {
         setWaterPercent(String(entry.waterPercent || (entry.totalWater > 0 ? (entry.actualWater / entry.totalWater) * 100 : 0)));
         setIrrigatedDryArea(String(entry.irrigatedDryArea ?? 0));
         setIrrigatedWetArea(String(entry.irrigatedWetArea ?? 0));
+        setOtherCrop(String(entry.otherCrop ?? 0));
         setWaterSource(entry.waterSource ?? "");
         setNote(entry.note ?? "");
 
@@ -474,6 +494,7 @@ export default function ProvinceWaterFeature() {
                 actualWater: number;
                 irrigatedDryArea: number;
                 irrigatedWetArea: number;
+                otherCrop: number;
                 note: string;
             }
         >();
@@ -489,6 +510,7 @@ export default function ProvinceWaterFeature() {
                 actualWater: 0,
                 irrigatedDryArea: 0,
                 irrigatedWetArea: 0,
+                otherCrop: 0,
                 note: "",
             });
         }
@@ -509,6 +531,7 @@ export default function ProvinceWaterFeature() {
                     actualWater: entry.actualWater,
                     irrigatedDryArea: entry.irrigatedDryArea,
                     irrigatedWetArea: entry.irrigatedWetArea,
+                    otherCrop: entry.otherCrop,
                     note: entryNote,
                 });
                 continue;
@@ -518,6 +541,7 @@ export default function ProvinceWaterFeature() {
             existing.actualWater += entry.actualWater;
             existing.irrigatedDryArea += entry.irrigatedDryArea;
             existing.irrigatedWetArea += entry.irrigatedWetArea;
+            existing.otherCrop += entry.otherCrop;
             if (!existing.note && entryNote) {
                 existing.note = entryNote;
             }
@@ -720,6 +744,22 @@ export default function ProvinceWaterFeature() {
                         </div>
 
                         <div>
+                            <label htmlFor="otherCrop" className="mb-2 block text-sm font-medium text-slate-700">
+                                ដំណាំរួមផ្សំ
+                            </label>
+                            <input
+                                id="otherCrop"
+                                value={otherCrop}
+                                onChange={(e) => setOtherCrop(e.target.value)}
+                                placeholder="0"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                            />
+                        </div>
+
+                        <div>
                             <label htmlFor="waterSource" className="mb-2 block text-sm font-medium text-slate-700">
                                 ប្រភពទឹក
                             </label>
@@ -809,19 +849,19 @@ export default function ProvinceWaterFeature() {
 
             <section className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
                 <div className="space-y-2 text-center text-slate-900">
-                    <p className="text-sm font-semibold tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</p>
-                    <p className="text-sm">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                    <p className="text-sm font-semibold tracking-wide font-moul">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                    <p className="text-sm font-moul">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
                 </div>
 
                 <div className="mt-3 grid gap-3 text-slate-900 sm:grid-cols-3 sm:items-start">
-                    <div className="text-center text-sm leading-relaxed">
+                    <div className="text-center text-sm leading-relaxed font-moul">
                         <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
                         <p> {isAdmin ? "ក្រសួងធនធានទឹក និងឧតុនិយម" : `មន្ទីធនធានទឹក និងឧតុនិយម`}</p>
                         <p className="font-semibold">{isAdmin ? "" : `ខេត្ត ${currentUser?.provinceName ?? "-"}`}</p>
                     </div>
 
                     <div className="text-center">
-                        <h2 className="print-title text-lg font-bold tracking-tight"> {isAdmin ? 'របាយការណ៍អាងទឹកតាមខេត្ត' : `របាយការណ៍អាងទឹកក្នុងខេត្ត ${currentUser?.provinceName ?? "-"}`}</h2>
+                        <h2 className="print-title text-lg font-bold tracking-tight font-moul"> {isAdmin ? 'របាយការណ៍អាងទឹកតាមខេត្ត' : `របាយការណ៍អាងទឹកក្នុងខេត្ត ${currentUser?.provinceName ?? "-"}`}</h2>
                         {/* <p className="text-sm">{isAdmin ? "" : `ខេត្ត: ${currentUser?.provinceName ?? "-"}`}</p> */}
                         <br />
                         <p className="text-sm text-slate-600">{dateString}</p>
@@ -839,7 +879,7 @@ export default function ProvinceWaterFeature() {
                                     <>
                                         <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ឈ្មោះខេត្ត</th>
                                         <th colSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹកក្នុងអាង</th>
-                                        <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្ទៃដីស្រោចស្រព</th>
+                                        <th colSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្ទៃដីស្រោចស្រព</th>
                                         <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
                                     </>
                                 ) : (
@@ -847,7 +887,7 @@ export default function ProvinceWaterFeature() {
                                         <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ឈ្មោះអាងស្តុកទឹក</th>
                                         <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ទីតាំង</th>
                                         <th colSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹកក្នុងអាង</th>
-                                        <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្ទៃដីស្រោចស្រព</th>
+                                        <th colSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្ទៃដីស្រោចស្រព</th>
                                         <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ប្រភពទឹក</th>
                                         <th rowSpan={3} className="border border-slate-400 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
                                     </>
@@ -864,6 +904,7 @@ export default function ProvinceWaterFeature() {
                                 <th colSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹកក្នុងអាង</th>
                                 <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ប្រាំង(ហ.ត)</th>
                                 <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">វស្សា(ហ.ត)</th>
+                                <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ដំណាំរួមផ្សំ</th>
                             </tr>
                             <tr>
                                 <th className="border border-slate-400 px-2 py-2 text-center align-middle">បរិមាណទឹក(ម៣)</th>
@@ -888,6 +929,7 @@ export default function ProvinceWaterFeature() {
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(row.totalWater, row.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.irrigatedDryArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.irrigatedWetArea)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(row.otherCrop)}</td>
                                         <td className="border border-slate-300 px-2 py-2">{row.note || "-"}</td>
                                     </tr>
                                 ))
@@ -954,7 +996,7 @@ export default function ProvinceWaterFeature() {
                                 <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ឈ្មោះអាងស្តុកទឹក</th>
                                 <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">ទីតាំង</th>
                                 <th colSpan={3} className="px-4 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
-                                <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">ផ្ទៃដីស្រោចស្រព</th>
+                                <th colSpan={3} className="px-4 py-2 font-semibold text-center border-b border-slate-200">ផ្ទៃដីស្រោចស្រព</th>
                                 <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ប្រភពទឹក</th>
                                 <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ផ្សេងៗ</th>
                                 <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ថ្ងៃបញ្ចូល</th>
@@ -967,6 +1009,7 @@ export default function ProvinceWaterFeature() {
                                 <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
                                 <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ប្រាំង(ហ.ត)</th>
                                 <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">វស្សា(ហ.ត)</th>
+                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ដំណាំរួមផ្សំ</th>
                             </tr>
                             <tr>
                                 <th className="px-4 py-2 font-semibold border-b border-slate-200">បរិមាណទឹក(ម៣)</th>
