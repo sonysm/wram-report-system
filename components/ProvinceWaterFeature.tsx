@@ -87,7 +87,10 @@ function parseNonNegativeInput(value: string): number | null {
     return parsed;
 }
 
-function formatNumber(value: number): string {
+function formatNumber(value: number | undefined | null): string {
+    if (value === undefined || value === null) {
+        return "0";
+    }
     return value.toLocaleString(undefined, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2,
@@ -370,16 +373,10 @@ export default function ProvinceWaterFeature() {
                 throw new Error("Basin name is required");
             }
 
-            setLocation("empty");
-            if (!location.trim()) {
-                throw new Error("Location is required");
-            }
+
 
             if (parsedTotalWater === null || parsedWaterPercent === null) {
                 throw new Error("Capacity and percentage must be non-negative numbers");
-            }
-            if (!normalizedWaterSource) {
-                throw new Error("Water source is required");
             }
 
             const calculatedActualWater = calculateActualWater(parsedTotalWater, parsedWaterPercent);
@@ -626,7 +623,7 @@ export default function ProvinceWaterFeature() {
 
                         <div>
                             <label htmlFor="district" className="mb-2 block text-sm font-medium text-slate-700">
-                                ស្រុក
+                                ស្រុក/ខណ្ឌ
                             </label>
                             <select
                                 id="district"
@@ -768,7 +765,7 @@ export default function ProvinceWaterFeature() {
                                 value={waterSource}
                                 onChange={(e) => setWaterSource(e.target.value)}
                                 placeholder="បញ្ចូលប្រភពទឹក"
-                                required
+
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                             />
                         </div>
@@ -896,8 +893,8 @@ export default function ProvinceWaterFeature() {
                             <tr>
                                 {!isAdmin && (
                                     <>
-                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ស្រុក</th>
-                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">(ឃុ - ស្កាត់)</th>
+                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ក្រុង/ស្រុក</th>
+                                        <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">ឃុំ/សង្កាត់</th>
                                     </>
                                 )}
                                 <th rowSpan={2} className="border border-slate-400 px-2 py-2 text-center align-middle">សមត្ថភាពស្តុកទឹកសរុប (ម៣)</th>
@@ -944,6 +941,7 @@ export default function ProvinceWaterFeature() {
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.irrigatedDryArea)}</td>
                                         <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.irrigatedWetArea)}</td>
+                                        <td className="border border-slate-300 px-2 py-2 text-right">{formatNumber(entry.otherCrop)}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.waterSource || "-"}</td>
                                         <td className="border border-slate-300 px-2 py-2">{entry.note || "-"}</td>
                                     </tr>
@@ -959,6 +957,7 @@ export default function ProvinceWaterFeature() {
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatPercent(totals.totalWater, totals.actualWater)}</td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.irrigatedDryArea)}</td>
                                 <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.irrigatedWetArea)}</td>
+                                <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(totals.otherCrop)}</td>
                                 {isAdmin ? (
                                     <td className="border border-slate-400 px-2 py-2"></td>
                                 ) : (
@@ -1035,6 +1034,7 @@ export default function ProvinceWaterFeature() {
                                     <td className="px-4 py-3 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
                                     <td className="px-4 py-3 text-right">{formatNumber(entry.irrigatedDryArea)}</td>
                                     <td className="px-4 py-3 text-right">{formatNumber(entry.irrigatedWetArea)}</td>
+                                    <td className="px-4 py-3 text-right">{formatNumber(entry.otherCrop)}</td>
                                     <td className="px-4 py-3 text-center">{entry.waterSource || "-"}</td>
                                     <td className="px-4 py-3 text-center">{entry.note || "-"}</td>
                                     <td className="px-4 py-3 text-center">{new Date(entry.createdAt).toLocaleDateString()}</td>
