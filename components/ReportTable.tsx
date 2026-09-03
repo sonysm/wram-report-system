@@ -637,7 +637,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                 })}
                             </tbody>
                             <tfoot>
-                                <tr className="bg-[#a3c977]/30 font-semibold">
+                                <tr className="font-semibold">
                                     <td className="border border-slate-500 px-2 py-2 text-center font-moul" colSpan={2}>
                                         សរុប
                                     </td>

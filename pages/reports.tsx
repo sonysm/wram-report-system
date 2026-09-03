@@ -21,13 +21,7 @@ const Reports: NextPage = () => {
           </p>
         </div>
 
-        <article className="rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-[0_20px_55px_-35px_rgba(15,23,42,0.55)] sm:p-10">
-          <h2 className="text-xl font-semibold text-slate-900">បញ្ចូលទិន្នន័យ</h2>
-          <p className="mt-2 text-sm text-slate-600">Select a district in your province, or add one if missing.</p>
-          <div className="mt-6">
-            <DataForm onEntrySaved={handleEntrySaved} />
-          </div>
-        </article>
+        <DataForm onEntrySaved={handleEntrySaved} />
 
         <ReportTable refreshTrigger={refreshTrigger} />
       </section>

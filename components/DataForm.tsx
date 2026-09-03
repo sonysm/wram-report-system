@@ -349,32 +349,36 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
     })();
 
     if (isLoading) {
-        return <p className="text-sm text-slate-500">Loading form...</p>;
+        return (
+            <article className="rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-[0_20px_55px_-35px_rgba(15,23,42,0.55)] sm:p-10">
+                <p className="text-sm text-slate-500">Loading form...</p>
+            </article>
+        );
     }
 
     if (authError) {
         return (
-            <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-800">
-                <p className="text-sm font-medium">{authError}</p>
-                <Link href="/login" className="mt-3 inline-flex text-sm font-semibold text-amber-900 underline">
-                    Go to login
-                </Link>
-            </div>
+            <article className="rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-[0_20px_55px_-35px_rgba(15,23,42,0.55)] sm:p-10">
+                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-800">
+                    <p className="text-sm font-medium">{authError}</p>
+                    <Link href="/login" className="mt-3 inline-flex text-sm font-semibold text-amber-900 underline">
+                        Go to login
+                    </Link>
+                </div>
+            </article>
         );
     }
 
-    return (
-        <div className="space-y-6">
-            {/* <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                <p>
-                    Logged in as <strong>{currentUser?.username}</strong> ({currentUser?.role})
-                </p>
-                <p className="mt-1">
-                    Province access: <strong>{currentUser?.provinceName ?? "Not assigned"}</strong>
-                </p>
-            </div> */}
+    if (isAdmin) {
+        return null;
+    }
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+    return (
+        <article className="rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-[0_20px_55px_-35px_rgba(15,23,42,0.55)] sm:p-10">
+            <h2 className="text-xl font-semibold text-slate-900">បញ្ចូលទិន្នន័យ</h2>
+            <p className="mt-2 text-sm text-slate-600">Select a district in your province, or add one if missing.</p>
+            <div className="mt-6 space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label htmlFor="district" className="mb-2 block text-sm font-medium text-slate-700">
                         ស្រុក
@@ -644,7 +648,6 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                 }
             </form >
 
-            {!isAdmin && (
             <div>
                 <h3 className="text-base font-semibold text-slate-900">Recent records</h3>
                 <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
@@ -708,7 +711,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                         </tbody>
                     </table>
                 </div>
-            </div>)}
-        </div >
+            </div>
+            </div>
+        </article>
     );
 }
