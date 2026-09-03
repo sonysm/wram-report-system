@@ -975,11 +975,13 @@ export default function ProvinceWaterFeature() {
                 <div className="mt-12 grid grid-cols-2 gap-6 text-[15px]">
                     <div className="flex flex-col items-center text-center">
                         <p className="font-moul mb-1">បានឃើញ និងឯកភាព</p>
-                        <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
+                        {/* <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
+                        <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p> */}
                         <p className="font-moul mt-1">ប្រធានមន្ទីរ</p>
                         <div className="mt-24"></div>
                     </div>
                     <div className="flex flex-col items-center text-center justify-end">
+                        <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
                         <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
                         <p className="font-moul mt-1">អ្នកធ្វើតារាង</p>
                         <div className="mt-24"></div>

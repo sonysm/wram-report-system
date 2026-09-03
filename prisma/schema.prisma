@@ -21,9 +21,13 @@ model Entry {
   planDone          Float       @default(0)
   actualArea        Float       @default(0)
   interventionArea  Float       @default(0)
+  interventionAreaDrought  Float       @default(0)
+  interventionAreaFlood    Float       @default(0)
   householdPlan     Float       @default(0)
   householdDone     Float       @default(0)
   unsalvageableArea Float       @default(0)
+  unsalvageableAreaDrought Float       @default(0)
+  unsalvageableAreaFlood   Float       @default(0)
   overUnderPlan     Float       @default(0)
   waterSource       String      @default("")
   note              String?

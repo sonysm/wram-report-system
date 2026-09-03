@@ -65,9 +65,13 @@ function parseRecordFields(rawBody: unknown): {
   planDone: number;
   actualArea: number;
   interventionArea: number;
+  interventionAreaDrought: number;
+  interventionAreaFlood: number;
   householdPlan: number;
   householdDone: number;
   unsalvageableArea: number;
+  unsalvageableAreaDrought: number;
+  unsalvageableAreaFlood: number;
   overUnderPlan: number;
   waterSource: string;
   note: string | null;
@@ -83,9 +87,13 @@ function parseRecordFields(rawBody: unknown): {
 
   const actualArea = parseNonNegativeNumber(body.actualArea) ?? 0;
   const interventionArea = parseNonNegativeNumber(body.interventionArea) ?? 0;
+  const interventionAreaDrought = parseNonNegativeNumber(body.interventionAreaDrought) ?? 0;
+  const interventionAreaFlood = parseNonNegativeNumber(body.interventionAreaFlood) ?? 0;
   const householdPlan = parseNonNegativeNumber(body.householdPlan) ?? 0;
   const householdDone = parseNonNegativeNumber(body.householdDone) ?? 0;
   const unsalvageableArea = parseNonNegativeNumber(body.unsalvageableArea) ?? 0;
+  const unsalvageableAreaDrought = parseNonNegativeNumber(body.unsalvageableAreaDrought) ?? 0;
+  const unsalvageableAreaFlood = parseNonNegativeNumber(body.unsalvageableAreaFlood) ?? 0;
   const overUnderPlan = parseNumber(body.overUnderPlan) ?? 0;
   const waterSource = normalizeText(body.waterSource);
   const noteText = normalizeText(body.note);
@@ -99,9 +107,13 @@ function parseRecordFields(rawBody: unknown): {
     planDone,
     actualArea,
     interventionArea,
+    interventionAreaDrought,
+    interventionAreaFlood,
     householdPlan,
     householdDone,
     unsalvageableArea,
+    unsalvageableAreaDrought,
+    unsalvageableAreaFlood,
     overUnderPlan,
     waterSource,
     note: noteText ? noteText : null,
@@ -218,9 +230,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           planDone: fields.planDone,
           actualArea: fields.actualArea,
           interventionArea: fields.interventionArea,
+          interventionAreaDrought: fields.interventionAreaDrought,
+          interventionAreaFlood: fields.interventionAreaFlood,
           householdPlan: fields.householdPlan,
           householdDone: fields.householdDone,
           unsalvageableArea: fields.unsalvageableArea,
+          unsalvageableAreaDrought: fields.unsalvageableAreaDrought,
+          unsalvageableAreaFlood: fields.unsalvageableAreaFlood,
           overUnderPlan: fields.overUnderPlan,
           waterSource: fields.waterSource,
           note: fields.note,
@@ -248,9 +264,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             planDone: entry.planDone,
             actualArea: entry.actualArea,
             interventionArea: entry.interventionArea,
+            interventionAreaDrought: entry.interventionAreaDrought,
+            interventionAreaFlood: entry.interventionAreaFlood,
             householdPlan: entry.householdPlan,
             householdDone: entry.householdDone,
             unsalvageableArea: entry.unsalvageableArea,
+            unsalvageableAreaDrought: entry.unsalvageableAreaDrought,
+            unsalvageableAreaFlood: entry.unsalvageableAreaFlood,
             waterSource: entry.waterSource,
             note: entry.note,
           },
@@ -300,9 +320,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           planDone: fields.planDone,
           actualArea: fields.actualArea,
           interventionArea: fields.interventionArea,
+          interventionAreaDrought: fields.interventionAreaDrought,
+          interventionAreaFlood: fields.interventionAreaFlood,
           householdPlan: fields.householdPlan,
           householdDone: fields.householdDone,
           unsalvageableArea: fields.unsalvageableArea,
+          unsalvageableAreaDrought: fields.unsalvageableAreaDrought,
+          unsalvageableAreaFlood: fields.unsalvageableAreaFlood,
           overUnderPlan: fields.overUnderPlan,
           waterSource: fields.waterSource,
           note: fields.note,
@@ -328,9 +352,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             planDone: existing.planDone,
             actualArea: existing.actualArea,
             interventionArea: existing.interventionArea,
+            interventionAreaDrought: existing.interventionAreaDrought,
+            interventionAreaFlood: existing.interventionAreaFlood,
             householdPlan: existing.householdPlan,
             householdDone: existing.householdDone,
             unsalvageableArea: existing.unsalvageableArea,
+            unsalvageableAreaDrought: existing.unsalvageableAreaDrought,
+            unsalvageableAreaFlood: existing.unsalvageableAreaFlood,
             waterSource: existing.waterSource,
             note: existing.note,
           },
@@ -340,9 +368,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             planDone: updated.planDone,
             actualArea: updated.actualArea,
             interventionArea: updated.interventionArea,
+            interventionAreaDrought: updated.interventionAreaDrought,
+            interventionAreaFlood: updated.interventionAreaFlood,
             householdPlan: updated.householdPlan,
             householdDone: updated.householdDone,
             unsalvageableArea: updated.unsalvageableArea,
+            unsalvageableAreaDrought: updated.unsalvageableAreaDrought,
+            unsalvageableAreaFlood: updated.unsalvageableAreaFlood,
             waterSource: updated.waterSource,
             note: updated.note,
           },

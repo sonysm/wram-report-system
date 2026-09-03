@@ -16,9 +16,13 @@ interface ReportRow {
     planDone: number;
     actualArea: number;
     interventionArea: number;
+    interventionAreaDrought: number;
+    interventionAreaFlood: number;
     householdPlan: number;
     householdDone: number;
     unsalvageableArea: number;
+    unsalvageableAreaDrought: number;
+    unsalvageableAreaFlood: number;
     overUnderPlan: number;
     waterSource: string;
     note: string;
@@ -30,9 +34,13 @@ interface Totals {
     planDone: number;
     actualArea: number;
     interventionArea: number;
+    interventionAreaDrought: number;
+    interventionAreaFlood: number;
     householdPlan: number;
     householdDone: number;
     unsalvageableArea: number;
+    unsalvageableAreaDrought: number;
+    unsalvageableAreaFlood: number;
     overUnderPlan: number;
 }
 
@@ -42,9 +50,13 @@ function createZeroTotals(): Totals {
         planDone: 0,
         actualArea: 0,
         interventionArea: 0,
+        interventionAreaDrought: 0,
+        interventionAreaFlood: 0,
         householdPlan: 0,
         householdDone: 0,
         unsalvageableArea: 0,
+        unsalvageableAreaDrought: 0,
+        unsalvageableAreaFlood: 0,
         overUnderPlan: 0,
     };
 }
@@ -56,9 +68,13 @@ function calculateTotals(rows: ReportRow[]): Totals {
             planDone: acc.planDone + row.planDone,
             actualArea: acc.actualArea + row.actualArea,
             interventionArea: acc.interventionArea + row.interventionArea,
+            interventionAreaDrought: acc.interventionAreaDrought + row.interventionAreaDrought,
+            interventionAreaFlood: acc.interventionAreaFlood + row.interventionAreaFlood,
             householdPlan: acc.householdPlan + row.householdPlan,
             householdDone: acc.householdDone + row.householdDone,
             unsalvageableArea: acc.unsalvageableArea + row.unsalvageableArea,
+            unsalvageableAreaDrought: acc.unsalvageableAreaDrought + row.unsalvageableAreaDrought,
+            unsalvageableAreaFlood: acc.unsalvageableAreaFlood + row.unsalvageableAreaFlood,
             overUnderPlan: acc.overUnderPlan + row.overUnderPlan,
         }),
         createZeroTotals(),
@@ -119,9 +135,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 planDone: entry.planDone,
                 actualArea: entry.actualArea,
                 interventionArea: entry.interventionArea,
+                interventionAreaDrought: entry.interventionAreaDrought,
+                interventionAreaFlood: entry.interventionAreaFlood,
                 householdPlan: entry.householdPlan,
                 householdDone: entry.householdDone,
                 unsalvageableArea: entry.unsalvageableArea,
+                unsalvageableAreaDrought: entry.unsalvageableAreaDrought,
+                unsalvageableAreaFlood: entry.unsalvageableAreaFlood,
                 overUnderPlan: entry.overUnderPlan,
                 waterSource: entry.waterSource,
                 note: entry.note ?? "",
@@ -154,9 +174,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             planDone: true,
             actualArea: true,
             interventionArea: true,
+            interventionAreaDrought: true,
+            interventionAreaFlood: true,
             householdPlan: true,
             householdDone: true,
             unsalvageableArea: true,
+            unsalvageableAreaDrought: true,
+            unsalvageableAreaFlood: true,
             overUnderPlan: true,
         },
         _count: { _all: true },
@@ -219,9 +243,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             planDone: grouped?._sum.planDone ?? 0,
             actualArea: grouped?._sum.actualArea ?? 0,
             interventionArea: grouped?._sum.interventionArea ?? 0,
+            interventionAreaDrought: grouped?._sum.interventionAreaDrought ?? 0,
+            interventionAreaFlood: grouped?._sum.interventionAreaFlood ?? 0,
             householdPlan: grouped?._sum.householdPlan ?? 0,
             householdDone: grouped?._sum.householdDone ?? 0,
             unsalvageableArea: grouped?._sum.unsalvageableArea ?? 0,
+            unsalvageableAreaDrought: grouped?._sum.unsalvageableAreaDrought ?? 0,
+            unsalvageableAreaFlood: grouped?._sum.unsalvageableAreaFlood ?? 0,
             overUnderPlan: grouped?._sum.overUnderPlan ?? 0,
             waterSource: latestMeta?.waterSource ?? "",
             note: latestMeta?.note ?? "",

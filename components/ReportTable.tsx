@@ -12,9 +12,13 @@ interface ReportRow {
     planDone: number;
     actualArea: number;
     interventionArea: number;
+    interventionAreaDrought: number;
+    interventionAreaFlood: number;
     householdPlan: number;
     householdDone: number;
     unsalvageableArea: number;
+    unsalvageableAreaDrought: number;
+    unsalvageableAreaFlood: number;
     overUnderPlan: number;
     waterSource: string;
     note: string;
@@ -33,9 +37,13 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
         planDone: 0,
         actualArea: 0,
         interventionArea: 0,
+        interventionAreaDrought: 0,
+        interventionAreaFlood: 0,
         householdPlan: 0,
         householdDone: 0,
         unsalvageableArea: 0,
+        unsalvageableAreaDrought: 0,
+        unsalvageableAreaFlood: 0,
         overUnderPlan: 0,
     });
     const [scope, setScope] = useState<"all" | "province">("all");
@@ -313,9 +321,13 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                         planDone: 0,
                         actualArea: 0,
                         interventionArea: 0,
+                        interventionAreaDrought: 0,
+                        interventionAreaFlood: 0,
                         householdPlan: 0,
                         householdDone: 0,
                         unsalvageableArea: 0,
+                        unsalvageableAreaDrought: 0,
+                        unsalvageableAreaFlood: 0,
                         overUnderPlan: 0,
                     },
                 );
@@ -453,7 +465,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ភាគរយ<br />អនុវត្តបាន</th>
                                     <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីប៉ះពាល់(ហ.ត)</th>
                                     <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center ">ផ្ទៃដីអន្តរាគមន៍ (ហ.ត)</th>
-                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន(ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីសង្គ្រោះបាន(ហ.ត)</th>
                                     <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីស្រូវខូចខាត(ហ.ត)</th>
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ប្រភពទឹក</th>
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
@@ -487,12 +499,12 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                         <td className="border border-slate-400 px-2 py-2 text-center">{Number(row.planArea) > 0 ? `${((row.planDone * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.actualArea > 0 ? formatNumber(row.actualArea) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionArea > 0 ? formatNumber(row.interventionArea) : ""}</td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionAreaDrought > 0 ? formatNumber(row.interventionAreaDrought) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionAreaFlood > 0 ? formatNumber(row.interventionAreaFlood) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDone > 0 ? formatNumber(row.householdDone) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right"></td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableArea > 0 ? formatNumber(row.unsalvageableArea) : ""}</td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableAreaDrought > 0 ? formatNumber(row.unsalvageableAreaDrought) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableAreaFlood > 0 ? formatNumber(row.unsalvageableAreaFlood) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2">{row.waterSource || ""}</td>
                                         <td className="border border-slate-400 px-2 py-2">{row.note || ""}</td>
                                     </tr>
@@ -505,16 +517,16 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                     </td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.overUnderPlan > 0 ? formatNumber(totals.overUnderPlan) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.overUnderPlan)}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-center">{Number(totals.planArea) > 0 ? `${((totals.planDone * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.actualArea > 0 ? formatNumber(totals.actualArea) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdPlan > 0 ? formatNumber(totals.householdPlan) : ""}</td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionArea > 0 ? formatNumber(totals.interventionArea) : ""}</td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionAreaDrought > 0 ? formatNumber(totals.interventionAreaDrought) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionAreaFlood > 0 ? formatNumber(totals.interventionAreaFlood) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDone > 0 ? formatNumber(totals.householdDone) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right"></td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableArea > 0 ? formatNumber(totals.unsalvageableArea) : ""}</td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableAreaDrought > 0 ? formatNumber(totals.unsalvageableAreaDrought) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableAreaFlood > 0 ? formatNumber(totals.unsalvageableAreaFlood) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2"></td>
                                     <td className="border border-slate-500 px-2 py-2"></td>
                                 </tr>
@@ -566,7 +578,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ភាគរយ<br />អនុវត្តបាន</th>
                                     <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីប៉ះពាល់(ហ.ត)</th>
                                     <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីអន្តរាគមន៍ (ហ.ត)</th>
-                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន(ហ.ត)</th>
+                                    <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីសង្គ្រោះបាន(ហ.ត)</th>
                                     <th colSpan={2} className="border border-slate-500 px-2 py-2 text-center">ផ្ទៃដីស្រូវខូចខាត(ហ.ត)</th>
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ប្រភពទឹក</th>
                                     <th rowSpan={2} className="border border-slate-500 px-2 py-2 text-center align-middle">ផ្សេងៗ</th>
@@ -601,11 +613,11 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                             <td className="border border-slate-400 px-2 py-2 text-center">{Number(row.planArea) > 0 ? `${((row.planDone * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.actualArea > 0 ? formatNumber(row.actualArea) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
-                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionArea > 0 ? formatNumber(row.interventionArea) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionAreaDrought > 0 ? formatNumber(row.interventionAreaDrought) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right"></td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDone > 0 ? formatNumber(row.householdDone) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right"></td>
-                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableArea > 0 ? formatNumber(row.unsalvageableArea) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableAreaDrought > 0 ? formatNumber(row.unsalvageableAreaDrought) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right"></td>
                                             <td className="border border-slate-400 px-2 py-2">{row.waterSource || ""}</td>
                                             <td className="border border-slate-400 px-2 py-2">{row.note || ""}</td>
