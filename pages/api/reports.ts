@@ -20,6 +20,8 @@ interface ReportRow {
     interventionAreaFlood: number;
     householdPlan: number;
     householdDone: number;
+    householdDoneDrought: number;
+    householdDoneFlood: number;
     unsalvageableArea: number;
     unsalvageableAreaDrought: number;
     unsalvageableAreaFlood: number;
@@ -38,6 +40,8 @@ interface Totals {
     interventionAreaFlood: number;
     householdPlan: number;
     householdDone: number;
+    householdDoneDrought: number;
+    householdDoneFlood: number;
     unsalvageableArea: number;
     unsalvageableAreaDrought: number;
     unsalvageableAreaFlood: number;
@@ -54,6 +58,8 @@ function createZeroTotals(): Totals {
         interventionAreaFlood: 0,
         householdPlan: 0,
         householdDone: 0,
+        householdDoneDrought: 0,
+        householdDoneFlood: 0,
         unsalvageableArea: 0,
         unsalvageableAreaDrought: 0,
         unsalvageableAreaFlood: 0,
@@ -72,6 +78,8 @@ function calculateTotals(rows: ReportRow[]): Totals {
             interventionAreaFlood: acc.interventionAreaFlood + row.interventionAreaFlood,
             householdPlan: acc.householdPlan + row.householdPlan,
             householdDone: acc.householdDone + row.householdDone,
+            householdDoneDrought: acc.householdDoneDrought + row.householdDoneDrought,
+            householdDoneFlood: acc.householdDoneFlood + row.householdDoneFlood,
             unsalvageableArea: acc.unsalvageableArea + row.unsalvageableArea,
             unsalvageableAreaDrought: acc.unsalvageableAreaDrought + row.unsalvageableAreaDrought,
             unsalvageableAreaFlood: acc.unsalvageableAreaFlood + row.unsalvageableAreaFlood,
@@ -139,6 +147,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 interventionAreaFlood: entry.interventionAreaFlood,
                 householdPlan: entry.householdPlan,
                 householdDone: entry.householdDone,
+                householdDoneDrought: entry.householdDoneDrought,
+                householdDoneFlood: entry.householdDoneFlood,
                 unsalvageableArea: entry.unsalvageableArea,
                 unsalvageableAreaDrought: entry.unsalvageableAreaDrought,
                 unsalvageableAreaFlood: entry.unsalvageableAreaFlood,
@@ -178,6 +188,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             interventionAreaFlood: true,
             householdPlan: true,
             householdDone: true,
+            householdDoneDrought: true,
+            householdDoneFlood: true,
             unsalvageableArea: true,
             unsalvageableAreaDrought: true,
             unsalvageableAreaFlood: true,
@@ -247,6 +259,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             interventionAreaFlood: grouped?._sum.interventionAreaFlood ?? 0,
             householdPlan: grouped?._sum.householdPlan ?? 0,
             householdDone: grouped?._sum.householdDone ?? 0,
+            householdDoneDrought: grouped?._sum.householdDoneDrought ?? 0,
+            householdDoneFlood: grouped?._sum.householdDoneFlood ?? 0,
             unsalvageableArea: grouped?._sum.unsalvageableArea ?? 0,
             unsalvageableAreaDrought: grouped?._sum.unsalvageableAreaDrought ?? 0,
             unsalvageableAreaFlood: grouped?._sum.unsalvageableAreaFlood ?? 0,

@@ -25,6 +25,8 @@ model Entry {
   interventionAreaFlood    Float       @default(0)
   householdPlan     Float       @default(0)
   householdDone     Float       @default(0)
+  householdDoneDrought     Float       @default(0)
+  householdDoneFlood     Float       @default(0)
   unsalvageableArea Float       @default(0)
   unsalvageableAreaDrought Float       @default(0)
   unsalvageableAreaFlood   Float       @default(0)

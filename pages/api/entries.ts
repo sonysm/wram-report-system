@@ -69,6 +69,8 @@ function parseRecordFields(rawBody: unknown): {
   interventionAreaFlood: number;
   householdPlan: number;
   householdDone: number;
+  householdDoneDrought: number;
+  householdDoneFlood: number;
   unsalvageableArea: number;
   unsalvageableAreaDrought: number;
   unsalvageableAreaFlood: number;
@@ -91,6 +93,8 @@ function parseRecordFields(rawBody: unknown): {
   const interventionAreaFlood = parseNonNegativeNumber(body.interventionAreaFlood) ?? 0;
   const householdPlan = parseNonNegativeNumber(body.householdPlan) ?? 0;
   const householdDone = parseNonNegativeNumber(body.householdDone) ?? 0;
+  const householdDoneDrought = parseNonNegativeNumber(body.householdDoneDrought) ?? 0;
+  const householdDoneFlood = parseNonNegativeNumber(body.householdDoneFlood) ?? 0;
   const unsalvageableArea = parseNonNegativeNumber(body.unsalvageableArea) ?? 0;
   const unsalvageableAreaDrought = parseNonNegativeNumber(body.unsalvageableAreaDrought) ?? 0;
   const unsalvageableAreaFlood = parseNonNegativeNumber(body.unsalvageableAreaFlood) ?? 0;
@@ -111,6 +115,8 @@ function parseRecordFields(rawBody: unknown): {
     interventionAreaFlood,
     householdPlan,
     householdDone,
+    householdDoneDrought,
+    householdDoneFlood,
     unsalvageableArea,
     unsalvageableAreaDrought,
     unsalvageableAreaFlood,
@@ -234,6 +240,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           interventionAreaFlood: fields.interventionAreaFlood,
           householdPlan: fields.householdPlan,
           householdDone: fields.householdDone,
+          householdDoneDrought: fields.householdDoneDrought,
+          householdDoneFlood: fields.householdDoneFlood,
           unsalvageableArea: fields.unsalvageableArea,
           unsalvageableAreaDrought: fields.unsalvageableAreaDrought,
           unsalvageableAreaFlood: fields.unsalvageableAreaFlood,
@@ -268,6 +276,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             interventionAreaFlood: entry.interventionAreaFlood,
             householdPlan: entry.householdPlan,
             householdDone: entry.householdDone,
+            householdDoneDrought: entry.householdDoneDrought,
+            householdDoneFlood: entry.householdDoneFlood,
             unsalvageableArea: entry.unsalvageableArea,
             unsalvageableAreaDrought: entry.unsalvageableAreaDrought,
             unsalvageableAreaFlood: entry.unsalvageableAreaFlood,
@@ -324,6 +334,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           interventionAreaFlood: fields.interventionAreaFlood,
           householdPlan: fields.householdPlan,
           householdDone: fields.householdDone,
+          householdDoneDrought: fields.householdDoneDrought,
+          householdDoneFlood: fields.householdDoneFlood,
           unsalvageableArea: fields.unsalvageableArea,
           unsalvageableAreaDrought: fields.unsalvageableAreaDrought,
           unsalvageableAreaFlood: fields.unsalvageableAreaFlood,
@@ -356,6 +368,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             interventionAreaFlood: existing.interventionAreaFlood,
             householdPlan: existing.householdPlan,
             householdDone: existing.householdDone,
+            householdDoneDrought: existing.householdDoneDrought,
+            householdDoneFlood: existing.householdDoneFlood,
             unsalvageableArea: existing.unsalvageableArea,
             unsalvageableAreaDrought: existing.unsalvageableAreaDrought,
             unsalvageableAreaFlood: existing.unsalvageableAreaFlood,
@@ -372,6 +386,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             interventionAreaFlood: updated.interventionAreaFlood,
             householdPlan: updated.householdPlan,
             householdDone: updated.householdDone,
+            householdDoneDrought: updated.householdDoneDrought,
+            householdDoneFlood: updated.householdDoneFlood,
             unsalvageableArea: updated.unsalvageableArea,
             unsalvageableAreaDrought: updated.unsalvageableAreaDrought,
             unsalvageableAreaFlood: updated.unsalvageableAreaFlood,

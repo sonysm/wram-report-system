@@ -16,6 +16,8 @@ interface ReportRow {
     interventionAreaFlood: number;
     householdPlan: number;
     householdDone: number;
+    householdDoneDrought: number;
+    householdDoneFlood: number;
     unsalvageableArea: number;
     unsalvageableAreaDrought: number;
     unsalvageableAreaFlood: number;
@@ -41,6 +43,8 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
         interventionAreaFlood: 0,
         householdPlan: 0,
         householdDone: 0,
+        householdDoneDrought: 0,
+        householdDoneFlood: 0,
         unsalvageableArea: 0,
         unsalvageableAreaDrought: 0,
         unsalvageableAreaFlood: 0,
@@ -325,6 +329,8 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                         interventionAreaFlood: 0,
                         householdPlan: 0,
                         householdDone: 0,
+        householdDoneDrought: 0,
+        householdDoneFlood: 0,
                         unsalvageableArea: 0,
                         unsalvageableAreaDrought: 0,
                         unsalvageableAreaFlood: 0,
@@ -501,8 +507,8 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionAreaDrought > 0 ? formatNumber(row.interventionAreaDrought) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionAreaFlood > 0 ? formatNumber(row.interventionAreaFlood) : ""}</td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDone > 0 ? formatNumber(row.householdDone) : ""}</td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right"></td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDoneDrought > 0 ? formatNumber(row.householdDoneDrought) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDoneFlood > 0 ? formatNumber(row.householdDoneFlood) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableAreaDrought > 0 ? formatNumber(row.unsalvageableAreaDrought) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableAreaFlood > 0 ? formatNumber(row.unsalvageableAreaFlood) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2">{row.waterSource || ""}</td>
@@ -523,8 +529,8 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdPlan > 0 ? formatNumber(totals.householdPlan) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionAreaDrought > 0 ? formatNumber(totals.interventionAreaDrought) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionAreaFlood > 0 ? formatNumber(totals.interventionAreaFlood) : ""}</td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDone > 0 ? formatNumber(totals.householdDone) : ""}</td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right"></td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDoneDrought > 0 ? formatNumber(totals.householdDoneDrought) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDoneFlood > 0 ? formatNumber(totals.householdDoneFlood) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableAreaDrought > 0 ? formatNumber(totals.unsalvageableAreaDrought) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableAreaFlood > 0 ? formatNumber(totals.unsalvageableAreaFlood) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2"></td>
@@ -534,16 +540,19 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                         </table>
                     </div>
 
-                    <div className="mt-8 grid grid-cols-1 gap-6 text-sm sm:grid-cols-2">
-                        <div>
-                            <p>បានពិនិត្យដោយ:</p>
-                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
-                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                    <div className="mt-12 grid grid-cols-2 gap-6 text-[15px]">
+                        <div className="flex flex-col items-center text-center">
+                            <p className="font-moul mb-1">បានឃើញ និងឯកភាព</p>
+                            {/* <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
+                            <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p> */}
+                            <p className="font-moul mt-1">ប្រធានមន្ទីរ</p>
+                            <div className="mt-24"></div>
                         </div>
-                        <div className="text-left sm:text-right">
-                            <p>បានរៀបចំដោយ:</p>
-                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
-                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                        <div className="flex flex-col items-center text-center justify-end">
+                            <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
+                            <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
+                            <p className="font-moul mt-1">អ្នកធ្វើតារាង</p>
+                            <div className="mt-24"></div>
                         </div>
                     </div>
                 </section>
@@ -615,7 +624,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.interventionAreaDrought > 0 ? formatNumber(row.interventionAreaDrought) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right"></td>
-                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDone > 0 ? formatNumber(row.householdDone) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.householdDoneDrought > 0 ? formatNumber(row.householdDoneDrought) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right"></td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.unsalvageableAreaDrought > 0 ? formatNumber(row.unsalvageableAreaDrought) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right"></td>
@@ -638,7 +647,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdPlan > 0 ? formatNumber(totals.householdPlan) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.interventionArea > 0 ? formatNumber(totals.interventionArea) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right"></td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDone > 0 ? formatNumber(totals.householdDone) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdDoneDrought > 0 ? formatNumber(totals.householdDoneDrought) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right"></td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.unsalvageableArea > 0 ? formatNumber(totals.unsalvageableArea) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right"></td>
@@ -649,16 +658,19 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                         </table>
                     </div>
 
-                    <div className="mt-8 grid grid-cols-1 gap-6 text-sm sm:grid-cols-2">
-                        <div>
-                            <p>បានពិនិត្យដោយ:</p>
-                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
-                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                    <div className="mt-12 grid grid-cols-2 gap-6 text-[15px]">
+                        <div className="flex flex-col items-center text-center">
+                            <p className="font-moul mb-1">បានឃើញ និងឯកភាព</p>
+                            <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
+                            <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
+                            <p className="font-moul mt-1">ប្រធានមន្ទីរ</p>
+                            <div className="mt-24"></div>
                         </div>
-                        <div className="text-left sm:text-right">
-                            <p>បានរៀបចំដោយ:</p>
-                            <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
-                            <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                        <div className="flex flex-col items-center text-center justify-end">
+                            <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
+                            <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
+                            <p className="font-moul mt-1">អ្នកធ្វើតារាង</p>
+                            <div className="mt-24"></div>
                         </div>
                     </div>
                 </section>

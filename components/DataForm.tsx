@@ -26,6 +26,8 @@ interface EntryRecord {
     interventionAreaFlood: number;
     householdPlan: number;
     householdDone: number;
+    householdDoneDrought: number;
+    householdDoneFlood: number;
     unsalvageableArea: number;
     unsalvageableAreaDrought: number;
     unsalvageableAreaFlood: number;
@@ -75,6 +77,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
     const [interventionAreaFlood, setInterventionAreaFlood] = useState("0");
     const [householdPlan, setHouseholdPlan] = useState("0");
     const [householdDone, setHouseholdDone] = useState("0");
+    const [householdDoneDrought, setHouseholdDoneDrought] = useState("0");
+    const [householdDoneFlood, setHouseholdDoneFlood] = useState("0");
     const [unsalvageableArea, setUnsalvageableArea] = useState("0");
     const [unsalvageableAreaDrought, setUnsalvageableAreaDrought] = useState("0");
     const [unsalvageableAreaFlood, setUnsalvageableAreaFlood] = useState("0");
@@ -164,6 +168,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
         setInterventionAreaFlood("0");
         setHouseholdPlan("0");
         setHouseholdDone("0");
+        setHouseholdDoneDrought("0");
+        setHouseholdDoneFlood("0");
         setUnsalvageableArea("0");
         setUnsalvageableAreaDrought("0");
         setUnsalvageableAreaFlood("0");
@@ -203,7 +209,9 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
             const parsedInterventionAreaDrought = parseDecimalInput(interventionAreaDrought) ?? 0;
             const parsedInterventionAreaFlood = parseDecimalInput(interventionAreaFlood) ?? 0;
             const parsedHouseholdPlan = parseDecimalInput(householdPlan);
-            const parsedHouseholdDone = parseDecimalInput(householdDone);
+            const parsedHouseholdDone = (parseDecimalInput(householdDoneDrought) ?? 0) + (parseDecimalInput(householdDoneFlood) ?? 0);
+            const parsedHouseholdDoneDrought = parseDecimalInput(householdDoneDrought) ?? 0;
+            const parsedHouseholdDoneFlood = parseDecimalInput(householdDoneFlood) ?? 0;
             const parsedUnsalvageableArea = (parseDecimalInput(unsalvageableAreaDrought) ?? 0) + (parseDecimalInput(unsalvageableAreaFlood) ?? 0);
             const parsedUnsalvageableAreaDrought = parseDecimalInput(unsalvageableAreaDrought) ?? 0;
             const parsedUnsalvageableAreaFlood = parseDecimalInput(unsalvageableAreaFlood) ?? 0;
@@ -240,6 +248,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
     interventionAreaFlood: number;
                 householdPlan: number;
                 householdDone: number;
+    householdDoneDrought: number;
+    householdDoneFlood: number;
                 unsalvageableArea: number;
     unsalvageableAreaDrought: number;
     unsalvageableAreaFlood: number;
@@ -255,6 +265,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                 interventionAreaFlood: parsedInterventionAreaFlood,
                 householdPlan: parsedHouseholdPlan,
                 householdDone: parsedHouseholdDone,
+                householdDoneDrought: parsedHouseholdDoneDrought,
+                householdDoneFlood: parsedHouseholdDoneFlood,
                 unsalvageableArea: parsedUnsalvageableArea,
                 unsalvageableAreaDrought: parsedUnsalvageableAreaDrought,
                 unsalvageableAreaFlood: parsedUnsalvageableAreaFlood,
@@ -312,6 +324,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
         setInterventionAreaFlood(String(entry.interventionAreaFlood ?? 0));
         setHouseholdPlan(String(entry.householdPlan));
         setHouseholdDone(String(entry.householdDone));
+        setHouseholdDoneDrought(String(entry.householdDoneDrought ?? 0));
+        setHouseholdDoneFlood(String(entry.householdDoneFlood ?? 0));
         setUnsalvageableArea(String(entry.unsalvageableArea));
         setUnsalvageableAreaDrought(String(entry.unsalvageableAreaDrought ?? 0));
         setUnsalvageableAreaFlood(String(entry.unsalvageableAreaFlood ?? 0));
@@ -550,13 +564,29 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                     </div>
 
                     <div>
-                        <label htmlFor="householdDone" className="mb-2 block text-sm font-medium text-slate-700">
-                            បរិមាណទឹក %
+                        <label htmlFor="householdDoneDrought" className="mb-2 block text-sm font-medium text-slate-700">
+                            ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន-រាំងស្ងួត (ហ.ត)
                         </label>
                         <input
-                            id="householdDone"
-                            value={householdDone}
-                            onChange={(e) => setHouseholdDone(e.target.value)}
+                            id="householdDoneDrought"
+                            value={householdDoneDrought}
+                            onChange={(e) => setHouseholdDoneDrought(e.target.value)}
+                            placeholder="0"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="householdDoneFlood" className="mb-2 block text-sm font-medium text-slate-700">
+                            ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន-ជំនន់ (ហ.ត)
+                        </label>
+                        <input
+                            id="householdDoneFlood"
+                            value={householdDoneFlood}
+                            onChange={(e) => setHouseholdDoneFlood(e.target.value)}
                             placeholder="0"
                             type="number"
                             step="0.01"
@@ -628,7 +658,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                                 <th className="px-4 py-3 font-semibold">បានអន្តរាគមន៍-រាំងស្ងួត (ហ.ត)</th>
 <th className="px-4 py-3 font-semibold">បានអន្តរាគមន៍-ជំនន់ (ហ.ត)</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">បរិមាណទឹក %</th>
+                                <th className="px-4 py-3 font-semibold">សង្គ្រោះបាន-រាំងស្ងួត (ហ.ត)</th>
+<th className="px-4 py-3 font-semibold">សង្គ្រោះបាន-ជំនន់ (ហ.ត)</th>
                                 <th className="px-4 py-3 font-semibold">ផ្ទៃដីខូចខាត-រាំងស្ងួត (ហ.ត)</th>
 <th className="px-4 py-3 font-semibold">ផ្ទៃដីខូចខាត-ជំនន់ (ហ.ត)</th>
                                 <th className="px-4 py-3 font-semibold">ប្រភពទឹក-អាងស្ដុកទឹក</th>
@@ -640,7 +671,7 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                         <tbody>
                             {entries.length === 0 && (
                                 <tr>
-                                    <td colSpan={14} className="px-4 py-6 text-center text-slate-500">
+                                    <td colSpan={15} className="px-4 py-6 text-center text-slate-500">
                                         No records yet.
                                     </td>
                                 </tr>
@@ -655,7 +686,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                                     <td className="px-4 py-3">{entry.interventionAreaDrought}</td>
 <td className="px-4 py-3">{entry.interventionAreaFlood}</td>
                                     <td className="px-4 py-3">{entry.householdPlan}</td>
-                                    <td className="px-4 py-3">{entry.householdDone}</td>
+                                    <td className="px-4 py-3">{entry.householdDoneDrought}</td>
+<td className="px-4 py-3">{entry.householdDoneFlood}</td>
                                     <td className="px-4 py-3">{entry.unsalvageableAreaDrought}</td>
 <td className="px-4 py-3">{entry.unsalvageableAreaFlood}</td>
                                     <td className="px-4 py-3">{entry.waterSource || "-"}</td>
