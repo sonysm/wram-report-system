@@ -1,9 +1,16 @@
 import type { NextPage } from "next";
+import { useState } from "react";
 import Layout from "../components/Layout";
 import ReportTable from "../components/ReportTable";
 import DataForm from "../components/DataForm";
 
 const Reports: NextPage = () => {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleEntrySaved = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
   return (
     <Layout>
       <section className="space-y-6">
@@ -18,11 +25,11 @@ const Reports: NextPage = () => {
           <h2 className="text-xl font-semibold text-slate-900">បញ្ចូលទិន្នន័យ</h2>
           <p className="mt-2 text-sm text-slate-600">Select a district in your province, or add one if missing.</p>
           <div className="mt-6">
-            <DataForm />
+            <DataForm onEntrySaved={handleEntrySaved} />
           </div>
         </article>
 
-        <ReportTable />
+        <ReportTable refreshTrigger={refreshTrigger} />
       </section>
     </Layout>
   );

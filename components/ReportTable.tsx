@@ -22,8 +22,11 @@ interface ReportRow {
 }
 
 type ReportMode = "aggregate" | "latest-per-district" | "province-total";
+interface ReportTableProps {
+    refreshTrigger?: number;
+}
 
-export default function ReportTable() {
+export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {}) {
     const [data, setData] = useState<ReportRow[]>([]);
     const [totals, setTotals] = useState({
         planArea: 0,
@@ -324,7 +327,7 @@ export default function ReportTable() {
         };
 
         void load();
-    }, []);
+    }, [refreshTrigger]);
 
     if (isLoading) {
         return <p className="text-sm text-slate-500">Loading report...</p>;
@@ -458,7 +461,7 @@ export default function ReportTable() {
                                 <tr>
                                     <th className="border border-slate-500 px-2 py-2 text-center">ផែនការ</th>
                                     <th className="border border-slate-500 px-2 py-2 text-center">អនុវត្តបាន</th>
-                                    <th className="border border-slate-500 px-2 py-2 text-center">លើសផែនការ</th>
+                                    <th className="border border-slate-500 px-2 py-2 text-center">លើស/ក្រោម ផែនការ</th>
 
                                     <th className="border border-slate-500 px-2 py-2 text-center">រាំងស្ងួត</th>
                                     <th className="border border-slate-500 px-2 py-2 text-center">ជំនន់</th>
@@ -480,7 +483,7 @@ export default function ReportTable() {
                                         <td className="border border-slate-400 px-2 py-2">{row.districtName}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right">{row.overUnderPlan > 0 ? formatNumber(row.overUnderPlan) : ""}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(Math.abs(row.overUnderPlan))}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-center">{Number(row.planArea) > 0 ? `${((row.planDone * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.actualArea > 0 ? formatNumber(row.actualArea) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
@@ -594,7 +597,7 @@ export default function ReportTable() {
                                             <td className="border border-slate-400 px-2 py-2">{row.provinceName}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
-                                            <td className="border border-slate-400 px-2 py-2 text-right">{row.overUnderPlan > 0 ? formatNumber(row.overUnderPlan) : ""}</td>
+                                            <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.overUnderPlan)}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-center">{Number(row.planArea) > 0 ? `${((row.planDone * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.actualArea > 0 ? formatNumber(row.actualArea) : ""}</td>
                                             <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
@@ -617,7 +620,7 @@ export default function ReportTable() {
                                     </td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planArea)}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.planDone)}</td>
-                                    <td className="border border-slate-500 px-2 py-2 text-right">{totals.overUnderPlan > 0 ? formatNumber(totals.overUnderPlan) : ""}</td>
+                                    <td className="border border-slate-500 px-2 py-2 text-right">{formatNumber(totals.overUnderPlan)}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-center">{Number(totals.planArea) > 0 ? `${((totals.planDone * 100) / totals.planArea).toFixed(2)}%` : "0%"}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.actualArea > 0 ? formatNumber(totals.actualArea) : ""}</td>
                                     <td className="border border-slate-500 px-2 py-2 text-right">{totals.householdPlan > 0 ? formatNumber(totals.householdPlan) : ""}</td>

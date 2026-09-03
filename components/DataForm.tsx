@@ -53,8 +53,11 @@ function parseDecimalInput(value: string): number | null {
 
     return parsed;
 }
+interface DataFormProps {
+    onEntrySaved?: () => void;
+}
 
-export default function DataForm() {
+export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
     const [districts, setDistricts] = useState<District[]>([]);
     const [entries, setEntries] = useState<EntryRecord[]>([]);
@@ -264,6 +267,9 @@ export default function DataForm() {
             setMessage(editingEntryId === null ? "Record added successfully." : "Record updated successfully.");
             resetForm();
             await refreshAfterSave();
+            if (onEntrySaved) {
+                onEntrySaved();
+            }
         } catch (error) {
             setStatus("error");
             setMessage(error instanceof Error ? error.message : "Unable to save record.");
