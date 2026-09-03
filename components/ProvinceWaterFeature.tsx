@@ -847,7 +847,7 @@ export default function ProvinceWaterFeature() {
 
             <section className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
                 <div className="space-y-2 text-center text-slate-900">
-                    <p className="text-sm font-semibold tracking-wide font-moul">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                    <p className="text-sm tracking-wide font-moul">ព្រះរាជាណាចក្រកម្ពុជា</p>
                     <p className="text-sm font-moul">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
                 </div>
 
@@ -855,11 +855,11 @@ export default function ProvinceWaterFeature() {
                     <div className="text-center text-sm leading-relaxed font-moul">
                         <img src="/templates/logo.png" alt="" className="mx-auto mb-2 h-12 w-12 object-contain" />
                         <p> {isAdmin ? "ក្រសួងធនធានទឹក និងឧតុនិយម" : `មន្ទីធនធានទឹក និងឧតុនិយម`}</p>
-                        <p className="font-semibold">{isAdmin ? "" : `ខេត្ត ${currentUser?.provinceName ?? "-"}`}</p>
+                        <p>{isAdmin ? "" : `ខេត្ត ${currentUser?.provinceName ?? "-"}`}</p>
                     </div>
 
                     <div className="text-center">
-                        <h2 className="print-title text-lg font-bold tracking-tight font-moul"> {isAdmin ? 'របាយការណ៍អាងទឹកតាមខេត្ត' : `របាយការណ៍អាងទឹកក្នុងខេត្ត ${currentUser?.provinceName ?? "-"}`}</h2>
+                        <h2 className="print-title text-lg tracking-tight font-moul"> {isAdmin ? 'របាយការណ៍អាងទឹកតាមខេត្ត' : `របាយការណ៍អាងទឹកក្នុងខេត្ត ${currentUser?.provinceName ?? "-"}`}</h2>
                         {/* <p className="text-sm">{isAdmin ? "" : `ខេត្ត: ${currentUser?.provinceName ?? "-"}`}</p> */}
                         <br />
                         <p className="text-sm text-slate-600">{dateString}</p>
