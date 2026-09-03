@@ -989,74 +989,76 @@ export default function ProvinceWaterFeature() {
                 </div>
             </section>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="text-base font-semibold text-slate-900">Recent Water Entries</h3>
-                <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-                    <table className="min-w-full text-sm">
-                        <thead className="bg-slate-100 text-center text-slate-700">
-                            <tr>
-                                {isAdmin && <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ឈ្មោះខេត្ត</th>}
-                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ឈ្មោះអាងស្តុកទឹក</th>
-                                <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">ទីតាំង</th>
-                                <th colSpan={3} className="px-4 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
-                                <th colSpan={3} className="px-4 py-2 font-semibold text-center border-b border-slate-200">ផ្ទៃដីស្រោចស្រព</th>
-                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ប្រភពទឹក</th>
-                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ផ្សេងៗ</th>
-                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">ថ្ងៃបញ្ចូល</th>
-                                <th rowSpan={3} className="px-4 py-3 font-semibold align-middle border-b border-slate-200">កែប្រែ</th>
-                            </tr>
-                            <tr>
-                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ស្រុក</th>
-                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">(ឃុ - ស្កាត់)</th>
-                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">សមត្ថភាពស្តុកទឹកសរុប (ម៣)</th>
-                                <th colSpan={2} className="px-4 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
-                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ប្រាំង(ហ.ត)</th>
-                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">វស្សា(ហ.ត)</th>
-                                <th rowSpan={2} className="px-4 py-2 font-semibold align-middle border-b border-slate-200">ដំណាំរួមផ្សំ</th>
-                            </tr>
-                            <tr>
-                                <th className="px-4 py-2 font-semibold border-b border-slate-200">បរិមាណទឹក(ម៣)</th>
-                                <th className="px-4 py-2 font-semibold border-b border-slate-200">បរិមាណទឹក(%)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {entries.length === 0 && (
+            {!isAdmin && (
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 className="text-base font-semibold text-slate-900">Recent Water Entries</h3>
+                    <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+                        <table className="min-w-full text-[11px] leading-tight">
+                            <thead className="bg-slate-100 text-center text-slate-700">
                                 <tr>
-                                    <td colSpan={isAdmin ? 13 : 12} className="px-4 py-6 text-center text-slate-500">
-                                        No water entries yet.
-                                    </td>
+                                    {isAdmin && <th rowSpan={3} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ឈ្មោះខេត្ត</th>}
+                                    <th rowSpan={3} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ឈ្មោះអាងស្តុកទឹក</th>
+                                    <th colSpan={2} className="px-2 py-2 font-semibold text-center border-b border-slate-200">ទីតាំង</th>
+                                    <th colSpan={3} className="px-2 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
+                                    <th colSpan={3} className="px-2 py-2 font-semibold text-center border-b border-slate-200">ផ្ទៃដីស្រោចស្រព</th>
+                                    <th rowSpan={3} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ប្រភពទឹក</th>
+                                    <th rowSpan={3} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ផ្សេងៗ</th>
+                                    <th rowSpan={3} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ថ្ងៃបញ្ចូល</th>
+                                    <th rowSpan={3} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">កែប្រែ</th>
                                 </tr>
-                            )}
-                            {entries.map((entry) => (
-                                <tr key={entry.id} className="border-t border-slate-100">
-                                    {isAdmin && <td className="px-4 py-3 text-center">{entry.provinceName || "-"}</td>}
-                                    <td className="px-4 py-3 text-center">{entry.basinName}</td>
-                                    <td className="px-4 py-3 text-center">{entry.districtName}</td>
-                                    <td className="px-4 py-3 text-center">{entry.communeName || "-"}</td>
-                                    <td className="px-4 py-3 text-right">{formatNumber(entry.totalWater)}</td>
-                                    <td className="px-4 py-3 text-right">{formatNumber(entry.actualWater)}</td>
-                                    <td className="px-4 py-3 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
-                                    <td className="px-4 py-3 text-right">{formatNumber(entry.irrigatedDryArea)}</td>
-                                    <td className="px-4 py-3 text-right">{formatNumber(entry.irrigatedWetArea)}</td>
-                                    <td className="px-4 py-3 text-right">{formatNumber(entry.otherCrop)}</td>
-                                    <td className="px-4 py-3 text-center">{entry.waterSource || "-"}</td>
-                                    <td className="px-4 py-3 text-center">{entry.note || "-"}</td>
-                                    <td className="px-4 py-3 text-center">{new Date(entry.createdAt).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3 text-center">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleEdit(entry)}
-                                            className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                                        >
-                                            Edit
-                                        </button>
-                                    </td>
+                                <tr>
+                                    <th rowSpan={2} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ស្រុក</th>
+                                    <th rowSpan={2} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">(ឃុ - ស្កាត់)</th>
+                                    <th rowSpan={2} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">សមត្ថភាពស្តុកទឹកសរុប (ម៣)</th>
+                                    <th colSpan={2} className="px-2 py-2 font-semibold text-center border-b border-slate-200">បរិមាណទឹកក្នុងអាង</th>
+                                    <th rowSpan={2} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ប្រាំង(ហ.ត)</th>
+                                    <th rowSpan={2} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">វស្សា(ហ.ត)</th>
+                                    <th rowSpan={2} className="px-2 py-2 font-semibold align-middle border-b border-slate-200">ដំណាំរួមផ្សំ</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                <tr>
+                                    <th className="px-2 py-2 font-semibold border-b border-slate-200">បរិមាណទឹក(ម៣)</th>
+                                    <th className="px-2 py-2 font-semibold border-b border-slate-200">បរិមាណទឹក(%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {entries.length === 0 && (
+                                    <tr>
+                                        <td colSpan={isAdmin ? 13 : 12} className="px-2 py-4 text-center text-slate-500">
+                                            No water entries yet.
+                                        </td>
+                                    </tr>
+                                )}
+                                {entries.map((entry) => (
+                                    <tr key={entry.id} className="border-t border-slate-100">
+                                        {isAdmin && <td className="px-2 py-2 text-center">{entry.provinceName || "-"}</td>}
+                                        <td className="px-2 py-2 text-center">{entry.basinName}</td>
+                                        <td className="px-2 py-2 text-center">{entry.districtName}</td>
+                                        <td className="px-2 py-2 text-center">{entry.communeName || "-"}</td>
+                                        <td className="px-2 py-2 text-right">{formatNumber(entry.totalWater)}</td>
+                                        <td className="px-2 py-2 text-right">{formatNumber(entry.actualWater)}</td>
+                                        <td className="px-2 py-2 text-right">{formatPercent(entry.totalWater, entry.actualWater)}</td>
+                                        <td className="px-2 py-2 text-right">{formatNumber(entry.irrigatedDryArea)}</td>
+                                        <td className="px-2 py-2 text-right">{formatNumber(entry.irrigatedWetArea)}</td>
+                                        <td className="px-2 py-2 text-right">{formatNumber(entry.otherCrop)}</td>
+                                        <td className="px-2 py-2 text-center">{entry.waterSource || "-"}</td>
+                                        <td className="px-2 py-2 text-center">{entry.note || "-"}</td>
+                                        <td className="px-2 py-2 text-center">{new Date(entry.createdAt).toLocaleDateString()}</td>
+                                        <td className="px-2 py-2 text-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEdit(entry)}
+                                                className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                                            >
+                                                Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

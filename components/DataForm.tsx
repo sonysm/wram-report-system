@@ -65,6 +65,7 @@ interface DataFormProps {
 
 export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+    const isAdmin = currentUser?.role === "admin";
     const [districts, setDistricts] = useState<District[]>([]);
     const [entries, setEntries] = useState<EntryRecord[]>([]);
     const [selectedDistrictId, setSelectedDistrictId] = useState("");
@@ -222,9 +223,9 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
             }
 
             const normalizedWaterSource = waterSource.trim();
-            if (!normalizedWaterSource) {
-                throw new Error("Water source is required");
-            }
+            // if (!normalizedWaterSource) {
+            //     throw new Error("Water source is required");
+            // }
 
             if (
                 parsedActualArea === null ||
@@ -244,15 +245,15 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                 planDone: number;
                 actualArea: number;
                 interventionArea: number;
-    interventionAreaDrought: number;
-    interventionAreaFlood: number;
+                interventionAreaDrought: number;
+                interventionAreaFlood: number;
                 householdPlan: number;
                 householdDone: number;
-    householdDoneDrought: number;
-    householdDoneFlood: number;
+                householdDoneDrought: number;
+                householdDoneFlood: number;
                 unsalvageableArea: number;
-    unsalvageableAreaDrought: number;
-    unsalvageableAreaFlood: number;
+                unsalvageableAreaDrought: number;
+                unsalvageableAreaFlood: number;
                 overUnderPlan: number;
                 waterSource: string;
                 note: string;
@@ -550,22 +551,8 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                     </div>
 
                     <div>
-                        <label htmlFor="waterSource" className="mb-2 block text-sm font-medium text-slate-700">
-                            ប្រភពទឹក-អាងស្ដុកទឹក
-                        </label>
-                        <input
-                            id="waterSource"
-                            value={waterSource}
-                            onChange={(e) => setWaterSource(e.target.value)}
-                            placeholder="បញ្ចូលប្រភពទឹក"
-                            required
-                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                        />
-                    </div>
-
-                    <div>
                         <label htmlFor="householdDoneDrought" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន-រាំងស្ងួត (ហ.ត)
+                            ផ្ទៃដីសង្គ្រោះបាន-រាំងស្ងួត (ហ.ត)
                         </label>
                         <input
                             id="householdDoneDrought"
@@ -581,7 +568,7 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
 
                     <div>
                         <label htmlFor="householdDoneFlood" className="mb-2 block text-sm font-medium text-slate-700">
-                            ផ្ទៃដីអន្តរាគមន៍សង្គ្រោះបាន-ជំនន់ (ហ.ត)
+                            ផ្ទៃដីសង្គ្រោះបាន-ជំនន់ (ហ.ត)
                         </label>
                         <input
                             id="householdDoneFlood"
@@ -591,6 +578,19 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                             type="number"
                             step="0.01"
                             min="0"
+                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="waterSource" className="mb-2 block text-sm font-medium text-slate-700">
+                            ប្រភពទឹក-អាងស្ដុកទឹក
+                        </label>
+                        <input
+                            id="waterSource"
+                            value={waterSource}
+                            onChange={(e) => setWaterSource(e.target.value)}
+                            placeholder="បញ្ចូលប្រភពទឹក"
                             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                         />
                     </div>
@@ -644,56 +644,57 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                 }
             </form >
 
+            {!isAdmin && (
             <div>
                 <h3 className="text-base font-semibold text-slate-900">Recent records</h3>
                 <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-                    <table className="min-w-full text-sm">
+                    <table className="min-w-full text-[11px] leading-tight">
                         <thead className="bg-slate-100 text-left text-slate-700">
                             <tr>
-                                <th className="px-4 py-3 font-semibold">ឈ្មោះក្រុង-ស្រុក</th>
-                                <th className="px-4 py-3 font-semibold">ផែនការដាំដុះ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីអនុវត្ត (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">លើស-ក្រោមផែនការ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">បានអន្តរាគមន៍-រាំងស្ងួត (ហ.ត)</th>
-<th className="px-4 py-3 font-semibold">បានអន្តរាគមន៍-ជំនន់ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">សង្គ្រោះបាន-រាំងស្ងួត (ហ.ត)</th>
-<th className="px-4 py-3 font-semibold">សង្គ្រោះបាន-ជំនន់ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">ផ្ទៃដីខូចខាត-រាំងស្ងួត (ហ.ត)</th>
-<th className="px-4 py-3 font-semibold">ផ្ទៃដីខូចខាត-ជំនន់ (ហ.ត)</th>
-                                <th className="px-4 py-3 font-semibold">ប្រភពទឹក-អាងស្ដុកទឹក</th>
-                                <th className="px-4 py-3 font-semibold">ផ្សេងៗ</th>
-                                <th className="px-4 py-3 font-semibold">ថ្ងៃបញ្ចូល</th>
-                                <th className="px-4 py-3 font-semibold">កែប្រែ</th>
+                                <th className="px-2 py-2 font-semibold">ឈ្មោះក្រុង-ស្រុក</th>
+                                <th className="px-2 py-2 font-semibold">ផែនការដាំដុះ (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">ផ្ទៃដីអនុវត្ត (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">លើស-ក្រោមផែនការ (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">ផ្ទៃដីប៉ះពាល់-រាំងស្ងួត (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">បានអន្តរាគមន៍-រាំងស្ងួត (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">បានអន្តរាគមន៍-ជំនន់ (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">សង្គ្រោះបាន-រាំងស្ងួត (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">សង្គ្រោះបាន-ជំនន់ (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">ផ្ទៃដីខូចខាត-រាំងស្ងួត (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">ផ្ទៃដីខូចខាត-ជំនន់ (ហ.ត)</th>
+                                <th className="px-2 py-2 font-semibold">ប្រភពទឹក-អាងស្ដុកទឹក</th>
+                                <th className="px-2 py-2 font-semibold">ផ្សេងៗ</th>
+                                <th className="px-2 py-2 font-semibold">ថ្ងៃបញ្ចូល</th>
+                                <th className="px-2 py-2 font-semibold">កែប្រែ</th>
                             </tr>
                         </thead>
                         <tbody>
                             {entries.length === 0 && (
                                 <tr>
-                                    <td colSpan={15} className="px-4 py-6 text-center text-slate-500">
+                                    <td colSpan={15} className="px-2 py-4 text-center text-slate-500">
                                         No records yet.
                                     </td>
                                 </tr>
                             )}
                             {entries.map((entry) => (
                                 <tr key={entry.id} className="border-t border-slate-100">
-                                    <td className="px-4 py-3">{entry.district?.khmerName || entry.district?.name || "-"}</td>
-                                    <td className="px-4 py-3">{entry.planArea}</td>
-                                    <td className="px-4 py-3">{entry.planDone}</td>
-                                    <td className="px-4 py-3">{entry.overUnderPlan}</td>
-                                    <td className="px-4 py-3">{entry.actualArea}</td>
-                                    <td className="px-4 py-3">{entry.interventionAreaDrought}</td>
-<td className="px-4 py-3">{entry.interventionAreaFlood}</td>
-                                    <td className="px-4 py-3">{entry.householdPlan}</td>
-                                    <td className="px-4 py-3">{entry.householdDoneDrought}</td>
-<td className="px-4 py-3">{entry.householdDoneFlood}</td>
-                                    <td className="px-4 py-3">{entry.unsalvageableAreaDrought}</td>
-<td className="px-4 py-3">{entry.unsalvageableAreaFlood}</td>
-                                    <td className="px-4 py-3">{entry.waterSource || "-"}</td>
-                                    <td className="px-4 py-3">{entry.note ?? "-"}</td>
-                                    <td className="px-4 py-3">{new Date(entry.createdAt).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-2 py-2">{entry.district?.khmerName || entry.district?.name || "-"}</td>
+                                    <td className="px-2 py-2">{entry.planArea}</td>
+                                    <td className="px-2 py-2">{entry.planDone}</td>
+                                    <td className="px-2 py-2">{entry.overUnderPlan}</td>
+                                    <td className="px-2 py-2">{entry.actualArea}</td>
+                                    <td className="px-2 py-2">{entry.interventionAreaDrought}</td>
+                                    <td className="px-2 py-2">{entry.interventionAreaFlood}</td>
+                                    <td className="px-2 py-2">{entry.householdPlan}</td>
+                                    <td className="px-2 py-2">{entry.householdDoneDrought}</td>
+                                    <td className="px-2 py-2">{entry.householdDoneFlood}</td>
+                                    <td className="px-2 py-2">{entry.unsalvageableAreaDrought}</td>
+                                    <td className="px-2 py-2">{entry.unsalvageableAreaFlood}</td>
+                                    <td className="px-2 py-2">{entry.waterSource || "-"}</td>
+                                    <td className="px-2 py-2">{entry.note ?? "-"}</td>
+                                    <td className="px-2 py-2">{new Date(entry.createdAt).toLocaleDateString()}</td>
+                                    <td className="px-2 py-2">
                                         <button
                                             type="button"
                                             onClick={() => handleEditClick(entry)}
@@ -707,7 +708,7 @@ export default function DataForm({ onEntrySaved }: DataFormProps = {}) {
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div>)}
         </div >
     );
 }

@@ -329,8 +329,8 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                         interventionAreaFlood: 0,
                         householdPlan: 0,
                         householdDone: 0,
-        householdDoneDrought: 0,
-        householdDoneFlood: 0,
+                        householdDoneDrought: 0,
+                        householdDoneFlood: 0,
                         unsalvageableArea: 0,
                         unsalvageableAreaDrought: 0,
                         unsalvageableAreaFlood: 0,
@@ -451,14 +451,15 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                     </div>
 
                     <div className="mt-3 flex flex-col text-slate-900 font-moul">
-                        <div className="text-left text-sm leading-relaxed">
+                        <div className="inline-flex flex-col items-center text-sm leading-relaxed max-w-fit">
                             <p>មន្ទីរធនធានទឹក និងឧតុនិយម</p>
                             <p>ខេត្ត {viewerProvinceName ?? "-"}</p>
                         </div>
                     </div>
 
                     <div className="mt-6 text-center text-slate-900">
-                        <h2 className="print-title text-md font-moul tracking-tight">តារាងទិន្នន័យការងារបង្កបង្កើនផលស្រូវរដូវវស្សា និងផលប៉ះពាល់ដោយគ្រោះរាំងស្ងួតឆ្នាំ{year} ({dateString})</h2>
+                        <h2 className="print-title text-md font-moul tracking-tight">តារាងទិន្នន័យការងារបង្កបង្កើនផលស្រូវរដូវវស្សា និងផលប៉ះពាល់ដោយគ្រោះរាំងស្ងួតឆ្នាំ{year}</h2>
+                        <h2 className="print-title text-md font-moul tracking-tight">({dateString})</h2>
                     </div>
 
                     <div className="mt-5 overflow-hidden rounded-xl border border-slate-400">
@@ -501,7 +502,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                         <td className="border border-slate-400 px-2 py-2">{row.districtName}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planArea)}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.planDone)}</td>
-                                        <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(Math.abs(row.overUnderPlan))}</td>
+                                        <td className="border border-slate-400 px-2 py-2 text-right">{formatNumber(row.overUnderPlan)}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-center">{Number(row.planArea) > 0 ? `${((row.planDone * 100) / row.planArea).toFixed(2)}%` : "0%"}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.actualArea > 0 ? formatNumber(row.actualArea) : ""}</td>
                                         <td className="border border-slate-400 px-2 py-2 text-right">{row.householdPlan > 0 ? formatNumber(row.householdPlan) : ""}</td>
@@ -517,7 +518,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                                 ))}
                             </tbody>
                             <tfoot>
-                                <tr className="bg-[#a3c977]/30 font-semibold">
+                                <tr className="font-semibold">
                                     <td className="border border-slate-500 px-2 py-2 text-center" colSpan={2}>
                                         សរុប
                                     </td>
@@ -566,7 +567,7 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                     </div>
 
                     <div className="mt-3 flex flex-col text-slate-900 font-moul">
-                        <div className="text-left text-sm leading-relaxed">
+                        <div className="inline-flex flex-col items-center text-sm leading-relaxed max-w-fit">
                             <p>ក្រសួងធនធានទឹក និងឧតុនិយម</p>
                             <p>អគ្គនាយកដ្ឋានកិច្ចការរដ្ឋបាល</p>
                             <p>នាយកដ្ឋានផែនការ និងសហប្រតិបត្តិការអន្តរជាតិ</p>
@@ -574,7 +575,8 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                     </div>
 
                     <div className="mt-6 text-center text-slate-900">
-                        <h2 className="print-title text-md font-moul tracking-tight">តារាងទិន្នន័យការងារបង្កបង្កើនផលស្រូវរដូវវស្សា និងផលប៉ះពាល់ដោយគ្រោះរាំងស្ងួតឆ្នាំ{year} ({dateString})</h2>
+                        <h2 className="print-title text-md font-moul tracking-tight">តារាងទិន្នន័យការងារបង្កបង្កើនផលស្រូវរដូវវស្សា និងផលប៉ះពាល់ដោយគ្រោះរាំងស្ងួតឆ្នាំ{year}</h2>
+                        <h2 className="print-title text-md font-moul tracking-tight">({dateString})</h2>
                     </div>
 
                     <div className="mt-5 overflow-hidden rounded-xl border border-slate-400">
@@ -661,8 +663,8 @@ export default function ReportTable({ refreshTrigger = 0 }: ReportTableProps = {
                     <div className="mt-12 grid grid-cols-2 gap-6 text-[15px]">
                         <div className="flex flex-col items-center text-center">
                             <p className="font-moul mb-1">បានឃើញ និងឯកភាព</p>
-                            <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
-                            <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
+                            {/* <p className="mb-1">ថ្ងៃ.....................ខែ...................ឆ្នាំ..................... ព.ស ២៥៦...</p>
+                            <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p> */}
                             <p className="font-moul mt-1">ប្រធានមន្ទីរ</p>
                             <div className="mt-24"></div>
                         </div>
