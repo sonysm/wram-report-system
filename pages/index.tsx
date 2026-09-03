@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import DataForm from "../components/DataForm";
 import UserManagementForm from "../components/UserManagementForm";
 
 interface CurrentUser {
@@ -112,20 +111,23 @@ const Home: NextPage = () => {
           </article>
         ) : (
           <article className="rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-[0_20px_55px_-35px_rgba(15,23,42,0.55)] sm:p-10">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">Submit New Entry</h2>
-                <p className="mt-2 text-sm text-slate-600">Select a district in your province, or add one if missing.</p>
-              </div>
+            <h2 className="text-xl font-semibold text-slate-900">Welcome to WRAM Report System</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              You are logged in as {currentUser?.username} ({currentUser?.provinceName}).
+            </p>
+            <div className="mt-6 flex flex-wrap gap-4">
+              <Link
+                href="/reports"
+                className="inline-flex rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-100"
+              >
+                របាយការណ៏ទិន្ន័យផលប៉ះពាល់
+              </Link>
               <Link
                 href="/province-water"
                 className="inline-flex rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-100"
               >
-                Open Province Water Feature
+                អាងស្ដុកទឹក
               </Link>
-            </div>
-            <div className="mt-6">
-              <DataForm />
             </div>
           </article>
         )}

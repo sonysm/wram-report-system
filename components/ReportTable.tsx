@@ -412,10 +412,10 @@ export default function ReportTable() {
                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">ផ្ទៃដីប៉ះពាល់-ជំនន់ (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-amber-900">{totals.householdPlan.toLocaleString()}</p>
                 </div>
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+                {/* <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">បរិមាណទឹក %</p>
                     <p className="mt-2 text-2xl font-bold text-rose-900">{totals.householdDone.toLocaleString()}</p>
-                </div>
+                </div> */}
                 <div className="rounded-2xl border border-slate-300 bg-slate-50 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-700">ផ្ទៃដីខូចខាត (ហ.ត)</p>
                     <p className="mt-2 text-2xl font-bold text-slate-900">{totals.unsalvageableArea.toLocaleString()}</p>

@@ -84,7 +84,7 @@ async function resolveLocation(params: {
         resolvedDistrictName = district.khmerName || district.name;
     } else {
         if (!districtNameInput) {
-            throw new Error("District name is required if district is not selected");
+            throw new Error("Either district ID or district name must be provided");
         }
         resolvedDistrictName = districtNameInput;
     }

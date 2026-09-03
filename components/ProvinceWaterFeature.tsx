@@ -210,9 +210,9 @@ export default function ProvinceWaterFeature() {
             postalCode: entry.province?.postalCode ?? null,
             basinName: entry.basinName,
             location: entry.location,
-            districtName: entry.districtName,
+            districtName: entry.district?.khmerName || entry.district?.name || entry.districtName || "",
             communeId: entry.commune?.id ?? null,
-            communeName: entry.commune?.name ?? entry.communeName ?? null,
+            communeName: entry.commune?.khmerName || entry.commune?.name || entry.communeName || null,
             totalWater: Number(entry.totalWater ?? 0),
             waterPercent:
                 Number(entry.waterPercent ?? 0) ||
@@ -220,6 +220,7 @@ export default function ProvinceWaterFeature() {
             actualWater: Number(entry.actualWater ?? 0),
             irrigatedDryArea: Number(entry.irrigatedDryArea ?? 0),
             irrigatedWetArea: Number(entry.irrigatedWetArea ?? 0),
+            otherCrop: Number(entry.otherCrop ?? 0),
             waterSource: entry.waterSource ?? "",
             note: entry.note ?? null,
             districtId: entry.districtId ?? null,
@@ -593,14 +594,14 @@ export default function ProvinceWaterFeature() {
 
     return (
         <div className="space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+            {/* <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                 <p>
                     Logged in as <strong>{currentUser?.username}</strong> ({currentUser?.role})
                 </p>
                 <p className="mt-1">
                     Province access: <strong>{currentUser?.provinceName ?? "Not assigned"}</strong>
                 </p>
-            </div>
+            </div> */}
 
             {!isAdmin && (
                 <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -638,7 +639,7 @@ export default function ProvinceWaterFeature() {
                                 <option value="">ជ្រើសរើសស្រុក</option>
                                 {districts.map((district) => (
                                     <option key={district.id} value={district.id}>
-                                        {district.khmerName ? `${district.khmerName} - ${district.name}` : district.name}
+                                        {district.khmerName || district.name}
                                     </option>
                                 ))}
                             </select>
@@ -659,7 +660,7 @@ export default function ProvinceWaterFeature() {
                                 <option value="">ជ្រើសរើសឃុំ</option>
                                 {communeOptions.map((commune) => (
                                     <option key={commune.id} value={commune.id}>
-                                        {commune.khmerName ? `${commune.khmerName} - ${commune.name}` : commune.name}
+                                        {commune.khmerName || commune.name}
                                     </option>
                                 ))}
                             </select>
@@ -971,16 +972,17 @@ export default function ProvinceWaterFeature() {
                     </table>
                 </div>
 
-                <div className="mt-8 grid grid-cols-1 gap-6 text-sm sm:grid-cols-2">
-                    <div>
-                        <p>បានពិនិត្យដោយ:</p>
-                        <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
-                        <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                <div className="mt-12 grid grid-cols-2 gap-6 text-[15px]">
+                    <div className="flex flex-col items-center text-center">
+                        <p className="font-moul mb-1">បានឃើញ និងឯកភាព</p>
+                        <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
+                        <p className="font-moul mt-1">ប្រធានមន្ទីរ</p>
+                        <div className="mt-24"></div>
                     </div>
-                    <div className="text-left sm:text-right">
-                        <p>បានរៀបចំដោយ:</p>
-                        <p className="mt-1">កាលបរិច្ឆេទ: ....../....../......</p>
-                        <p className="mt-12">ឈ្មោះ និងហត្ថលេខា: ____________________</p>
+                    <div className="flex flex-col items-center text-center justify-end">
+                        <p>ថ្ងៃទី...........ខែ...........ឆ្នាំ២០២...</p>
+                        <p className="font-moul mt-1">អ្នកធ្វើតារាង</p>
+                        <div className="mt-24"></div>
                     </div>
                 </div>
             </section>

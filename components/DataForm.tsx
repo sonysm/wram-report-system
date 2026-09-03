@@ -188,7 +188,7 @@ export default function DataForm() {
             const parsedHouseholdPlan = parseDecimalInput(householdPlan);
             const parsedHouseholdDone = parseDecimalInput(householdDone);
             const parsedUnsalvageableArea = parseDecimalInput(unsalvageableArea);
-            const parsedOverUnderPlan = parsedPlanArea !== null && parsedPlanDone !== null ? parsedPlanArea - parsedPlanDone : 0;
+            const parsedOverUnderPlan = parsedPlanArea !== null && parsedPlanDone !== null ? parsedPlanDone - parsedPlanArea : 0;
 
             if (parsedPlanArea === null || parsedPlanDone === null) {
                 throw new Error("Plan area and plan done must be non-negative numbers");
@@ -296,7 +296,7 @@ export default function DataForm() {
             return 0;
         }
 
-        return parsedPlanArea - parsedPlanDone;
+        return parsedPlanDone - parsedPlanArea;
     })();
 
     if (isLoading) {
@@ -316,14 +316,14 @@ export default function DataForm() {
 
     return (
         <div className="space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+            {/* <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                 <p>
                     Logged in as <strong>{currentUser?.username}</strong> ({currentUser?.role})
                 </p>
                 <p className="mt-1">
                     Province access: <strong>{currentUser?.provinceName ?? "Not assigned"}</strong>
                 </p>
-            </div>
+            </div> */}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -579,7 +579,7 @@ export default function DataForm() {
                             )}
                             {entries.map((entry) => (
                                 <tr key={entry.id} className="border-t border-slate-100">
-                                    <td className="px-4 py-3">{entry.district?.name || entry.district?.name || "-"}</td>
+                                    <td className="px-4 py-3">{entry.district?.khmerName || entry.district?.name || "-"}</td>
                                     <td className="px-4 py-3">{entry.planArea}</td>
                                     <td className="px-4 py-3">{entry.planDone}</td>
                                     <td className="px-4 py-3">{entry.overUnderPlan}</td>
