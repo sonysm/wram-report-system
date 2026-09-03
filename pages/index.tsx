@@ -120,7 +120,7 @@ const Home: NextPage = () => {
                 href="/reports"
                 className="inline-flex rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-100"
               >
-                របាយការណ៏ទិន្ន័យផលប៉ះពាល់
+                របាយការណ៍ទិន្ន័យផលប៉ះពាល់
               </Link>
               <Link
                 href="/province-water"
