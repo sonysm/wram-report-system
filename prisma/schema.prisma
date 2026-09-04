@@ -96,6 +96,7 @@ model District {
   entries         Entry[]
   waterEntries    ProvinceWaterEntry[]
   communes        Commune[]
+  stations        Station[]
 
   @@unique([provinceId, name])
 }
@@ -144,6 +145,7 @@ model Commune {
   district        District?            @relation(fields: [districtId], references: [id])
   createdByUser   User?                @relation("CommuneCreator", fields: [createdByUserId], references: [id])
   waterEntries    ProvinceWaterEntry[]
+  stations        Station[]
 
   @@unique([provinceId, name])
   @@index([districtId])
@@ -163,13 +165,19 @@ model Station {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   provinceId          Int
+  districtId          Int?
+  communeId           Int?
   createdByUserId     Int?
 
   province      Province        @relation(fields: [provinceId], references: [id])
+  district      District?       @relation(fields: [districtId], references: [id])
+  commune       Commune?        @relation(fields: [communeId], references: [id])
   createdByUser User?           @relation("StationCreator", fields: [createdByUserId], references: [id])
   reports       StationReport[]
 
   @@index([provinceId])
+  @@index([districtId])
+  @@index([communeId])
 }
 
 model StationReport {

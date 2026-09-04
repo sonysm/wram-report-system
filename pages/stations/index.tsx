@@ -15,6 +15,10 @@ interface Station {
     longitude: number | null;
     order: number;
     province: { name: string };
+    districtId?: number | null;
+    communeId?: number | null;
+    district?: { name: string, khmerName: string } | null;
+    commune?: { name: string, khmerName: string } | null;
 }
 
 const StationsPage: NextPage = () => {
@@ -32,6 +36,11 @@ const StationsPage: NextPage = () => {
     const [latitude, setLatitude] = useState<number | "">("");
     const [longitude, setLongitude] = useState<number | "">("");
     const [order, setOrder] = useState<number | "">("");
+    const [districtId, setDistrictId] = useState<number | "">("");
+    const [communeId, setCommuneId] = useState<number | "">("");
+
+    const [districts, setDistricts] = useState<{ id: number; name: string; khmerName: string }[]>([]);
+    const [communes, setCommunes] = useState<{ id: number; name: string; khmerName: string; districtId: number }[]>([]);
 
     useEffect(() => {
         const init = async () => {
@@ -41,6 +50,20 @@ const StationsPage: NextPage = () => {
                 setSessionUser(user);
             }
             await loadStations();
+            if (token) {
+                const [dRes, cRes] = await Promise.all([
+                    fetch("/api/districts", { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch("/api/communes", { headers: { Authorization: `Bearer ${token}` } })
+                ]);
+                if (dRes.ok) {
+                    const dData = await dRes.json();
+                    setDistricts(dData.districts || []);
+                }
+                if (cRes.ok) {
+                    const cData = await cRes.json();
+                    setCommunes(cData.communes || []);
+                }
+            }
             setLoading(false);
         };
         init();
@@ -70,6 +93,8 @@ const StationsPage: NextPage = () => {
         setLatitude(st.latitude ?? "");
         setLongitude(st.longitude ?? "");
         setOrder(st.order ?? "");
+        setDistrictId(st.districtId ?? "");
+        setCommuneId(st.communeId ?? "");
     };
 
     const handleCancelEdit = () => {
@@ -83,6 +108,8 @@ const StationsPage: NextPage = () => {
         setLatitude("");
         setLongitude("");
         setOrder("");
+        setDistrictId("");
+        setCommuneId("");
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -100,6 +127,8 @@ const StationsPage: NextPage = () => {
             latitude: latitude !== "" ? Number(latitude) : undefined,
             longitude: longitude !== "" ? Number(longitude) : undefined,
             order: order !== "" ? Number(order) : undefined,
+            districtId: districtId !== "" ? Number(districtId) : null,
+            communeId: communeId !== "" ? Number(communeId) : null,
         };
 
         const res = await fetch(editId ? `/api/stations/${editId}` : "/api/stations", {
@@ -179,6 +208,36 @@ const StationsPage: NextPage = () => {
                                 <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">ស្រុក (District)</label>
+                                <select
+                                    value={districtId}
+                                    onChange={e => {
+                                        setDistrictId(e.target.value === "" ? "" : Number(e.target.value));
+                                        setCommuneId("");
+                                    }}
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                >
+                                    <option value="">ជ្រើសរើសស្រុក (Select District)</option>
+                                    {districts.map(d => (
+                                        <option key={d.id} value={d.id}>{d.name} {d.khmerName ? `(${d.khmerName})` : ''}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">ឃុំ/សង្កាត់ (Commune)</label>
+                                <select
+                                    value={communeId}
+                                    onChange={e => setCommuneId(e.target.value === "" ? "" : Number(e.target.value))}
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                    disabled={!districtId}
+                                >
+                                    <option value="">ជ្រើសរើសឃុំ (Select Commune)</option>
+                                    {communes.filter(c => c.districtId === districtId).map(c => (
+                                        <option key={c.id} value={c.id}>{c.name} {c.khmerName ? `(${c.khmerName})` : ''}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Order (លេខរៀង)</label>
                                 <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
@@ -204,7 +263,9 @@ const StationsPage: NextPage = () => {
                                     <th className="px-4 py-3">Order</th>
                                     <th className="px-4 py-3">Station Name</th>
                                     <th className="px-4 py-3">Khmer Name</th>
-                                    <th className="px-4 py-3">Province</th>
+                                    {/* <th className="px-4 py-3">Province</th> */}
+                                    <th className="px-4 py-3">District</th>
+                                    <th className="px-4 py-3">Commune</th>
                                     <th className="px-4 py-3">River/Lake</th>
                                     <th className="px-4 py-3">Category</th>
                                     <th className="px-4 py-3">Monitoring Functions</th>
@@ -222,7 +283,9 @@ const StationsPage: NextPage = () => {
                                         <td className="px-4 py-3">{st.order}</td>
                                         <td className="px-4 py-3 font-medium text-slate-900">{st.name}</td>
                                         <td className="px-4 py-3">{st.khmerName}</td>
-                                        <td className="px-4 py-3">{st.province.name}</td>
+                                        {/* <td className="px-4 py-3">{st.province.name}</td> */}
+                                        <td className="px-4 py-3">{st.district?.khmerName || ""}</td>
+                                        <td className="px-4 py-3">{st.commune?.khmerName || ""}</td>
                                         <td className="px-4 py-3">{st.river}</td>
                                         <td className="px-4 py-3">{st.category}</td>
                                         <td className="px-4 py-3">{st.monitoringFunctions}</td>
@@ -239,7 +302,7 @@ const StationsPage: NextPage = () => {
                                 ))}
                                 {stations.length === 0 && (
                                     <tr>
-                                        <td colSpan={11} className="px-4 py-8 text-center text-slate-500">
+                                        <td colSpan={13} className="px-4 py-8 text-center text-slate-500">
                                             មិនមានទិន្នន័យ (No data)
                                         </td>
                                     </tr>

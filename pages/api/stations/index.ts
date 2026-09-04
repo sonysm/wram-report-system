@@ -33,7 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const stations = await prisma.station.findMany({
             where: targetProvinceId ? { provinceId: targetProvinceId } : {},
-            include: { province: { select: { name: true } } },
+            include: { 
+                province: { select: { name: true } },
+                district: { select: { name: true } },
+                commune: { select: { name: true } }
+            },
             orderBy: { order: "asc" },
         });
 
@@ -69,9 +73,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 longitude: parseNumber(req.body?.longitude),
                 order: parseNumber(req.body?.order) ?? 0,
                 provinceId: targetProvinceId,
+                districtId: parseNumber(req.body?.districtId),
+                communeId: parseNumber(req.body?.communeId),
                 createdByUserId: authUser.isDemo ? null : authUser.id,
             },
-            include: { province: { select: { name: true } } },
+            include: { 
+                province: { select: { name: true } },
+                district: { select: { name: true } },
+                commune: { select: { name: true } }
+            },
         });
 
         return res.status(201).json({ station });

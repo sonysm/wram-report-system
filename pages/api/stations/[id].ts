@@ -30,6 +30,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const station = await prisma.station.findUnique({
         where: { id: stationId },
+        include: { 
+            province: { select: { name: true } },
+            district: { select: { name: true } },
+            commune: { select: { name: true } }
+        },
     });
 
     if (!station) {
@@ -57,8 +62,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 latitude: req.body?.latitude !== undefined ? parseNumber(req.body.latitude) : station.latitude,
                 longitude: req.body?.longitude !== undefined ? parseNumber(req.body.longitude) : station.longitude,
                 order: req.body?.order !== undefined ? parseNumber(req.body.order) ?? station.order : station.order,
+                districtId: req.body?.districtId !== undefined ? parseNumber(req.body.districtId) : station.districtId,
+                communeId: req.body?.communeId !== undefined ? parseNumber(req.body.communeId) : station.communeId,
             },
-            include: { province: { select: { name: true } } },
+            include: { 
+                province: { select: { name: true } },
+                district: { select: { name: true } },
+                commune: { select: { name: true } }
+            },
         });
 
         return res.json({ station: updated });
