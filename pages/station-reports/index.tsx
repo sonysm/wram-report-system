@@ -121,19 +121,7 @@ const StationReportsPage: NextPage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm("Are you sure?")) return;
-        const token = getStoredToken();
-        if (!token) return;
-        const res = await fetch(`/api/station-reports/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-            await loadReportsForDate(reportDate);
-        }
-    };
-
+    // Delete functionality replaced by Edit functionality
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
     const handleDownloadPdf = async () => {
@@ -315,7 +303,13 @@ const StationReportsPage: NextPage = () => {
                                             {sessionUser?.role !== "admin" && !isGeneratingPdf && (
                                                 <td className="px-4 py-3 text-center bg-slate-100/50">
                                                     {r ? (
-                                                        <button onClick={() => handleDelete(r.id)} className="text-red-600 hover:text-red-800 font-bold text-xs bg-white px-2 py-1 rounded shadow-sm">Delete</button>
+                                                        <button onClick={() => {
+                                                            setStationId(st.id);
+                                                            setWaterLevel(r.waterLevel);
+                                                            setWaterLevelYesterday(r.waterLevelYesterday ?? "");
+                                                            setWaterLevelLastYear(r.waterLevelLastYear ?? "");
+                                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                                        }} className="text-amber-600 hover:text-amber-800 font-bold text-xs bg-white px-2 py-1 rounded shadow-sm border border-amber-200">Edit</button>
                                                     ) : (
                                                         <button onClick={() => setStationId(st.id)} className="text-cyan-700 hover:text-cyan-900 font-bold text-xs bg-white px-2 py-1 rounded shadow-sm">Select</button>
                                                     )}

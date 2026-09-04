@@ -106,17 +106,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const waterLevelYesterday = yesterdayReport ? yesterdayReport.waterLevel : parseNumber(req.body?.waterLevelYesterday);
         const waterLevelLastYear = lastYearReport ? lastYearReport.waterLevel : parseNumber(req.body?.waterLevelLastYear);
 
-        const report = await prisma.stationReport.create({
-            data: {
+        const startOfDay = new Date(reportDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(reportDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        const existingReport = await prisma.stationReport.findFirst({
+            where: {
                 stationId,
-                reportDate,
-                waterLevel,
-                waterLevelYesterday,
-                waterLevelLastYear,
-                userId: authUser.isDemo ? null : authUser.id,
-            },
-            include: { station: true },
+                reportDate: {
+                    gte: startOfDay,
+                    lt: endOfDay,
+                }
+            }
         });
+
+        let report;
+        if (existingReport) {
+            report = await prisma.stationReport.update({
+                where: { id: existingReport.id },
+                data: {
+                    waterLevel,
+                    waterLevelYesterday,
+                    waterLevelLastYear,
+                    userId: authUser.isDemo ? null : authUser.id,
+                },
+                include: { station: true },
+            });
+        } else {
+            report = await prisma.stationReport.create({
+                data: {
+                    stationId,
+                    reportDate,
+                    waterLevel,
+                    waterLevelYesterday,
+                    waterLevelLastYear,
+                    userId: authUser.isDemo ? null : authUser.id,
+                },
+                include: { station: true },
+            });
+        }
 
         return res.status(201).json({ report });
     }
