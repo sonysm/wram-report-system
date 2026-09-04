@@ -142,57 +142,59 @@ const StationsPage: NextPage = () => {
                     </p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <h2 className="mb-4 text-lg font-bold text-slate-800">{editId ? "កែប្រែស្ថានីយ (Edit Station)" : "បន្ថែមស្ថានីយថ្មី (Add New Station)"}</h2>
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (English)</label>
-                            <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (Khmer)</label>
-                            <input type="text" value={khmerName} onChange={e => setKhmerName(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">River/Lake</label>
-                            <input type="text" value={river} onChange={e => setRiver(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Category</label>
-                            <input type="text" value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Monitoring Functions</label>
-                            <input type="text" value={monitoringFunctions} onChange={e => setMonitoringFunctions(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">កម្រិតកម្ពស់ប្រុងប្រយ័ត្ន (Warning Level)</label>
-                            <input type="number" step="any" value={warningLevel} onChange={e => setWarningLevel(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Lat./X</label>
-                            <input type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Long./Y</label>
-                            <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Order (លេខរៀង)</label>
-                            <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
-                        </div>
-                        <div className="md:col-span-1 lg:col-span-1 flex items-end space-x-2">
-                            <button type="submit" className="w-full rounded-xl bg-cyan-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">
-                                {editId ? "Update" : "រក្សាទុក (Save)"}
-                            </button>
-                            {editId && (
-                                <button type="button" onClick={handleCancelEdit} className="w-full rounded-xl bg-slate-400 px-6 py-2 text-sm font-semibold text-white transition hover:bg-slate-500">
-                                    Cancel
+                {sessionUser?.role !== "admin" && (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <h2 className="mb-4 text-lg font-bold text-slate-800">{editId ? "កែប្រែស្ថានីយ (Edit Station)" : "បន្ថែមស្ថានីយថ្មី (Add New Station)"}</h2>
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (English)</label>
+                                <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (Khmer)</label>
+                                <input type="text" value={khmerName} onChange={e => setKhmerName(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">River/Lake</label>
+                                <input type="text" value={river} onChange={e => setRiver(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Category</label>
+                                <input type="text" value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Monitoring Functions</label>
+                                <input type="text" value={monitoringFunctions} onChange={e => setMonitoringFunctions(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">កម្រិតកម្ពស់ប្រុងប្រយ័ត្ន (Warning Level)</label>
+                                <input type="number" step="any" value={warningLevel} onChange={e => setWarningLevel(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Lat./X</label>
+                                <input type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Long./Y</label>
+                                <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Order (លេខរៀង)</label>
+                                <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                            </div>
+                            <div className="md:col-span-1 lg:col-span-1 flex items-end space-x-2">
+                                <button type="submit" className="w-full rounded-xl bg-cyan-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">
+                                    {editId ? "Update" : "រក្សាទុក (Save)"}
                                 </button>
-                            )}
-                        </div>
-                    </form>
-                </div>
+                                {editId && (
+                                    <button type="button" onClick={handleCancelEdit} className="w-full rounded-xl bg-slate-400 px-6 py-2 text-sm font-semibold text-white transition hover:bg-slate-500">
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+                )}
 
                 <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
@@ -209,7 +211,9 @@ const StationsPage: NextPage = () => {
                                     <th className="px-4 py-3">Warning Level</th>
                                     <th className="px-4 py-3">Lat./X</th>
                                     <th className="px-4 py-3">Long./Y</th>
-                                    <th className="px-4 py-3">Actions</th>
+                                    {sessionUser?.role !== "admin" && (
+                                        <th className="px-4 py-3">Actions</th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 bg-white">
@@ -225,10 +229,12 @@ const StationsPage: NextPage = () => {
                                         <td className="px-4 py-3">{st.warningLevel}</td>
                                         <td className="px-4 py-3">{st.latitude}</td>
                                         <td className="px-4 py-3">{st.longitude}</td>
-                                        <td className="px-4 py-3 space-x-2">
-                                            <button onClick={() => handleEdit(st)} className="text-cyan-600 hover:text-cyan-800 font-semibold">Edit</button>
-                                            <button onClick={() => handleDelete(st.id)} className="text-red-500 hover:text-red-700 font-semibold">Delete</button>
-                                        </td>
+                                        {sessionUser?.role !== "admin" && (
+                                            <td className="px-4 py-3 space-x-2">
+                                                <button onClick={() => handleEdit(st)} className="text-cyan-600 hover:text-cyan-800 font-semibold">Edit</button>
+                                                <button onClick={() => handleDelete(st.id)} className="text-red-500 hover:text-red-700 font-semibold">Delete</button>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                                 {stations.length === 0 && (

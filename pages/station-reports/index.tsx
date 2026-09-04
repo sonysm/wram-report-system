@@ -31,7 +31,7 @@ const StationReportsPage: NextPage = () => {
     const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const [provinces, setProvinces] = useState<{ id: number, name: string }[]>([]);
+    const [provinces, setProvinces] = useState<{ id: number, name: string, khmerName: string, }[]>([]);
     const [selectedProvinceId, setSelectedProvinceId] = useState<number | "">("");
 
     const [stationId, setStationId] = useState<number | "">("");
@@ -134,9 +134,18 @@ const StationReportsPage: NextPage = () => {
         }
     };
 
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
     const handleDownloadPdf = async () => {
+        setIsGeneratingPdf(true);
+        // Wait for React to re-render and remove the Actions column
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         const reportElement = document.getElementById("report-bulletin");
-        if (!reportElement) return;
+        if (!reportElement) {
+            setIsGeneratingPdf(false);
+            return;
+        }
 
         try {
             const htmlToImage = await import("html-to-image");
@@ -145,9 +154,14 @@ const StationReportsPage: NextPage = () => {
             const imgData = await htmlToImage.toPng(reportElement, {
                 quality: 1.0,
                 pixelRatio: 2,
+                style: {
+                    width: '1000px',
+                    margin: '0',
+                    transform: 'none'
+                }
             });
 
-            const pdf = new jsPDF("l", "mm", "a4"); // "l" for landscape since tables are wide, or "p" for portrait
+            const pdf = new jsPDF("l", "mm", "a4");
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (reportElement.offsetHeight * pdfWidth) / reportElement.offsetWidth;
 
@@ -156,6 +170,8 @@ const StationReportsPage: NextPage = () => {
         } catch (error) {
             console.error("PDF generation error:", error);
             alert("Failed to generate PDF. Check console for details.");
+        } finally {
+            setIsGeneratingPdf(false);
         }
     };
 
@@ -176,7 +192,7 @@ const StationReportsPage: NextPage = () => {
                             <select value={selectedProvinceId} onChange={e => setSelectedProvinceId(e.target.value === "" ? "" : Number(e.target.value))} className="w-64 rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500">
                                 <option value="" disabled>Select a Province</option>
                                 {provinces.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                    <option key={p.id} value={p.id}>{p.khmerName || p.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -236,41 +252,41 @@ const StationReportsPage: NextPage = () => {
                     <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: "url('/map-bg-placeholder.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
 
                     <div className="relative z-10 flex flex-col items-center">
-                        <div className="flex w-full items-center justify-center gap-12 mb-6">
-                            <div className="flex flex-col items-center justify-center">
-                                <img src="/templates/logo.png" alt="Logo" className="h-28 w-28 object-contain mb-1 drop-shadow-md" />
+                        <div className="grid grid-cols-3 w-full items-center mb-6 px-4">
+                            <div className="flex flex-col items-center justify-center col-span-1">
+                                <img src={typeof window !== 'undefined' ? window.location.origin + "/templates/logo.png" : "/templates/logo.png"} alt="Logo" className="h-28 w-28 object-contain mb-1 drop-shadow-md" />
                                 <h3 className="text-[16px] font-bold text-blue-800 leading-snug font-moul">មន្ទីរធនធានទឹក និងឧតុនិយម</h3>
                                 <h3 className="text-[16px] font-bold text-blue-800 leading-snug font-moul">
                                     {sessionUser?.role === "admin"
-                                        ? `ខេត្ត${provinces.find(p => p.id === selectedProvinceId)?.name || "..."}`
+                                        ? `ខេត្ត${provinces.find(p => p.id === selectedProvinceId)?.khmerName || "..."}`
                                         : (sessionUser?.provinceName ? `ខេត្ត${sessionUser.provinceName}` : "ខេត្ត...")}
                                 </h3>
                             </div>
-                            <div className="flex items-center justify-center pt-2">
-                                <h2 className="text-[34px] font-black tracking-tight drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-[#1a1a1a] font-moul">ព្រឹត្តិបត្រព័ត៌មានកម្ពស់ទឹក</h2>
+                            <div className="flex items-center justify-center col-span-2">
+                                <h2 className="text-[25px] font-black tracking-tight drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-[#1a1a1a] font-moul text-center">ព្រឹត្តិបត្រព័ត៌មានកម្ពស់ទឹក</h2>
                             </div>
                         </div>
 
-                        <div className="text-[15px] text-slate-800 mb-6 text-center w-full font-moul">
+                        <div className="text-[15px] text-slate-800 mb-6 w-full font-moul pl-4">
                             I. កម្ពស់ទឹកពិនិត្យឃើញនៅថ្ងៃទី {reportDate.split('-')[2]} ខែ {reportDate.split('-')[1]} ឆ្នាំ {reportDate.split('-')[0]} តាមស្ថានីយជលសាស្ត្រ ស្ថិតក្នុងភូមិសាស្ត្រខេត្ត{
                                 sessionUser?.role === "admin"
-                                    ? (provinces.find(p => p.id === selectedProvinceId)?.name || "...")
+                                    ? (provinces.find(p => p.id === selectedProvinceId)?.khmerName || "...")
                                     : (sessionUser?.provinceName || "...")
                             }៖
                         </div>
                     </div>
 
-                    <div className="relative z-10 overflow-x-auto rounded-lg border border-slate-300 shadow">
+                    <div className={`relative z-10 rounded-lg border border-slate-300 overflow-hidden ${isGeneratingPdf ? "" : "shadow"}`}>
                         <table className="w-full text-left text-sm text-slate-700 border-collapse">
-                            <thead className="bg-[#a6d96a] text-slate-900 border-b-2 border-white font-bold">
+                            <thead className="bg-[#a6d96a]/50 text-slate-900 border-b-2 border-white font-bold">
                                 <tr>
                                     <th className="px-4 py-3 border-r border-white whitespace-nowrap">ឈ្មោះស្ថានីយ</th>
                                     <th className="px-4 py-3 border-r border-white text-center whitespace-nowrap">ទឹកមានកម្ពស់ (ម៉ែត្រ)</th>
                                     <th className="px-4 py-3 border-r border-white text-center whitespace-nowrap">ធៀបម្សិលមិញ (ម៉ែត្រ)</th>
                                     <th className="px-4 py-3 border-r border-white text-center whitespace-nowrap">ធៀបឆ្នាំមុន (ម៉ែត្រ)</th>
                                     <th className="px-4 py-3 text-center whitespace-nowrap">កម្រិតកម្ពស់ប្រុងប្រយ័ត្ន (ម៉ែត្រ)</th>
-                                    {sessionUser?.role !== "admin" && (
-                                        <th className="px-4 py-3 text-center whitespace-nowrap bg-slate-200 print:hidden" data-html2canvas-ignore>Actions</th>
+                                    {sessionUser?.role !== "admin" && !isGeneratingPdf && (
+                                        <th className="px-4 py-3 text-center whitespace-nowrap bg-slate-200">Actions</th>
                                     )}
                                 </tr>
                             </thead>
@@ -296,8 +312,8 @@ const StationReportsPage: NextPage = () => {
                                             <td className="px-4 py-3 border-r border-white text-center">{r ? formatDiff(diffYesterday) : "-"}</td>
                                             <td className="px-4 py-3 border-r border-white text-center">{r ? formatDiff(diffLastYear) : "-"}</td>
                                             <td className="px-4 py-3 text-center text-red-600 font-bold">{st.warningLevel ? st.warningLevel.toFixed(2) : ""}</td>
-                                            {sessionUser?.role !== "admin" && (
-                                                <td className="px-4 py-3 text-center bg-slate-100/50 print:hidden" data-html2canvas-ignore>
+                                            {sessionUser?.role !== "admin" && !isGeneratingPdf && (
+                                                <td className="px-4 py-3 text-center bg-slate-100/50">
                                                     {r ? (
                                                         <button onClick={() => handleDelete(r.id)} className="text-red-600 hover:text-red-800 font-bold text-xs bg-white px-2 py-1 rounded shadow-sm">Delete</button>
                                                     ) : (
