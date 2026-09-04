@@ -148,39 +148,39 @@ const StationsPage: NextPage = () => {
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (English)</label>
-                                <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (Khmer)</label>
-                                <input type="text" value={khmerName} onChange={e => setKhmerName(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="text" value={khmerName} onChange={e => setKhmerName(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">River/Lake</label>
-                                <input type="text" value={river} onChange={e => setRiver(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="text" value={river} onChange={e => setRiver(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Category</label>
-                                <input type="text" value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="text" value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Monitoring Functions</label>
-                                <input type="text" value={monitoringFunctions} onChange={e => setMonitoringFunctions(e.target.value)} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="text" value={monitoringFunctions} onChange={e => setMonitoringFunctions(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">កម្រិតកម្ពស់ប្រុងប្រយ័ត្ន (Warning Level)</label>
-                                <input type="number" step="any" value={warningLevel} onChange={e => setWarningLevel(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="number" step="any" value={warningLevel} onChange={e => setWarningLevel(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Lat./X</label>
-                                <input type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Long./Y</label>
-                                <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Order (លេខរៀង)</label>
-                                <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500" />
+                                <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div className="md:col-span-1 lg:col-span-1 flex items-end space-x-2">
                                 <button type="submit" className="w-full rounded-xl bg-cyan-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">
