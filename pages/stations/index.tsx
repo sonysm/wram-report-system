@@ -270,8 +270,8 @@ const StationsPage: NextPage = () => {
                                     <th className="px-4 py-3">Category</th>
                                     <th className="px-4 py-3">Monitoring Functions</th>
                                     <th className="px-4 py-3">Warning Level</th>
-                                    <th className="px-4 py-3">Lat./X</th>
-                                    <th className="px-4 py-3">Long./Y</th>
+                                    {/* <th className="px-4 py-3">Lat./X</th>
+                                    <th className="px-4 py-3">Long./Y</th> */}
                                     {sessionUser?.role !== "admin" && (
                                         <th className="px-4 py-3">Actions</th>
                                     )}
@@ -290,8 +290,8 @@ const StationsPage: NextPage = () => {
                                         <td className="px-4 py-3">{st.category}</td>
                                         <td className="px-4 py-3">{st.monitoringFunctions}</td>
                                         <td className="px-4 py-3">{st.warningLevel}</td>
-                                        <td className="px-4 py-3">{st.latitude}</td>
-                                        <td className="px-4 py-3">{st.longitude}</td>
+                                        {/* <td className="px-4 py-3">{st.latitude}</td>
+                                        <td className="px-4 py-3">{st.longitude}</td> */}
                                         {sessionUser?.role !== "admin" && (
                                             <td className="px-4 py-3 space-x-2">
                                                 <button onClick={() => handleEdit(st)} className="text-cyan-600 hover:text-cyan-800 font-semibold">Edit</button>

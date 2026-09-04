@@ -26,17 +26,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "GET") {
         let targetProvinceId = authUser.provinceId;
         const provinceIdFromQuery = parseNumber(req.query.provinceId);
-        
+
         if (authUser.role === "admin" && provinceIdFromQuery !== null) {
             targetProvinceId = provinceIdFromQuery;
         }
 
         const stations = await prisma.station.findMany({
             where: targetProvinceId ? { provinceId: targetProvinceId } : {},
-            include: { 
+            include: {
                 province: { select: { name: true } },
-                district: { select: { name: true } },
-                commune: { select: { name: true } }
+                district: { select: { name: true, khmerName: true } },
+                commune: { select: { name: true, khmerName: true } }
             },
             orderBy: { order: "asc" },
         });
@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         let targetProvinceId = authUser.provinceId;
         const provinceIdFromBody = parseNumber(req.body?.provinceId);
-        
+
         if (authUser.role === "admin" && provinceIdFromBody !== null) {
             targetProvinceId = provinceIdFromBody;
         }
@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 communeId: parseNumber(req.body?.communeId),
                 createdByUserId: authUser.isDemo ? null : authUser.id,
             },
-            include: { 
+            include: {
                 province: { select: { name: true } },
                 district: { select: { name: true } },
                 commune: { select: { name: true } }
