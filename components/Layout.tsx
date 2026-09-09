@@ -64,6 +64,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     { href: "/reports", label: "របាយការណ៍ទិន្ន័យផលប៉ះពាល់" },
     { href: "/stations", label: "ស្ថានីយជលសាស្ត្រ" },
     { href: "/station-reports", label: "របាយការណ៍កម្ពស់ទឹក" },
+    { href: "/province-daily-report", label: "របាយការណ៍ប្រចាំថ្ងៃ" },
   ];
 
   if (isCheckingSession) {
