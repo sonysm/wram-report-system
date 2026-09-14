@@ -591,8 +591,12 @@ export default function FwucFeature() {
                                         {entry.latitude && entry.longitude && (
                                             <a href={`https://www.google.com/maps/search/?api=1&query=${entry.latitude},${entry.longitude}`} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline">ផែនទី</a>
                                         )}
-                                        <button onClick={() => handleEdit(entry)} className="text-indigo-600 hover:underline">កែប្រែ</button>
-                                        <button onClick={() => handleDelete(entry.id)} className="text-rose-600 hover:underline">លុប</button>
+                                        {!isAdmin && (
+                                            <>
+                                                <button onClick={() => handleEdit(entry)} className="text-indigo-600 hover:underline">កែប្រែ</button>
+                                                <button onClick={() => handleDelete(entry.id)} className="text-rose-600 hover:underline">លុប</button>
+                                            </>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

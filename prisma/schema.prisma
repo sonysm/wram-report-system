@@ -47,66 +47,69 @@ model Entry {
 }
 
 model User {
-  id               Int                  @id @default(autoincrement())
-  username         String               @unique
-  passwordHash     String
-  role             String               @default("user")
-  isActive         Boolean              @default(true)
-  provinceId       Int?
-  province         Province?            @relation(fields: [provinceId], references: [id])
-  entries          Entry[]
-  waterEntries     ProvinceWaterEntry[]
-  createdDistricts District[]           @relation("DistrictCreator")
-  createdCommunes  Commune[]            @relation("CommuneCreator")
-  createdStations  Station[]            @relation("StationCreator")
-  stationReports   StationReport[]
-  auditLogs        AuditLog[]           @relation("AuditActor")
-  temperatures     DailyTemperature[]
-  rainfalls        DailyRainfall[]
-  forecasts        DailyForecast[]
-  fwucs            Fwuc[]
+  id                            Int                     @id @default(autoincrement())
+  username                      String                  @unique
+  passwordHash                  String
+  role                          String                  @default("user")
+  isActive                      Boolean                 @default(true)
+  provinceId                    Int?
+  province                      Province?               @relation(fields: [provinceId], references: [id])
+  entries                       Entry[]
+  waterEntries                  ProvinceWaterEntry[]
+  createdDistricts              District[]              @relation("DistrictCreator")
+  createdCommunes               Commune[]               @relation("CommuneCreator")
+  createdStations               Station[]               @relation("StationCreator")
+  createdMeteorologicalStations MeteorologicalStation[] @relation("MeteorologicalStationCreator")
+  stationReports                StationReport[]
+  auditLogs                     AuditLog[]              @relation("AuditActor")
+  temperatures                  DailyTemperature[]
+  rainfalls                     DailyRainfall[]
+  forecasts                     DailyForecast[]
+  fwucs                         Fwuc[]
 
   @@index([isActive])
 }
 
 model Province {
-  id           Int                  @id @default(autoincrement())
-  name         String               @unique
-  khmerName    String               @default("")
-  code         String?              @unique
-  postalCode   Int?
-  sortOrder    Int?
-  users        User[]
-  districts    District[]
-  entries      Entry[]
-  waterEntries ProvinceWaterEntry[]
-  communes     Commune[]
-  stations     Station[]
-  auditLogs    AuditLog[]
-  temperatures DailyTemperature[]
-  rainfalls    DailyRainfall[]
-  forecasts    DailyForecast[]
-  fwucs        Fwuc[]
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @unique
+  khmerName              String                  @default("")
+  code                   String?                 @unique
+  postalCode             Int?
+  sortOrder              Int?
+  users                  User[]
+  districts              District[]
+  entries                Entry[]
+  waterEntries           ProvinceWaterEntry[]
+  communes               Commune[]
+  stations               Station[]
+  meteorologicalStations MeteorologicalStation[]
+  auditLogs              AuditLog[]
+  temperatures           DailyTemperature[]
+  rainfalls              DailyRainfall[]
+  forecasts              DailyForecast[]
+  fwucs                  Fwuc[]
 
   @@index([sortOrder])
 }
 
 model District {
-  id              Int                  @id @default(autoincrement())
-  name            String
-  khmerName       String               @default("")
-  geocode         String?
-  provinceId      Int
-  createdByUserId Int?
-  createdAt       DateTime             @default(now())
-  province        Province             @relation(fields: [provinceId], references: [id])
-  createdByUser   User?                @relation("DistrictCreator", fields: [createdByUserId], references: [id])
-  entries         Entry[]
-  waterEntries    ProvinceWaterEntry[]
-  communes        Commune[]
-  stations        Station[]
-  rainfalls       DailyRainfall[]
-  fwucs           Fwuc[]
+  id                     Int                     @id @default(autoincrement())
+  name                   String
+  khmerName              String                  @default("")
+  geocode                String?
+  provinceId             Int
+  createdByUserId        Int?
+  createdAt              DateTime                @default(now())
+  province               Province                @relation(fields: [provinceId], references: [id])
+  createdByUser          User?                   @relation("DistrictCreator", fields: [createdByUserId], references: [id])
+  entries                Entry[]
+  waterEntries           ProvinceWaterEntry[]
+  communes               Commune[]
+  stations               Station[]
+  meteorologicalStations MeteorologicalStation[]
+  rainfalls              DailyRainfall[]
+  fwucs                  Fwuc[]
 
   @@unique([provinceId, name])
 }
@@ -142,30 +145,31 @@ model ProvinceWaterEntry {
 }
 
 model Commune {
-  id              Int                  @id @default(autoincrement())
-  name            String
-  khmerName       String               @default("")
-  geocode         String?
-  numVillages     Int?
-  districtId      Int?
-  provinceId      Int
-  createdByUserId Int?
-  createdAt       DateTime             @default(now())
-  province        Province             @relation(fields: [provinceId], references: [id])
-  district        District?            @relation(fields: [districtId], references: [id])
-  createdByUser   User?                @relation("CommuneCreator", fields: [createdByUserId], references: [id])
-  waterEntries    ProvinceWaterEntry[]
-  stations        Station[]
-  fwucs           Fwuc[]
+  id                     Int                     @id @default(autoincrement())
+  name                   String
+  khmerName              String                  @default("")
+  geocode                String?
+  numVillages            Int?
+  districtId             Int?
+  provinceId             Int
+  createdByUserId        Int?
+  createdAt              DateTime                @default(now())
+  province               Province                @relation(fields: [provinceId], references: [id])
+  district               District?               @relation(fields: [districtId], references: [id])
+  createdByUser          User?                   @relation("CommuneCreator", fields: [createdByUserId], references: [id])
+  waterEntries           ProvinceWaterEntry[]
+  stations               Station[]
+  fwucs                  Fwuc[]
+  meteorologicalStations MeteorologicalStation[]
 
   @@unique([provinceId, name])
   @@index([districtId])
 }
 
 model Station {
-  id                  Int      @id @default(autoincrement())
+  id                  Int       @id @default(autoincrement())
   name                String
-  khmerName           String   @default("")
+  khmerName           String    @default("")
   river               String?
   category            String?
   monitoringFunctions String?
@@ -176,9 +180,9 @@ model Station {
   remark              String?
   latitude            Float?
   longitude           Float?
-  order               Int      @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  order               Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   provinceId          Int
   districtId          Int?
   communeId           Int?
@@ -303,6 +307,41 @@ model Fwuc {
   district District? @relation(fields: [districtId], references: [id])
   commune  Commune?  @relation(fields: [communeId], references: [id])
   user     User?     @relation(fields: [userId], references: [id])
+
+  @@index([provinceId])
+  @@index([districtId])
+  @@index([communeId])
+}
+
+model MeteorologicalStation {
+  id                  Int       @id @default(autoincrement())
+  name                String
+  khmerName           String    @default("")
+  river               String?
+  category            String?
+  monitoringFunctions String?
+  powerSupply         String?
+  communication       String?
+  elevation           Float?
+  warningLevel        Float?
+  maxCapacityLevel    Float?
+  status              String?
+  installationDate    DateTime?
+  remark              String?
+  latitude            Float?
+  longitude           Float?
+  order               Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  provinceId          Int
+  districtId          Int?
+  communeId           Int?
+  createdByUserId     Int?
+
+  province      Province  @relation(fields: [provinceId], references: [id])
+  district      District? @relation(fields: [districtId], references: [id])
+  commune       Commune?  @relation(fields: [communeId], references: [id])
+  createdByUser User?     @relation("MeteorologicalStationCreator", fields: [createdByUserId], references: [id])
 
   @@index([provinceId])
   @@index([districtId])
