@@ -10,6 +10,9 @@ interface Station {
     river: string | null;
     category: string | null;
     monitoringFunctions: string | null;
+    status: string | null;
+    installationDate: string | null;
+    remark: string | null;
     warningLevel: number | null;
     latitude: number | null;
     longitude: number | null;
@@ -32,6 +35,9 @@ const StationsPage: NextPage = () => {
     const [river, setRiver] = useState("");
     const [category, setCategory] = useState("");
     const [monitoringFunctions, setMonitoringFunctions] = useState("");
+    const [status, setStatus] = useState("");
+    const [installationDate, setInstallationDate] = useState("");
+    const [remark, setRemark] = useState("");
     const [warningLevel, setWarningLevel] = useState<number | "">("");
     const [latitude, setLatitude] = useState<number | "">("");
     const [longitude, setLongitude] = useState<number | "">("");
@@ -89,6 +95,9 @@ const StationsPage: NextPage = () => {
         setRiver(st.river || "");
         setCategory(st.category || "");
         setMonitoringFunctions(st.monitoringFunctions || "");
+        setStatus(st.status || "");
+        setInstallationDate(st.installationDate ? new Date(st.installationDate).toISOString().split('T')[0] : "");
+        setRemark(st.remark || "");
         setWarningLevel(st.warningLevel ?? "");
         setLatitude(st.latitude ?? "");
         setLongitude(st.longitude ?? "");
@@ -104,6 +113,9 @@ const StationsPage: NextPage = () => {
         setRiver("");
         setCategory("");
         setMonitoringFunctions("");
+        setStatus("");
+        setInstallationDate("");
+        setRemark("");
         setWarningLevel("");
         setLatitude("");
         setLongitude("");
@@ -123,6 +135,9 @@ const StationsPage: NextPage = () => {
             river: river || undefined,
             category: category || undefined,
             monitoringFunctions: monitoringFunctions || undefined,
+            status: status || undefined,
+            installationDate: installationDate || undefined,
+            remark: remark || undefined,
             warningLevel: warningLevel !== "" ? Number(warningLevel) : undefined,
             latitude: latitude !== "" ? Number(latitude) : undefined,
             longitude: longitude !== "" ? Number(longitude) : undefined,
@@ -196,6 +211,20 @@ const StationsPage: NextPage = () => {
                                 <input type="text" value={monitoringFunctions} onChange={e => setMonitoringFunctions(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">ស្ថានភាព (Status)</label>
+                                <select value={status} onChange={e => setStatus(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
+                                    <option value="">ជ្រើសរើសស្ថានភាព</option>
+                                    <option value="ដំណើរការ">ដំណើរការ</option>
+                                    <option value="កំពុងជួសជុល">កំពុងជួសជុល</option>
+                                    <option value="ខូច">ខូច</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">កាលបរិច្ឆេទដំឡើង (Installation Date)</label>
+                                <input type="date" value={installationDate} onChange={e => setInstallationDate(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                            </div>
+
+                            <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">កម្រិតកម្ពស់ប្រុងប្រយ័ត្ន (Warning Level)</label>
                                 <input type="number" step="any" value={warningLevel} onChange={e => setWarningLevel(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
@@ -241,6 +270,10 @@ const StationsPage: NextPage = () => {
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Order (លេខរៀង)</label>
                                 <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
+                            <div className="md:col-span-2 lg:col-span-3">
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">ផ្សេងៗ (Remark)</label>
+                                <textarea value={remark} onChange={e => setRemark(e.target.value)} rows={2} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                            </div>
                             <div className="md:col-span-1 lg:col-span-1 flex items-end space-x-2">
                                 <button type="submit" className="w-full rounded-xl bg-cyan-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">
                                     {editId ? "Update" : "រក្សាទុក (Save)"}
@@ -269,7 +302,10 @@ const StationsPage: NextPage = () => {
                                     <th className="px-4 py-3">River/Lake</th>
                                     <th className="px-4 py-3">Category</th>
                                     <th className="px-4 py-3">Monitoring Functions</th>
+                                    <th className="px-4 py-3">Status</th>
+                                    <th className="px-4 py-3">Installation Date</th>
                                     <th className="px-4 py-3">Warning Level</th>
+                                    <th className="px-4 py-3">Remark</th>
                                     {/* <th className="px-4 py-3">Lat./X</th>
                                     <th className="px-4 py-3">Long./Y</th> */}
                                     {sessionUser?.role !== "admin" && (
@@ -289,7 +325,10 @@ const StationsPage: NextPage = () => {
                                         <td className="px-4 py-3">{st.river}</td>
                                         <td className="px-4 py-3">{st.category}</td>
                                         <td className="px-4 py-3">{st.monitoringFunctions}</td>
+                                        <td className="px-4 py-3">{st.status}</td>
+                                        <td className="px-4 py-3">{st.installationDate ? new Date(st.installationDate).toLocaleDateString("km-KH") : ""}</td>
                                         <td className="px-4 py-3">{st.warningLevel}</td>
+                                        <td className="px-4 py-3">{st.remark}</td>
                                         {/* <td className="px-4 py-3">{st.latitude}</td>
                                         <td className="px-4 py-3">{st.longitude}</td> */}
                                         {sessionUser?.role !== "admin" && (

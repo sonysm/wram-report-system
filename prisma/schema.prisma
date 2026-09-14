@@ -64,6 +64,7 @@ model User {
   temperatures     DailyTemperature[]
   rainfalls        DailyRainfall[]
   forecasts        DailyForecast[]
+  fwucs            Fwuc[]
 
   @@index([isActive])
 }
@@ -85,6 +86,7 @@ model Province {
   temperatures DailyTemperature[]
   rainfalls    DailyRainfall[]
   forecasts    DailyForecast[]
+  fwucs        Fwuc[]
 
   @@index([sortOrder])
 }
@@ -104,6 +106,7 @@ model District {
   communes        Commune[]
   stations        Station[]
   rainfalls       DailyRainfall[]
+  fwucs           Fwuc[]
 
   @@unique([provinceId, name])
 }
@@ -153,6 +156,7 @@ model Commune {
   createdByUser   User?                @relation("CommuneCreator", fields: [createdByUserId], references: [id])
   waterEntries    ProvinceWaterEntry[]
   stations        Station[]
+  fwucs           Fwuc[]
 
   @@unique([provinceId, name])
   @@index([districtId])
@@ -167,6 +171,9 @@ model Station {
   monitoringFunctions String?
   warningLevel        Float?
   maxCapacityLevel    Float?
+  status              String?
+  installationDate    DateTime?
+  remark              String?
   latitude            Float?
   longitude           Float?
   order               Int      @default(0)
@@ -271,4 +278,33 @@ model DailyForecast {
 
   @@unique([provinceId, reportDate])
   @@index([provinceId, reportDate])
+}
+
+model Fwuc {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  provinceId         Int
+  districtId         Int?
+  communeId          Int?
+  longitude          Float?
+  latitude           Float?
+  registrationPlace  String?
+  registrationNumber String?
+  registrationDate   DateTime?
+  irrigatedDryArea   Float     @default(0)
+  irrigatedWetArea   Float     @default(0)
+  efficiency         String?
+  note               String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  userId             Int?
+
+  province Province  @relation(fields: [provinceId], references: [id])
+  district District? @relation(fields: [districtId], references: [id])
+  commune  Commune?  @relation(fields: [communeId], references: [id])
+  user     User?     @relation(fields: [userId], references: [id])
+
+  @@index([provinceId])
+  @@index([districtId])
+  @@index([communeId])
 }

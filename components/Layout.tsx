@@ -61,6 +61,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const navItems = [
     { href: "/", label: "ទំព័រដើម" },
     { href: "/province-water", label: "អាងស្ដុកទឹក" },
+    { href: "/fwuc", label: "សកបទ" },
     { href: "/reports", label: "របាយការណ៍ទិន្ន័យផលប៉ះពាល់" },
     { href: "/stations", label: "ស្ថានីយជលសាស្ត្រ" },
     { href: "/station-reports", label: "របាយការណ៍កម្ពស់ទឹក" },
