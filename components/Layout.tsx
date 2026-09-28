@@ -152,6 +152,15 @@ export default function Layout({ children }: { children: ReactNode }) {
         </svg>
       ),
     },
+    {
+      href: "/flood-reports",
+      label: "របាយការណ៍ទឹកជំនន់",
+      icon: (
+        <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth="1.75" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 14.25v-2.625a3.375 3.375 0 0 1 3.375-3.375h1.5M10.5 8.25h3m-3 3h3m-10.5 4.5h15m-15 3h15" />
+        </svg>
+      ),
+    },
   ];
 
   if (isCheckingSession) {

@@ -66,6 +66,7 @@ model User {
   rainfalls                     DailyRainfall[]
   forecasts                     DailyForecast[]
   fwucs                         Fwuc[]
+  floodReports                  ProvincialFloodReport[]
 
   @@index([isActive])
 }
@@ -89,6 +90,7 @@ model Province {
   rainfalls              DailyRainfall[]
   forecasts              DailyForecast[]
   fwucs                  Fwuc[]
+  floodReports           ProvincialFloodReport[]
 
   @@index([sortOrder])
 }
@@ -110,6 +112,7 @@ model District {
   meteorologicalStations MeteorologicalStation[]
   rainfalls              DailyRainfall[]
   fwucs                  Fwuc[]
+  floodReports           ProvincialFloodReport[]
 
   @@unique([provinceId, name])
 }
@@ -346,4 +349,35 @@ model MeteorologicalStation {
   @@index([provinceId])
   @@index([districtId])
   @@index([communeId])
+}
+
+model ProvincialFloodReport {
+  id                          Int      @id @default(autoincrement())
+  reportDate                  DateTime @default(now())
+  provinceId                  Int
+  districtId                  Int?
+  communesCount               Int      @default(0) 
+  affectedFamilies            Int      @default(0) 
+  affectedWaterInfrastructure Int      @default(0) 
+  affectedRiceCrops           Float    @default(0) 
+  damagedRiceCrops            Float    @default(0) 
+  note                        String?              
+  reservoirName               String?              
+  damLength                   Float    @default(0) 
+  mainCanalLength             Float    @default(0) 
+  subCanalLength              Float    @default(0) 
+  tertiaryCanalLength         Float    @default(0) 
+  spillwayLength              Float    @default(0) 
+  waterGateCount              Int      @default(0) 
+  pipeCulvertCount            Int      @default(0) 
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  userId                      Int?
+
+  province Province  @relation(fields: [provinceId], references: [id])
+  district District? @relation(fields: [districtId], references: [id])
+  user     User?     @relation(fields: [userId], references: [id])
+
+  @@index([provinceId])
+  @@index([districtId])
 }
