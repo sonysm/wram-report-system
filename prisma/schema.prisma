@@ -351,6 +351,24 @@ model MeteorologicalStation {
   @@index([communeId])
 }
 
+model WaterInfrastructure {
+  id                      Int                   @id @default(autoincrement())
+  provincialFloodReportId Int
+  type                    String?               
+  name                    String?               
+  locationX               String?               
+  locationY               String?               
+  damagedLength           Float                 @default(0) 
+  status                  String?               
+  note                    String?               
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+
+  provincialFloodReport   ProvincialFloodReport @relation(fields: [provincialFloodReportId], references: [id], onDelete: Cascade)
+  
+  @@index([provincialFloodReportId])
+}
+
 model ProvincialFloodReport {
   id                          Int      @id @default(autoincrement())
   reportDate                  DateTime @default(now())
@@ -358,18 +376,9 @@ model ProvincialFloodReport {
   districtId                  Int?
   communesCount               Int      @default(0) 
   affectedFamilies            Int      @default(0) 
-  affectedWaterInfrastructure Int      @default(0) 
   affectedRiceCrops           Float    @default(0) 
   damagedRiceCrops            Float    @default(0) 
   note                        String?              
-  reservoirName               String?              
-  damLength                   Float    @default(0) 
-  mainCanalLength             Float    @default(0) 
-  subCanalLength              Float    @default(0) 
-  tertiaryCanalLength         Float    @default(0) 
-  spillwayLength              Float    @default(0) 
-  waterGateCount              Int      @default(0) 
-  pipeCulvertCount            Int      @default(0) 
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
   userId                      Int?
@@ -377,6 +386,7 @@ model ProvincialFloodReport {
   province Province  @relation(fields: [provinceId], references: [id])
   district District? @relation(fields: [districtId], references: [id])
   user     User?     @relation(fields: [userId], references: [id])
+  waterInfrastructures        WaterInfrastructure[]
 
   @@index([provinceId])
   @@index([districtId])

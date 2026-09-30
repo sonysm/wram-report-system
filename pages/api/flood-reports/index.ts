@@ -16,6 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           province: { select: { id: true, name: true, khmerName: true, sortOrder: true } },
           district: { select: { id: true, name: true, khmerName: true } },
           user: { select: { id: true, username: true } },
+          waterInfrastructures: true,
         },
         orderBy: [
           { province: { sortOrder: 'asc' } },
@@ -45,19 +46,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           districtId: data.districtId ? Number(data.districtId) : null,
           communesCount: data.communesCount ? Number(data.communesCount) : 0,
           affectedFamilies: data.affectedFamilies ? Number(data.affectedFamilies) : 0,
-          affectedWaterInfrastructure: data.affectedWaterInfrastructure ? Number(data.affectedWaterInfrastructure) : 0,
           affectedRiceCrops: data.affectedRiceCrops ? Number(data.affectedRiceCrops) : 0,
           damagedRiceCrops: data.damagedRiceCrops ? Number(data.damagedRiceCrops) : 0,
           note: data.note || null,
-          reservoirName: data.reservoirName || null,
-          damLength: data.damLength ? Number(data.damLength) : 0,
-          mainCanalLength: data.mainCanalLength ? Number(data.mainCanalLength) : 0,
-          subCanalLength: data.subCanalLength ? Number(data.subCanalLength) : 0,
-          tertiaryCanalLength: data.tertiaryCanalLength ? Number(data.tertiaryCanalLength) : 0,
-          spillwayLength: data.spillwayLength ? Number(data.spillwayLength) : 0,
-          waterGateCount: data.waterGateCount ? Number(data.waterGateCount) : 0,
-          pipeCulvertCount: data.pipeCulvertCount ? Number(data.pipeCulvertCount) : 0,
           userId: user.id,
+          waterInfrastructures: {
+            create: data.waterInfrastructures && Array.isArray(data.waterInfrastructures) 
+              ? data.waterInfrastructures.map((wi: any) => ({
+                  type: wi.type || null,
+                  name: wi.name || null,
+                  locationX: wi.locationX || null,
+                  locationY: wi.locationY || null,
+                  damagedLength: wi.damagedLength ? Number(wi.damagedLength) : 0,
+                  status: wi.status || null,
+                  note: wi.note || null,
+                }))
+              : [],
+          },
         },
       });
 
