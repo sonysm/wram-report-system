@@ -39,26 +39,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(400).json({ error: "Province ID is required" });
       }
 
+      const toFloat = (val: any) => {
+        if (val === undefined || val === null || val === "") return 0;
+        const num = Number(val);
+        return isNaN(num) ? 0 : num;
+      };
+
+      const toInt = (val: any) => {
+        if (val === undefined || val === null || val === "") return 0;
+        const num = Math.round(Number(val));
+        return isNaN(num) ? 0 : num;
+      };
+
       const newReport = await prisma.provincialFloodReport.create({
         data: {
           reportDate: data.reportDate ? new Date(data.reportDate) : new Date(),
           provinceId,
           districtId: data.districtId ? Number(data.districtId) : null,
-          communesCount: data.communesCount ? Number(data.communesCount) : 0,
-          affectedFamilies: data.affectedFamilies ? Number(data.affectedFamilies) : 0,
-          affectedRiceCrops: data.affectedRiceCrops ? Number(data.affectedRiceCrops) : 0,
-          damagedRiceCrops: data.damagedRiceCrops ? Number(data.damagedRiceCrops) : 0,
+          communesCount: toInt(data.communesCount),
+          affectedFamilies: toInt(data.affectedFamilies),
+          affectedRiceCrops: toFloat(data.affectedRiceCrops),
+          damagedRiceCrops: toFloat(data.damagedRiceCrops),
           note: data.note || null,
           userId: user.id,
           waterInfrastructures: {
             create: data.waterInfrastructures && Array.isArray(data.waterInfrastructures) 
               ? data.waterInfrastructures.map((wi: any) => ({
-                  type: wi.type || null,
                   name: wi.name || null,
-                  locationX: wi.locationX || null,
-                  locationY: wi.locationY || null,
-                  damagedLength: wi.damagedLength ? Number(wi.damagedLength) : 0,
-                  status: wi.status || null,
+                  damLength: toFloat(wi.damLength),
+                  mainCanalLength: toFloat(wi.mainCanalLength),
+                  subCanalLength: toFloat(wi.subCanalLength),
+                  tertiaryCanalLength: toFloat(wi.tertiaryCanalLength),
+                  spillwayLength: toFloat(wi.spillwayLength),
+                  waterGateCount: toInt(wi.waterGateCount),
+                  pipeCulvertCount: toInt(wi.pipeCulvertCount),
                   note: wi.note || null,
                 }))
               : [],
@@ -67,9 +81,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       return res.status(201).json(newReport);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Failed to create flood report" });
+    } catch (error: any) {
+      console.error("Create flood report error:", error);
+      return res.status(500).json({ error: error?.message || "Failed to create flood report" });
     }
   }
 

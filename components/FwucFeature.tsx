@@ -334,6 +334,7 @@ export default function FwucFeature() {
         let province = 0;
         let processing = 0;
         let good = 0;
+        let fair = 0;
         let medium = 0;
         let little = 0;
         let notFunctioning = 0;
@@ -346,6 +347,7 @@ export default function FwucFeature() {
             else if (e.registrationPlace === "កំពុងដំណើរការ") processing++;
 
             if (e.efficiency === "ល្អ") good++;
+            else if (e.efficiency === "បង្គួរ") fair++;
             else if (e.efficiency === "មធ្យម") medium++;
             else if (e.efficiency === "តិចតួច") little++;
             else if (e.efficiency === "មិនដំណើរការ") notFunctioning++;
@@ -360,6 +362,7 @@ export default function FwucFeature() {
             province,
             processing,
             good,
+            fair,
             medium,
             little,
             notFunctioning,
@@ -486,6 +489,7 @@ export default function FwucFeature() {
                             <select value={efficiency} onChange={e => setEfficiency(e.target.value)} className="mt-1 block w-full rounded-md border border-slate-300 p-2 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
                                 <option value="">ជ្រើសរើសប្រសិទ្ធភាព</option>
                                 <option value="ល្អ">🟢 ល្អ</option>
+                                <option value="បង្គួរ">🔵 បង្គួរ</option>
                                 <option value="មធ្យម">🟡 មធ្យម</option>
                                 <option value="តិចតួច">🟠 តិចតួច</option>
                                 <option value="មិនដំណើរការ">🔴 មិនដំណើរការ</option>
@@ -617,14 +621,18 @@ export default function FwucFeature() {
                         <div className="flex justify-between"><span>- ផ្ទៃដីស្រោចស្រពប្រាំងសរុប (ហ.ត.)៖</span> <span className="font-semibold">{stats.totalDry.toLocaleString()}</span></div>
 
                         <div className="flex justify-between"><span>- ចុះបញ្ជីនៅក្រសួង៖</span> <span className="font-semibold">{stats.ministry}</span></div>
-                        <div className="flex justify-between"><span>- ប្រសិទ្ធភាពមធ្យម៖</span> <span className="font-semibold">{stats.medium}</span></div>
+                        <div className="flex justify-between"><span>- ប្រសិទ្ធភាពបង្គួរ៖</span> <span className="font-semibold">{stats.fair}</span></div>
                         <div className="flex justify-between"><span>- ផ្ទៃដីស្រោចស្រពវស្សាសរុប (ហ.ត.)៖</span> <span className="font-semibold">{stats.totalWet.toLocaleString()}</span></div>
 
                         <div className="flex justify-between"><span>- ចុះបញ្ជីនៅខេត្ត៖</span> <span className="font-semibold">{stats.province}</span></div>
-                        <div className="flex justify-between"><span>- ប្រសិទ្ធភាពតិចតួច៖</span> <span className="font-semibold">{stats.little}</span></div>
+                        <div className="flex justify-between"><span>- ប្រសិទ្ធភាពមធ្យម៖</span> <span className="font-semibold">{stats.medium}</span></div>
                         <div></div>
 
                         <div className="flex justify-between"><span>- កំពុងដំណើរការចុះបញ្ជី៖</span> <span className="font-semibold">{stats.processing}</span></div>
+                        <div className="flex justify-between"><span>- ប្រសិទ្ធភាពតិចតួច៖</span> <span className="font-semibold">{stats.little}</span></div>
+                        <div></div>
+
+                        <div></div>
                         <div className="flex justify-between"><span>- មិនដំណើរការ៖</span> <span className="font-semibold">{stats.notFunctioning}</span></div>
                         <div></div>
                     </div>

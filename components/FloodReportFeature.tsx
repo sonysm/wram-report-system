@@ -24,13 +24,15 @@ interface ProvinceOption {
 
 interface WaterInfrastructure {
     id?: number;
-    type: string;
-    name: string;
-    locationX: string;
-    locationY: string;
-    damagedLength: number;
-    status: string;
-    note: string;
+    name: string; // ឈ្មោះអាងទឹក/ប្រព័ន្ធធារាសាស្ត្រ
+    damLength: number | string; // ទំនប់ (ម)
+    mainCanalLength: number | string; // ប្រឡាយមេ (ម)
+    subCanalLength: number | string; // ប្រឡាយរង (ម)
+    tertiaryCanalLength: number | string; // ជើងក្អែប (ម)
+    spillwayLength: number | string; // សំណង់បង្ហៀរ (ម)
+    waterGateCount: number | string; // ទ្វារទឹក (ចំនួន)
+    pipeCulvertCount: number | string; // លូ (ចំនួន)
+    note?: string;
 }
 
 interface FloodReport {
@@ -152,12 +154,14 @@ export default function FloodReportFeature() {
         setWaterInfrastructures(
             r.waterInfrastructures?.map((wi) => ({
                 id: wi.id,
-                type: wi.type || "",
                 name: wi.name || "",
-                locationX: wi.locationX || "",
-                locationY: wi.locationY || "",
-                damagedLength: wi.damagedLength || 0,
-                status: wi.status || "",
+                damLength: wi.damLength ?? 0,
+                mainCanalLength: wi.mainCanalLength ?? 0,
+                subCanalLength: wi.subCanalLength ?? 0,
+                tertiaryCanalLength: wi.tertiaryCanalLength ?? 0,
+                spillwayLength: wi.spillwayLength ?? 0,
+                waterGateCount: wi.waterGateCount ?? 0,
+                pipeCulvertCount: wi.pipeCulvertCount ?? 0,
                 note: wi.note || "",
             })) || []
         );
@@ -196,9 +200,19 @@ export default function FloodReportFeature() {
         const token = getToken();
         if (!token) return;
 
+        const resolvedProvinceId = currentUser?.role === "admin" 
+            ? selectedProvinceId 
+            : (currentUser?.provinceId ? String(currentUser.provinceId) : selectedProvinceId);
+
+        if (!resolvedProvinceId) {
+            setMessage("សូមជ្រើសរើសខេត្ត (Province is required)");
+            setStatus("error");
+            return;
+        }
+
         const payload = {
             reportDate,
-            provinceId: selectedProvinceId,
+            provinceId: resolvedProvinceId,
             districtId: selectedDistrictId || null,
             communesCount,
             affectedFamilies,
@@ -244,7 +258,17 @@ export default function FloodReportFeature() {
     const addWaterInfrastructure = () => {
         setWaterInfrastructures([
             ...waterInfrastructures,
-            { type: "", name: "", locationX: "", locationY: "", damagedLength: 0, status: "", note: "" },
+            {
+                name: "",
+                damLength: "",
+                mainCanalLength: "",
+                subCanalLength: "",
+                tertiaryCanalLength: "",
+                spillwayLength: "",
+                waterGateCount: "",
+                pipeCulvertCount: "",
+                note: "",
+            },
         ]);
     };
 
@@ -292,7 +316,7 @@ export default function FloodReportFeature() {
                 </div>
             )}
             
-            {currentUser?.role !== "admin" && (
+            {currentUser && (
                 <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 no-print">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div>
@@ -301,7 +325,24 @@ export default function FloodReportFeature() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700">ខេត្ត (Province)</label>
-                            <input type="text" className="mt-1 block w-full rounded-md border-slate-300 bg-slate-100 shadow-sm p-2 border" value={currentUser?.provinceName || ""} readOnly />
+                            {currentUser.role === "admin" ? (
+                                <select
+                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-2 border"
+                                    value={selectedProvinceId}
+                                    onChange={(e) => {
+                                        setSelectedProvinceId(e.target.value);
+                                        setSelectedDistrictId("");
+                                    }}
+                                    required
+                                >
+                                    <option value="">-- ជ្រើសរើសខេត្ត --</option>
+                                    {provinces.map((p) => (
+                                        <option key={p.id} value={p.id}>{p.khmerName || p.name}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input type="text" className="mt-1 block w-full rounded-md border-slate-300 bg-slate-100 shadow-sm p-2 border" value={currentUser?.provinceName || ""} readOnly />
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700">ក្រុង/ស្រុក (District)</label>
@@ -367,33 +408,107 @@ export default function FloodReportFeature() {
                                         </button>
                                         
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-                                            <div>
-                                                <label className="block text-xs font-medium text-slate-700">ប្រភេទហេដ្ឋារចនាសម្ព័ន្ធ</label>
-                                                <input type="text" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm" value={wi.type} onChange={(e) => updateWaterInfrastructure(index, 'type', e.target.value)} />
+                                            <div className="sm:col-span-2">
+                                                <label className="block text-xs font-medium text-slate-700">ឈ្មោះអាងទឹក/ប្រព័ន្ធធារាសាស្ត្រ</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="ឈ្មោះអាងទឹក ឬ ប្រព័ន្ធធារាសាស្ត្រ"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.name}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'name', e.target.value)}
+                                                />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-slate-700">ឈ្មោះហេដ្ឋារចនាសម្ព័ន្ធ</label>
-                                                <input type="text" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm" value={wi.name} onChange={(e) => updateWaterInfrastructure(index, 'name', e.target.value)} />
+                                                <label className="block text-xs font-medium text-slate-700">ទំនប់ (ម)</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="any"
+                                                    placeholder="0"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.damLength}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'damLength', e.target.value)}
+                                                />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-slate-700">ទីតាំង (X)</label>
-                                                <input type="text" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm" value={wi.locationX} onChange={(e) => updateWaterInfrastructure(index, 'locationX', e.target.value)} />
+                                                <label className="block text-xs font-medium text-slate-700">ប្រឡាយមេ (ម)</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="any"
+                                                    placeholder="0"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.mainCanalLength}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'mainCanalLength', e.target.value)}
+                                                />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-slate-700">ទីតាំង (Y)</label>
-                                                <input type="text" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm" value={wi.locationY} onChange={(e) => updateWaterInfrastructure(index, 'locationY', e.target.value)} />
+                                                <label className="block text-xs font-medium text-slate-700">ប្រឡាយរង (ម)</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="any"
+                                                    placeholder="0"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.subCanalLength}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'subCanalLength', e.target.value)}
+                                                />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-slate-700">ខូចខាត (ម៉ែត្រ)</label>
-                                                <input type="number" min="0" step="any" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm" value={wi.damagedLength} onChange={(e) => updateWaterInfrastructure(index, 'damagedLength', e.target.value)} />
+                                                <label className="block text-xs font-medium text-slate-700">ជើងក្អែប (ម)</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="any"
+                                                    placeholder="0"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.tertiaryCanalLength}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'tertiaryCanalLength', e.target.value)}
+                                                />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-slate-700">ស្ថានភាព</label>
-                                                <input type="text" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm" value={wi.status} onChange={(e) => updateWaterInfrastructure(index, 'status', e.target.value)} />
+                                                <label className="block text-xs font-medium text-slate-700">សំណង់បង្ហៀរ (ម)</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="any"
+                                                    placeholder="0"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.spillwayLength}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'spillwayLength', e.target.value)}
+                                                />
                                             </div>
-                                            <div className="md:col-span-2">
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700">ទ្វារទឹក (ចំនួន)</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    placeholder="0"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.waterGateCount}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'waterGateCount', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700">លូ (ចំនួន)</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    placeholder="0"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.pipeCulvertCount}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'pipeCulvertCount', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="sm:col-span-3">
                                                 <label className="block text-xs font-medium text-slate-700">ផ្សេងៗ</label>
-                                                <input type="text" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm" value={wi.note} onChange={(e) => updateWaterInfrastructure(index, 'note', e.target.value)} />
+                                                <input
+                                                    type="text"
+                                                    placeholder="កំណត់សំគាល់បន្ថែម"
+                                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm p-1.5 border text-sm"
+                                                    value={wi.note || ''}
+                                                    onChange={(e) => updateWaterInfrastructure(index, 'note', e.target.value)}
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -434,53 +549,181 @@ export default function FloodReportFeature() {
                     </div>
                 </div>
                 
-                <table className="print-table min-w-full border-collapse text-xs sm:text-sm mt-5">
+                <table className="print-table min-w-full border-collapse text-xs mt-5">
                     <thead className="bg-slate-50 text-slate-700">
                         <tr>
-                            <th className="px-4 py-3 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ស្រុក</th>
-                            <th className="px-4 py-3 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ឃុំ (ចំនួន)</th>
-                            <th className="px-4 py-3 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ប៉ះពាល់គ្រួសារ</th>
-                            <th className="px-4 py-3 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ហេដ្ឋារចនាសម្ព័ន្ធ</th>
-                            {currentUser?.role !== "admin" && (
-                                <th className="px-4 py-3 border border-slate-300 bg-slate-100 font-moul text-center align-middle no-print">Action</th>
-                            )}
+                            <th rowSpan={2} className="px-3 py-2 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ស្រុក</th>
+                            <th rowSpan={2} className="px-2 py-2 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ឃុំ (ចំនួន)</th>
+                            <th rowSpan={2} className="px-2 py-2 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ប៉ះពាល់គ្រួសារ</th>
+                            <th colSpan={2} className="px-2 py-2 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ស្រូវ-ដំណាំ</th>
+                            <th colSpan={8} className="px-2 py-2 border border-slate-300 bg-slate-100 font-moul text-center align-middle">ហេដ្ឋារចនាសម្ព័ន្ធទឹក</th>
+                            <th rowSpan={2} className="px-2 py-2 border border-slate-300 bg-slate-100 font-moul text-center align-middle">សំគាល់</th>
+                            <th rowSpan={2} className="px-2 py-2 border border-slate-300 bg-slate-100 font-moul text-center align-middle no-print">Action</th>
+                        </tr>
+                        <tr>
+                            {/* ស្រូវ-ដំណាំ */}
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ប៉ះពាល់ (ហ.ត)</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ខូចខាត (ហ.ត)</th>
+                            {/* ហេដ្ឋារចនាសម្ព័ន្ធទឹក */}
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ឈ្មោះអាងទឹក/ប្រព័ន្ធធារាសាស្ត្រ</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ទំនប់ (ម)</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ប្រឡាយមេ (ម)</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ប្រឡាយរង (ម)</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ជើងក្អែប (ម)</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">សំណង់បង្ហៀរ (ម)</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">ទ្វារទឹក (ចំនួន)</th>
+                            <th className="px-2 py-1.5 border border-slate-300 bg-slate-100 font-moul text-center align-middle text-[11px]">លូ (ចំនួន)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {Object.keys(groupedReports).length === 0 ? (
-                            <tr><td colSpan={currentUser?.role !== "admin" ? 5 : 4} className="px-4 py-4 text-center text-slate-500 border border-slate-300">No reports found</td></tr>
+                            <tr><td colSpan={15} className="px-4 py-4 text-center text-slate-500 border border-slate-300">No reports found</td></tr>
                         ) : (
-                            Object.entries(groupedReports).map(([provinceName, items]) => (
-                                <React.Fragment key={provinceName}>
-                                    <tr className="bg-slate-100">
-                                        <td colSpan={currentUser?.role !== "admin" ? 5 : 4} className="px-4 py-2 font-bold text-slate-800 border border-slate-300">
-                                            {provinceName}
-                                        </td>
-                                    </tr>
-                                    {items.map((r) => (
-                                        <tr key={r.id} className="border-b hover:bg-slate-50">
-                                            <td className="px-4 py-3 border border-slate-300 pl-8">{r.district?.khmerName || r.district?.name || '-'}</td>
-                                            <td className="px-4 py-3 border border-slate-300 text-center">{r.communesCount}</td>
-                                            <td className="px-4 py-3 border border-slate-300 text-center">{r.affectedFamilies}</td>
-                                            <td className="px-4 py-3 border border-slate-300 text-center">
-                                                {r.waterInfrastructures?.length > 0 ? (
-                                                    <span className="inline-flex items-center justify-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                                        {r.waterInfrastructures.length}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-slate-400">0</span>
-                                                )}
+                            Object.entries(groupedReports).map(([provinceName, items]) => {
+                                const totalCommunes = items.reduce((sum, r) => sum + (Number(r.communesCount) || 0), 0);
+                                const totalFamilies = items.reduce((sum, r) => sum + (Number(r.affectedFamilies) || 0), 0);
+                                const totalAffectedRice = items.reduce((sum, r) => sum + (Number(r.affectedRiceCrops) || 0), 0);
+                                const totalDamagedRice = items.reduce((sum, r) => sum + (Number(r.damagedRiceCrops) || 0), 0);
+
+                                let totalDam = 0;
+                                let totalMainCanal = 0;
+                                let totalSubCanal = 0;
+                                let totalTertiaryCanal = 0;
+                                let totalSpillway = 0;
+                                let totalWaterGates = 0;
+                                let totalCulverts = 0;
+
+                                items.forEach((r) => {
+                                    r.waterInfrastructures?.forEach((wi) => {
+                                        totalDam += Number(wi.damLength) || 0;
+                                        totalMainCanal += Number(wi.mainCanalLength) || 0;
+                                        totalSubCanal += Number(wi.subCanalLength) || 0;
+                                        totalTertiaryCanal += Number(wi.tertiaryCanalLength) || 0;
+                                        totalSpillway += Number(wi.spillwayLength) || 0;
+                                        totalWaterGates += Number(wi.waterGateCount) || 0;
+                                        totalCulverts += Number(wi.pipeCulvertCount) || 0;
+                                    });
+                                });
+
+                                return (
+                                    <React.Fragment key={provinceName}>
+                                        <tr className="bg-slate-100">
+                                            <td colSpan={15} className="px-4 py-2 font-bold text-slate-800 border border-slate-300">
+                                                {provinceName}
                                             </td>
-                                            {currentUser?.role !== "admin" && (
-                                                <td className="px-4 py-3 border border-slate-300 text-center no-print">
-                                                    <button onClick={() => handleEdit(r)} className="text-blue-600 hover:underline mr-3">Edit</button>
-                                                    <button onClick={() => handleDelete(r.id)} className="text-red-600 hover:underline">Delete</button>
-                                                </td>
-                                            )}
                                         </tr>
-                                    ))}
-                                </React.Fragment>
-                            ))
+                                        {items.map((r) => {
+                                            const wiList = r.waterInfrastructures && r.waterInfrastructures.length > 0 ? r.waterInfrastructures : null;
+                                            const rowSpanCount = wiList ? wiList.length : 1;
+                                            const canEdit = currentUser?.role === "admin" || (currentUser?.provinceId && currentUser.provinceId === r.provinceId);
+
+                                            return (
+                                                <React.Fragment key={r.id}>
+                                                    <tr className="border-b hover:bg-slate-50">
+                                                        <td rowSpan={rowSpanCount} className="px-3 py-2 border border-slate-300 font-medium align-middle">
+                                                            {r.district?.khmerName || r.district?.name || '-'}
+                                                        </td>
+                                                        <td rowSpan={rowSpanCount} className="px-2 py-2 border border-slate-300 text-center align-middle">
+                                                            {r.communesCount || 0}
+                                                        </td>
+                                                        <td rowSpan={rowSpanCount} className="px-2 py-2 border border-slate-300 text-center align-middle">
+                                                            {r.affectedFamilies || 0}
+                                                        </td>
+                                                        <td rowSpan={rowSpanCount} className="px-2 py-2 border border-slate-300 text-center align-middle">
+                                                            {r.affectedRiceCrops || 0}
+                                                        </td>
+                                                        <td rowSpan={rowSpanCount} className="px-2 py-2 border border-slate-300 text-center align-middle">
+                                                            {r.damagedRiceCrops || 0}
+                                                        </td>
+                                                        {/* First water infra or empty */}
+                                                        <td className="px-2 py-2 border border-slate-300 text-left">
+                                                            {wiList ? (wiList[0].name || '-') : '-'}
+                                                        </td>
+                                                        <td className="px-2 py-2 border border-slate-300 text-center">
+                                                            {wiList ? (wiList[0].damLength || 0) : 0}
+                                                        </td>
+                                                        <td className="px-2 py-2 border border-slate-300 text-center">
+                                                            {wiList ? (wiList[0].mainCanalLength || 0) : 0}
+                                                        </td>
+                                                        <td className="px-2 py-2 border border-slate-300 text-center">
+                                                            {wiList ? (wiList[0].subCanalLength || 0) : 0}
+                                                        </td>
+                                                        <td className="px-2 py-2 border border-slate-300 text-center">
+                                                            {wiList ? (wiList[0].tertiaryCanalLength || 0) : 0}
+                                                        </td>
+                                                        <td className="px-2 py-2 border border-slate-300 text-center">
+                                                            {wiList ? (wiList[0].spillwayLength || 0) : 0}
+                                                        </td>
+                                                        <td className="px-2 py-2 border border-slate-300 text-center">
+                                                            {wiList ? (wiList[0].waterGateCount || 0) : 0}
+                                                        </td>
+                                                        <td className="px-2 py-2 border border-slate-300 text-center">
+                                                            {wiList ? (wiList[0].pipeCulvertCount || 0) : 0}
+                                                        </td>
+                                                        <td rowSpan={rowSpanCount} className="px-2 py-2 border border-slate-300 text-left align-middle text-xs">
+                                                            {r.note || '-'}
+                                                        </td>
+                                                        <td rowSpan={rowSpanCount} className="px-2 py-2 border border-slate-300 text-center align-middle no-print">
+                                                            {canEdit && (
+                                                                <>
+                                                                    <button onClick={() => handleEdit(r)} className="text-blue-600 hover:underline mr-2">Edit</button>
+                                                                    <button onClick={() => handleDelete(r.id)} className="text-red-600 hover:underline">Delete</button>
+                                                                </>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                    {wiList && wiList.slice(1).map((wi, subIdx) => (
+                                                        <tr key={`${r.id}-wi-${subIdx}`} className="border-b hover:bg-slate-50">
+                                                            <td className="px-2 py-2 border border-slate-300 text-left">
+                                                                {wi.name || '-'}
+                                                            </td>
+                                                            <td className="px-2 py-2 border border-slate-300 text-center">
+                                                                {wi.damLength || 0}
+                                                            </td>
+                                                            <td className="px-2 py-2 border border-slate-300 text-center">
+                                                                {wi.mainCanalLength || 0}
+                                                            </td>
+                                                            <td className="px-2 py-2 border border-slate-300 text-center">
+                                                                {wi.subCanalLength || 0}
+                                                            </td>
+                                                            <td className="px-2 py-2 border border-slate-300 text-center">
+                                                                {wi.tertiaryCanalLength || 0}
+                                                            </td>
+                                                            <td className="px-2 py-2 border border-slate-300 text-center">
+                                                                {wi.spillwayLength || 0}
+                                                            </td>
+                                                            <td className="px-2 py-2 border border-slate-300 text-center">
+                                                                {wi.waterGateCount || 0}
+                                                            </td>
+                                                            <td className="px-2 py-2 border border-slate-300 text-center">
+                                                                {wi.pipeCulvertCount || 0}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </React.Fragment>
+                                            );
+                                        })}
+                                        {/* Total summary row for the province */}
+                                        <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
+                                            <td className="px-3 py-2 border border-slate-300 text-center">សរុប</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalCommunes}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalFamilies}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalAffectedRice}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalDamagedRice}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">-</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalDam}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalMainCanal}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalSubCanal}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalTertiaryCanal}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalSpillway}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalWaterGates}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">{totalCulverts}</td>
+                                            <td className="px-2 py-2 border border-slate-300 text-center">-</td>
+                                            <td className="px-2 py-2 border border-slate-300 no-print"></td>
+                                        </tr>
+                                    </React.Fragment>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>

@@ -33,26 +33,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const data = req.body;
       const provinceId = user.role === "admin" && data.provinceId ? Number(data.provinceId) : existingReport.provinceId;
 
+      const toFloat = (val: any) => {
+        if (val === undefined || val === null || val === "") return 0;
+        const num = Number(val);
+        return isNaN(num) ? 0 : num;
+      };
+
+      const toInt = (val: any) => {
+        if (val === undefined || val === null || val === "") return 0;
+        const num = Math.round(Number(val));
+        return isNaN(num) ? 0 : num;
+      };
+
       const updatedReport = await prisma.provincialFloodReport.update({
         where: { id: reportId },
         data: {
           reportDate: data.reportDate ? new Date(data.reportDate) : existingReport.reportDate,
           provinceId,
           districtId: data.districtId !== undefined ? (data.districtId ? Number(data.districtId) : null) : existingReport.districtId,
-          communesCount: data.communesCount !== undefined ? Number(data.communesCount) : existingReport.communesCount,
-          affectedFamilies: data.affectedFamilies !== undefined ? Number(data.affectedFamilies) : existingReport.affectedFamilies,
-          affectedRiceCrops: data.affectedRiceCrops !== undefined ? Number(data.affectedRiceCrops) : existingReport.affectedRiceCrops,
-          damagedRiceCrops: data.damagedRiceCrops !== undefined ? Number(data.damagedRiceCrops) : existingReport.damagedRiceCrops,
+          communesCount: data.communesCount !== undefined ? toInt(data.communesCount) : existingReport.communesCount,
+          affectedFamilies: data.affectedFamilies !== undefined ? toInt(data.affectedFamilies) : existingReport.affectedFamilies,
+          affectedRiceCrops: data.affectedRiceCrops !== undefined ? toFloat(data.affectedRiceCrops) : existingReport.affectedRiceCrops,
+          damagedRiceCrops: data.damagedRiceCrops !== undefined ? toFloat(data.damagedRiceCrops) : existingReport.damagedRiceCrops,
           note: data.note !== undefined ? data.note : existingReport.note,
           waterInfrastructures: data.waterInfrastructures && Array.isArray(data.waterInfrastructures) ? {
             deleteMany: {},
             create: data.waterInfrastructures.map((wi: any) => ({
-              type: wi.type || null,
               name: wi.name || null,
-              locationX: wi.locationX || null,
-              locationY: wi.locationY || null,
-              damagedLength: wi.damagedLength ? Number(wi.damagedLength) : 0,
-              status: wi.status || null,
+              damLength: toFloat(wi.damLength),
+              mainCanalLength: toFloat(wi.mainCanalLength),
+              subCanalLength: toFloat(wi.subCanalLength),
+              tertiaryCanalLength: toFloat(wi.tertiaryCanalLength),
+              spillwayLength: toFloat(wi.spillwayLength),
+              waterGateCount: toInt(wi.waterGateCount),
+              pipeCulvertCount: toInt(wi.pipeCulvertCount),
               note: wi.note || null,
             })),
           } : undefined,
@@ -60,9 +74,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       return res.status(200).json(updatedReport);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Failed to update flood report" });
+    } catch (error: any) {
+      console.error("Update flood report error:", error);
+      return res.status(500).json({ error: error?.message || "Failed to update flood report" });
     }
   }
 

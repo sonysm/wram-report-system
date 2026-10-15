@@ -67,6 +67,7 @@ model User {
   forecasts                     DailyForecast[]
   fwucs                         Fwuc[]
   floodReports                  ProvincialFloodReport[]
+  waterways                     Waterway[]
 
   @@index([isActive])
 }
@@ -91,6 +92,7 @@ model Province {
   forecasts              DailyForecast[]
   fwucs                  Fwuc[]
   floodReports           ProvincialFloodReport[]
+  waterways              Waterway[]
 
   @@index([sortOrder])
 }
@@ -113,6 +115,8 @@ model District {
   rainfalls              DailyRainfall[]
   fwucs                  Fwuc[]
   floodReports           ProvincialFloodReport[]
+  upstreamWaterways      Waterway[]              @relation("WaterwayUpstreamDistrict")
+  downstreamWaterways    Waterway[]              @relation("WaterwayDownstreamDistrict")
 
   @@unique([provinceId, name])
 }
@@ -164,6 +168,8 @@ model Commune {
   stations               Station[]
   fwucs                  Fwuc[]
   meteorologicalStations MeteorologicalStation[]
+  upstreamWaterways      Waterway[]              @relation("WaterwayUpstreamCommune")
+  downstreamWaterways    Waterway[]              @relation("WaterwayDownstreamCommune")
 
   @@unique([provinceId, name])
   @@index([districtId])
@@ -354,13 +360,15 @@ model MeteorologicalStation {
 model WaterInfrastructure {
   id                      Int                   @id @default(autoincrement())
   provincialFloodReportId Int
-  type                    String?               
-  name                    String?               
-  locationX               String?               
-  locationY               String?               
-  damagedLength           Float                 @default(0) 
-  status                  String?               
-  note                    String?               
+  name                    String?               // ឈ្មោះអាងទឹក/ប្រព័ន្ធធារាសាស្ត្រ
+  damLength               Float                 @default(0) // ទំនប់ (ម)
+  mainCanalLength         Float                 @default(0) // ប្រឡាយមេ (ម)
+  subCanalLength          Float                 @default(0) // ប្រឡាយរង (ម)
+  tertiaryCanalLength     Float                 @default(0) // ជើងក្អែប (ម)
+  spillwayLength          Float                 @default(0) // សំណង់បង្ហៀរ (ម)
+  waterGateCount          Int                   @default(0) // ទ្វារទឹក (ចំនួន)
+  pipeCulvertCount        Int                   @default(0) // លូ (ចំនួន)
+  note                    String?               // សំគាល់
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt
 
@@ -390,4 +398,43 @@ model ProvincialFloodReport {
 
   @@index([provinceId])
   @@index([districtId])
+}
+
+model Waterway {
+  id                    Int       @id @default(autoincrement())
+  provinceId            Int
+  type                  String    // "ទន្លេ", "ស្ទឹង", "ព្រែក", "អូរ"
+  name                  String    // ឈ្មោះ
+  length                Float     @default(0) // ប្រវែង (គ.ម)
+  
+  // Upstream (ផ្នែកខាងលើទឹក)
+  upstreamDistrictId    Int?
+  upstreamCommuneId     Int?
+  upstreamLocationX     String?   // ទីតាំង X
+  upstreamLocationY     String?   // ទីតាំង Y
+  upstreamWidth         Float     @default(0) // មុខកាត់ (ម)
+  upstreamElevation     Float     @default(0) // កំពស់ពីនីវ៉ូសមុទ្រ (ម)
+
+  // Downstream (ផ្នែកខាងក្រោមទឹក)
+  downstreamDistrictId  Int?
+  downstreamCommuneId   Int?
+  downstreamLocationX   String?   // ទីតាំង X
+  downstreamLocationY   String?   // ទីតាំង Y
+  downstreamWidth       Float     @default(0) // មុខកាត់ (ម)
+  downstreamElevation   Float     @default(0) // កំពស់ពីនីវ៉ូសមុទ្រ (ម)
+
+  note                  String?
+  userId                Int?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  province              Province  @relation(fields: [provinceId], references: [id])
+  upstreamDistrict      District? @relation("WaterwayUpstreamDistrict", fields: [upstreamDistrictId], references: [id])
+  downstreamDistrict    District? @relation("WaterwayDownstreamDistrict", fields: [downstreamDistrictId], references: [id])
+  upstreamCommune       Commune?  @relation("WaterwayUpstreamCommune", fields: [upstreamCommuneId], references: [id])
+  downstreamCommune     Commune?  @relation("WaterwayDownstreamCommune", fields: [downstreamCommuneId], references: [id])
+  user                  User?     @relation(fields: [userId], references: [id])
+
+  @@index([provinceId])
+  @@index([type])
 }

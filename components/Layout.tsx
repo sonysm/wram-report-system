@@ -99,6 +99,15 @@ export default function Layout({ children }: { children: ReactNode }) {
       ),
     },
     {
+      href: "/waterways",
+      label: "ទន្លេ ស្ទឹង ព្រែក អូរ",
+      icon: (
+        <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth="1.75" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75c2.5-1.5 5 1.5 7.5 0s5-1.5 7.5 0 4.5.75 4.5.75M2.25 17.25c2.5-1.5 5 1.5 7.5 0s5-1.5 7.5 0 4.5.75 4.5.75M2.25 8.25c2.5-1.5 5 1.5 7.5 0s5-1.5 7.5 0 4.5.75 4.5.75" />
+        </svg>
+      ),
+    },
+    {
       href: "/fwuc",
       label: "សកបទ (FWUC)",
       icon: (
