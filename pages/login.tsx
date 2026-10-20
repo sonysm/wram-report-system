@@ -124,10 +124,10 @@ const Login: NextPage = () => {
               </p>
             </div>
 
-            <div className="mt-10 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 p-4 text-sm text-emerald-100 sm:p-5">
-              <p className="font-semibold">Quick demo access</p>
-              <p className="mt-2 text-emerald-100/90">Password for all demo accounts: demo12345</p>
-              <div className="mt-4 space-y-2">
+            {/* <div className="mt-10 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 p-4 text-sm text-emerald-100 sm:p-5"> */}
+            {/* <p className="font-semibold">Quick demo access</p>
+              <p className="mt-2 text-emerald-100/90">Password for all demo accounts: demo12345</p> */}
+            {/* <div className="mt-4 space-y-2">
                 {DEMO_ACCOUNTS.map((account) => (
                   <button
                     key={account.username}
@@ -139,8 +139,8 @@ const Login: NextPage = () => {
                     <span className="text-emerald-100/80">{account.username}</span>
                   </button>
                 ))}
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
           </div>
 
           <div className="p-8 sm:p-12">

@@ -9,6 +9,7 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "node prisma/seed.js",
+    "db:seed:tmar-pouk": "node prisma/seed-stueng-tmar-pouk.js",
     "db:setup": "npm run db:migrate && npm run db:seed",
     "postinstall": "prisma generate"
   },

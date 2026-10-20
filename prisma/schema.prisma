@@ -68,6 +68,7 @@ model User {
   fwucs                         Fwuc[]
   floodReports                  ProvincialFloodReport[]
   waterways                     Waterway[]
+  reportedTickets               AssetInspectionTicket[] @relation("TicketReporter")
 
   @@index([isActive])
 }
@@ -93,6 +94,7 @@ model Province {
   fwucs                  Fwuc[]
   floodReports           ProvincialFloodReport[]
   waterways              Waterway[]
+  basins                 Basin[]
 
   @@index([sortOrder])
 }
@@ -117,6 +119,8 @@ model District {
   floodReports           ProvincialFloodReport[]
   upstreamWaterways      Waterway[]              @relation("WaterwayUpstreamDistrict")
   downstreamWaterways    Waterway[]              @relation("WaterwayDownstreamDistrict")
+  hydraulicStructures    HydraulicStructure[]
+  waterUserGroups        WaterUserGroup[]
 
   @@unique([provinceId, name])
 }
@@ -170,6 +174,8 @@ model Commune {
   meteorologicalStations MeteorologicalStation[]
   upstreamWaterways      Waterway[]              @relation("WaterwayUpstreamCommune")
   downstreamWaterways    Waterway[]              @relation("WaterwayDownstreamCommune")
+  hydraulicStructures    HydraulicStructure[]
+  waterUserGroups        WaterUserGroup[]
 
   @@unique([provinceId, name])
   @@index([districtId])
@@ -316,6 +322,7 @@ model Fwuc {
   district District? @relation(fields: [districtId], references: [id])
   commune  Commune?  @relation(fields: [communeId], references: [id])
   user     User?     @relation(fields: [userId], references: [id])
+  waterUserGroups WaterUserGroup[]
 
   @@index([provinceId])
   @@index([districtId])
@@ -437,4 +444,296 @@ model Waterway {
 
   @@index([provinceId])
   @@index([type])
+}
+
+// ==========================================
+// STUENG TMAR POUK SUB-BASIN IRRIGATION MODELS
+// ==========================================
+
+model Basin {
+  id                   Int       @id @default(autoincrement())
+  code                 String    @unique
+  name                 String
+  khmerName            String
+  provinceId           Int
+  province             Province  @relation(fields: [provinceId], references: [id])
+  mainRiverLengthKm    Float     @default(55.0)
+  tributaryLengthKm    Float     @default(24.0)
+  drySeasonCapacityHa  Float     @default(5000.0)
+  wetSeasonCapacityHa  Float     @default(30000.0)
+  avgParcelAreaHa      Float     @default(5.0)
+  coordinateX          Float?    @default(276528)
+  coordinateY          Float?    @default(1549682)
+  latitude             Float?    @default(14.015)
+  longitude            Float?    @default(102.932)
+  description          String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  hydraulicStructures  HydraulicStructure[]
+  canals               Canal[]
+  waterUserGroups      WaterUserGroup[]
+  telemetryLogs        InflowTelemetryLog[]
+  seasonalAllocations  SeasonalWaterAllocation[]
+  floodSurgeAlerts     FloodSurgeAlert[]
+  inspectionTickets    AssetInspectionTicket[]
+  protectedZones       BasinProtectedZone[]
+
+  @@index([provinceId])
+}
+
+model HydraulicStructure {
+  id                        Int       @id @default(autoincrement())
+  code                      String    @unique
+  name                      String
+  khmerName                 String
+  basinId                   Int
+  basin                     Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  structureType             String    // "DIVERSION_WEIR", "DISTRIBUTION_CONTROL", "DRAINAGE_GATE", "PUMPING_LIFT"
+  districtId                Int?
+  district                  District? @relation(fields: [districtId], references: [id])
+  communeId                 Int?
+  commune                   Commune?  @relation(fields: [communeId], references: [id])
+  locationX                 Float?
+  locationY                 Float?
+  latitude                  Float?
+  longitude                 Float?
+  gateCount                 Int       @default(1)
+  currentGateOpeningPercent Float     @default(0)
+  currentDischargeM3s       Float     @default(0)
+  maxDesignCapacityM3s      Float     @default(50.0)
+  upstreamWaterLevelM       Float     @default(0)
+  downstreamWaterLevelM     Float     @default(0)
+  floodMitigationRole       Boolean   @default(true)
+  status                    String    @default("OPERATIONAL") // "OPERATIONAL", "ALERT", "MAINTENANCE", "CLOSED"
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  canals                    Canal[]
+  telemetryLogs             InflowTelemetryLog[]
+  inspectionTickets         AssetInspectionTicket[]
+
+  @@index([basinId])
+  @@index([structureType])
+}
+
+model Canal {
+  id                           Int       @id @default(autoincrement())
+  code                         String    @unique
+  name                         String
+  khmerName                    String
+  basinId                      Int
+  basin                        Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  parentStructureId            Int?
+  parentStructure              HydraulicStructure? @relation(fields: [parentStructureId], references: [id])
+  parentCanalId                Int?
+  parentCanal                  Canal?    @relation("CanalHierarchy", fields: [parentCanalId], references: [id])
+  subCanals                    Canal[]   @relation("CanalHierarchy")
+  canalType                    String    // "MAIN", "SECONDARY", "PRESSURIZED_PIPE", "GRAVITY_PIPE"
+  lengthKm                     Float
+  designDischargeM3s           Float     @default(5.0)
+  currentFlowM3s               Float     @default(0)
+  conveyanceEfficiencyPercent  Float     @default(85.0)
+  linedSectionKm               Float     @default(0)
+  unlinedSectionKm             Float     @default(0)
+  inspectionRoadCondition      String    @default("GOOD") // "GOOD", "FAIR", "DAMAGED"
+  liningIntegrityStatus        String    @default("INTACT") // "INTACT", "CRACKED", "ERODED"
+  commandAreaHa                Float     @default(500.0)
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  inspectionTickets            AssetInspectionTicket[]
+  waterUserGroups              WaterUserGroup[]
+
+  @@index([basinId])
+  @@index([canalType])
+  @@index([parentStructureId])
+}
+
+model WaterUserGroup {
+  id                 Int       @id @default(autoincrement())
+  code               String    @unique
+  name               String
+  khmerName          String
+  basinId            Int
+  basin              Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  fwucId             Int?
+  fwuc               Fwuc?     @relation(fields: [fwucId], references: [id])
+  canalId            Int?
+  canal              Canal?    @relation(fields: [canalId], references: [id])
+  districtId         Int?
+  district           District? @relation(fields: [districtId], references: [id])
+  communeId          Int?
+  commune            Commune?  @relation(fields: [communeId], references: [id])
+  villageName        String?
+  leaderName         String?
+  leaderContact      String?
+  totalFarmersCount  Int       @default(50)
+  totalParcelAreaHa  Float     @default(250.0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  deliveryRequests   WaterDeliveryRequest[]
+  iscBillings        IscBillingRecord[]
+
+  @@index([basinId])
+  @@index([fwucId])
+  @@index([canalId])
+}
+
+model InflowTelemetryLog {
+  id                 Int       @id @default(autoincrement())
+  basinId            Int
+  basin              Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  structureId        Int?
+  structure          HydraulicStructure? @relation(fields: [structureId], references: [id])
+  sourceOrigin       String    // "CROSS_BORDER_THAILAND", "ODDAR_MEANCHEY_PLATEAU", "STUENG_TMAR_POUK_MAIN", "TRIBUTARY"
+  timestamp          DateTime  @default(now())
+  dischargeM3s       Float
+  gateOpeningPercent Float?
+  waterLevelM        Float
+  turbidityNtu       Float?
+  anomalyDetected    Boolean   @default(false)
+  anomalyReason      String?
+  notes              String?
+  createdAt          DateTime  @default(now())
+
+  @@index([basinId, timestamp])
+  @@index([sourceOrigin])
+}
+
+model SeasonalWaterAllocation {
+  id                           Int       @id @default(autoincrement())
+  basinId                      Int
+  basin                        Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  seasonName                   String    // "DRY_SEASON", "WET_SEASON"
+  year                         Int
+  cropSeasonCode               String    // "S1_APR_JUL", "S2_OCT_DEC", "CASH_CROP_ROTATION"
+  plannedAreaHa                Float
+  allocatedWaterM3             Float
+  dispatchedWaterM3            Float     @default(0)
+  openCanalSharePercent        Float     @default(75.0)
+  pipeDistributionSharePercent Float     @default(25.0)
+  startDate                    DateTime
+  endDate                      DateTime
+  status                       String    @default("ACTIVE") // "ACTIVE", "PLANNED", "COMPLETED"
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  @@index([basinId, year])
+  @@index([cropSeasonCode])
+}
+
+model FloodSurgeAlert {
+  id                   Int       @id @default(autoincrement())
+  basinId              Int
+  basin                Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  alertLevel           String    // "NORMAL", "WATCH", "WARNING", "EMERGENCY_CRITICAL"
+  sourceLocation       String
+  peakInflowM3s        Float
+  diversionPlanKh      String
+  riskReductionPercent Float     @default(80.0)
+  gatesCoordinated     Json?
+  activeAlert          Boolean   @default(true)
+  createdAt            DateTime  @default(now())
+  resolvedAt           DateTime?
+
+  @@index([basinId, activeAlert])
+}
+
+model AssetInspectionTicket {
+  id                         Int       @id @default(autoincrement())
+  ticketNumber               String    @unique
+  basinId                    Int
+  basin                      Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  canalId                    Int?
+  canal                      Canal?    @relation(fields: [canalId], references: [id])
+  structureId                Int?
+  structure                  HydraulicStructure? @relation(fields: [structureId], references: [id])
+  assetType                  String    // "CANAL", "WEIR", "CONTROL_STRUCTURE", "PIPE_NETWORK", "INSPECTION_ROAD"
+  defectCategory             String    // "LINING_INTEGRITY", "BANK_EROSION", "ROAD_DAMAGE", "GATE_LEAKAGE", "SEDIMENTATION"
+  severity                   String    // "LOW", "MEDIUM", "HIGH", "CRITICAL"
+  status                     String    // "REPORTED", "INVESTIGATING", "WORK_ORDER_APPROVED", "REPAIRED", "REJECTED_PROTECTED_ZONE"
+  locationX                  Float?
+  locationY                  Float?
+  latitude                   Float?
+  longitude                  Float?
+  insideProtectedZone        Boolean   @default(false)
+  protectedZoneName          String?
+  safeguardValidationPassed Boolean   @default(true)
+  description                String
+  actionTaken                String?
+  reportedByUserId           Int?
+  reportedByUser             User?     @relation("TicketReporter", fields: [reportedByUserId], references: [id])
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  @@index([basinId, status])
+  @@index([defectCategory])
+}
+
+model WaterDeliveryRequest {
+  id                    Int            @id @default(autoincrement())
+  requestNumber         String         @unique
+  waterUserGroupId      Int
+  waterUserGroup        WaterUserGroup @relation(fields: [waterUserGroupId], references: [id], onDelete: Cascade)
+  requestType           String         // "WATER_DELIVERY", "SERVICE_DISRUPTION", "CANAL_MAINTENANCE"
+  requestedVolumeM3     Float?
+  requestedDischargeM3s Float?
+  requestedDate         DateTime
+  durationDays          Int            @default(3)
+  cropType              String
+  parcelsCount          Int            @default(10)
+  targetAreaHa          Float          @default(50.0)
+  status                String         @default("PENDING") // "PENDING", "APPROVED", "DELIVERING", "FULFILLED", "REJECTED"
+  pdwramReviewNotes     String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@index([waterUserGroupId, status])
+}
+
+model IscBillingRecord {
+  id                  Int            @id @default(autoincrement())
+  invoiceNumber       String         @unique
+  waterUserGroupId    Int
+  waterUserGroup      WaterUserGroup @relation(fields: [waterUserGroupId], references: [id], onDelete: Cascade)
+  seasonName          String
+  year                Int
+  billingType         String         // "PER_HECTARE", "CONSUMPTION_M3"
+  ratePerUnit         Float
+  totalAreaHa         Float
+  totalConsumptionM3  Float?
+  totalAmountKhr      Float
+  paymentStatus       String         // "UNPAID", "PARTIALLY_PAID", "PAID"
+  collectedAmountKhr  Float          @default(0)
+  dueDate             DateTime
+  paidAt              DateTime?
+  notes               String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@index([waterUserGroupId, paymentStatus])
+  @@index([year, seasonName])
+}
+
+model BasinProtectedZone {
+  id               Int       @id @default(autoincrement())
+  basinId          Int
+  basin            Basin     @relation(fields: [basinId], references: [id], onDelete: Cascade)
+  zoneName         String
+  zoneType         String    // "PROTECTED_LANDSCAPE", "WILDLIFE_SANCTUARY", "WATERSHED_RESERVE"
+  minX             Float
+  maxX             Float
+  minY             Float
+  maxY             Float
+  minLat           Float
+  maxLat           Float
+  minLng           Float
+  maxLng           Float
+  restrictionLevel String    // "STRICT_NO_CONSTRUCTION", "BUFFER_ZONE_PERMIT_REQUIRED"
+  notes            String?
+  createdAt        DateTime  @default(now())
+
+  @@index([basinId])
 }
