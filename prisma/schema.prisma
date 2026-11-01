@@ -69,6 +69,7 @@ model User {
   floodReports                  ProvincialFloodReport[]
   waterways                     Waterway[]
   reportedTickets               AssetInspectionTicket[] @relation("TicketReporter")
+  subprojectPlans               SubprojectPlan[]
 
   @@index([isActive])
 }
@@ -95,6 +96,7 @@ model Province {
   floodReports           ProvincialFloodReport[]
   waterways              Waterway[]
   basins                 Basin[]
+  subprojectPlans        SubprojectPlan[]
 
   @@index([sortOrder])
 }
@@ -121,6 +123,7 @@ model District {
   downstreamWaterways    Waterway[]              @relation("WaterwayDownstreamDistrict")
   hydraulicStructures    HydraulicStructure[]
   waterUserGroups        WaterUserGroup[]
+  subprojectPlans        SubprojectPlan[]
 
   @@unique([provinceId, name])
 }
@@ -176,6 +179,7 @@ model Commune {
   downstreamWaterways    Waterway[]              @relation("WaterwayDownstreamCommune")
   hydraulicStructures    HydraulicStructure[]
   waterUserGroups        WaterUserGroup[]
+  subprojectPlans        SubprojectPlan[]
 
   @@unique([provinceId, name])
   @@index([districtId])
@@ -737,3 +741,122 @@ model BasinProtectedZone {
 
   @@index([basinId])
 }
+
+model SubprojectPlan {
+  id                               Int       @id @default(autoincrement())
+  subprojectCode                   String?   @unique // e.g. "SP-BMC-001"
+  subprojectName                   String    // e.g. "អនុគម្រោងប្រព័ន្ធស្ទឹងថ្មពួក"
+  subprojectEnglishName            String?   // e.g. "Stueng Tmar Pouk Subproject"
+  provinceId                       Int
+  province                         Province  @relation(fields: [provinceId], references: [id])
+  districtId                       Int?
+  district                         District? @relation(fields: [districtId], references: [id])
+  communeId                        Int?
+  commune                          Commune?  @relation(fields: [communeId], references: [id])
+  userId                           Int?
+  user                             User?     @relation(fields: [userId], references: [id])
+  status                           String    @default("PROPOSED") // DRAFT, PROPOSED, UNDER_STUDY, APPROVED, COMPLETED
+
+  // Chapter 1: Subproject Location (ទីតាំងអនុគម្រោង)
+  riverBasinName                   String    @default("") // ឈ្មោះអាងទន្លេ
+  coordinateX                      Float?    // X (e.g. 276528)
+  coordinateY                      Float?    // Y (e.g. 1549682)
+  latitude                         Float?    // 14.015
+  longitude                        Float?    // 102.932
+  keyLocationsDescription          String?   // កូអរដោនេនៃទីតាំងសំខាន់ៗ (អាងទឹក ទំនប់ស្ទាក់ទឹក ។ល។)
+
+  // Chapter 2: Overview of River Basin (ការពិពណ៌នាទូទៅនៃអាងទន្លេ)
+  catchmentRainfallSource          String?   // ផ្ទៃរងទឹកភ្លៀង និងប្រភពទឹក
+  mainRiverLengthKm                Float?    // ប្រវែងស្ទឹងចាស់ (គម)
+  tributaryLengthKm                Float?    // ប្រវែងដៃអូរ (គម)
+  existingDrySeasonAreaHa          Float?    // ផ្ទៃដីស្រោចស្រពបច្ចុប្បន្ន រដូវប្រាំង (ហិកតា)
+  existingWetSeasonAreaHa          Float?    // ផ្ទៃដីស្រោចស្រពបច្ចុប្បន្ន រដូវវស្សា (ហិកតា)
+  postProjectDrySeasonAreaHa       Float?    // ផ្ទៃដីស្រោចស្រពក្រោយកែលម្អ រដូវប្រាំង (ហិកតា)
+  postProjectWetSeasonAreaHa       Float?    // ផ្ទៃដីស្រោចស្រពក្រោយកែលម្អ រដូវវស្សា (ហិកតា)
+  avgLandPerPersonHa               Float?    // ផ្ទៃដីជាមធ្យមសម្រាប់ប្រជាពលរដ្ឋម្នាក់ (ហិកតា)
+  basinOverviewDescription         String?   // ព័ត៌មានទូទៅនៃអាងទន្លេ ហេដ្ឋារចនាសម្ព័ន្ធ និងតម្រូវការទឹក
+  basinPlannedInvestments          String?   // ផែនការវិនិយោគ និងបញ្ហាប្រឈមក្នុងអាងទន្លេ
+  riverBasinCommitteeStatus        String?   // ស្ថានភាពគណៈកម្មការគ្រប់គ្រងអាងទន្លេ
+
+  // Chapter 3: Overview of Proposed Subproject and Studies Carried Out (ពិពណ៌នាស្តីពីអនុគម្រោងដែលបានស្នើ)
+  proposedComponentsSummary        String?   // សមាសភាគនៃអនុគម្រោងដែលបានស្នើ
+  riverRestorationLengthKm         Float?    // ស្តារស្ទឹងប្រវែង (គម)
+  streamRestorationLengthKm        Float?    // ស្តារអូរប្រវែង (គម)
+  weirsCount                       Int?      // សំណង់ស្ទាក់ទឹកកាត់ស្ទឹង (កន្លែង)
+  distributionStructuresCount      Int?      // សំណង់ចែកចាយទឹកសរុប (កន្លែង)
+  mainCanalsCount                  Int?      // ប្រឡាយមេ (ខ្សែ)
+  mainCanalsLengthKm               Float?    // ប្រវែងប្រឡាយមេសរុប (គម)
+  secondaryCanalsCount             Int?      // ប្រឡាយរង (ខ្សែ)
+  secondaryCanalsLengthKm          Float?    // ប្រវែងប្រឡាយរងសរុប (គម)
+  commandAreaEstimateHa            Float?    // ប៉ាន់ស្មានផ្ទៃដីស្រោចស្រពសរុប (ហិកតា)
+  pastOrOngoingStudies             String?   // ការសិក្សាដែលធ្លាប់បានធ្វើ ឬកំពុងបន្ត
+
+  // Chapter 4: Description of Existing Infrastructure (ការពិពណ៌នាអំពីហេដ្ឋារចនាសម្ព័ន្ធដែលមានស្រាប់)
+  existingInfraDescription         String?   // ការពិពណ៌នាអំពីហេដ្ឋារចនាសម្ព័ន្ធដែលមានស្រាប់
+  existingCanalsCondition          String?   // ប្រឡាយមេ ប្រឡាយរង និងស្ថានភាព
+  existingReservoirsCondition      String?   // អាងស្តុកទឹក ទំនប់ កាលបរិច្ឆេទសាងសង់ ទំហំផ្ទុក ផ្ទៃក្រឡា និងបញ្ហា
+  existingDrainageCondition        String?   // ប្រព័ន្ធរំដោះទឹក និងសំណង់រំដោះទឹក
+  existingFloodEmbankments         String?   // សណ្តរការពារទឹកជំនន់ ប្រវែង និងប្រភេទ
+  existingRoadsCondition           String?   // ផ្លូវ (បេតុង/ដីក្រហម/កៅស៊ូ) និងស្ថានភាព
+  otherExistingInfra               String?   // ហេដ្ឋារចនាសម្ព័ន្ធផ្សេងៗ និងប្រភពទិន្នន័យ (PDWRAM/IAMS)
+
+  // Chapter 5: Description of Command Area of Subproject (ពិពណ៌នាពីផ្ទៃដីស្រោចស្រពរបស់ប្រព័ន្ធធារាសាស្ត្រ)
+  climateDescription               String?   // អាកាសធាតុ
+  soilAndTopography                String?   // ប្រភេទដី ជម្រាល និងសណ្ឋានដី
+  surfaceWaterResources            String?   // ធនធានទឹកលើដី (ទន្លេ ស្ទឹង អូរ)
+  groundwaterResources             String?   // ធនធានទឹកក្រោមដី និងការប្រើប្រាស់
+  landUseDescription               String?   // ប្រភេទការប្រើប្រាស់ដី
+  cropPatternAndSeasonality        String?   // ប្រភេទដំណាំ វដ្តដាំដុះ និងរដូវកាល
+  farmSizeAndTenure                String?   // ប្រភេទនៃការកាន់កាប់ដី (ដីឯកជន/ដីរដ្ឋ) និងទំហំកសិដ្ឋាន
+  fwucStatusAndInstitutions        String?   // ស្ថាប័នពាក់ព័ន្ធ និងស្ថានភាព FWUC
+  farmingPracticesAndPumping       String?   // ការអនុវត្ត និងបែបផែនដាំដុះ (គ្រឿងចក្រ ម៉ាស៊ីនបូម ប្រព័ន្ធភ្លើង)
+
+  // Chapter 6: Subproject Rationale and Integration into Basin Plan (មូលហេតុដែលជ្រើសរើសអនុគម្រោង)
+  subprojectRationale              String?   // មូលហេតុដែលជ្រើសរើសអនុគម្រោង
+  constraintsAddressed             String?   // ឧបសគ្គ និងបញ្ហាប្រឈម
+  expectedBenefits                 String?   // ផលប្រយោជន៍ (បរិស្ថាន សេដ្ឋកិច្ច ជីវភាព យេនឌ័រ)
+  integrationIntoBasinPlan         String?   // ការផ្សារភ្ជាប់ទៅក្នុងផែនការគ្រប់គ្រងអាងទន្លេ
+
+  // Chapter 7: Proposed Modernisation (ទំនើបកម្មដែលបានស្នើឡើង)
+  modernizationCanalDistribution   String?   // កាត់បន្ថយការបាត់បង់ទឹក និងធ្វើទំនើបកម្មប្រព័ន្ធប្រឡាយ និងសំណង់សិល្បការ្យ
+  pipeDistributionSystems          String?   // ការប្រើប្រាស់ប្រព័ន្ធទុយោ / បំពង់ចែកចាយទឹក
+  floodManagementDrainage          String?   // ការគ្រប់គ្រងទឹកជំនន់ និងប្រព័ន្ធដោះទឹក
+  inspectionAccessRoads            String?   // ការធ្វើផ្លូវ និងផ្លូវអធិការកិច្ច
+  managementEquipmentFacilities    String?   // ឧបករណ៍ សម្ភារៈ និងអគារគ្រប់គ្រង
+  agriculturalSupportServices      String?   // ការជួយគាំទ្រផ្នែកកសិកម្ម
+  institutionalSustainabilityOandM String?   // ការបង្កើត/ពង្រឹងស្ថាប័នគ្រប់គ្រង ការប្រមូលវិភាគទាន និងការជួសជុលថែទាំ O&M
+
+  // Chapter 8: Indicative Costs (តម្លៃប៉ាន់ស្មាន)
+  totalEstimatedCostUsd            Float?    // តម្លៃប៉ាន់ស្មានសរុប (ដុល្លារ)
+  costPerHectareUsd                Float?    // តម្លៃប៉ាន់ស្មានក្នុងមួយហិកតា ($/ha)
+  costBreakdownMajorItems          String?   // ចំណាយធំៗ និងការបែងចែកថវិកា
+  pumpingLiftMeters                Float?    // កម្ពស់បូមទឹក (ម៉ែត្រ)
+  pumpingDischargeLs               Float?    // បរិមាណបូមទឹក (លីត្រ/វិនាទី)
+
+  // Chapter 9: Stakeholder Consultations and Farmer Interest (ការពិគ្រោះយោបល់ភាគីពាក់ព័ន្ធ)
+  stakeholderConsultationsDetails  String?   // កិច្ចប្រជុំពិគ្រោះយោបល់ជាមួយភាគីពាក់ព័ន្ធ
+  farmerInterestHighValueCrops     String?   // ចំណាប់អារម្មណ៍កសិករលើដំណាំមានតម្លៃខ្ពស់
+  farmerInterestModernization      String?   // ចំណាប់អារម្មណ៍កសិករលើការធ្វើទំនើបកម្ម
+  farmerFwucWillingness            String?   // ឆន្ទៈកសិករក្នុងការបង្កើត FWUC និងគ្រប់គ្រង O&M
+  majorFarmerBenefits              String?   // ផលប្រយោជន៍ចម្បងៗរបស់កសិករ
+
+  // Chapter 10: Safeguards (ផលប៉ះពាល់សង្គម និងបរិស្ថាន)
+  resettlementImpacts              String?   // ផលប៉ះពាល់ការផ្លាស់ទីផ្ទះសម្បែង និងប្រជាពលរដ្ឋ
+  lossOfAssetsImpacts              String?   // ការបាត់បង់ទ្រព្យសម្បត្តិ
+  environmentalImpactsProtection   String?   // ផលប៉ះពាល់បរិស្ថាន និងការធានាមិនប៉ះពាល់តំបន់អភិរក្ស/ការពារ
+  safeguardMitigationMeasures      String?   // វិធានការកាត់បន្ថយផលប៉ះពាល់
+
+  // Attachments & Notes (ឧបសម្ព័ន្ធ ផែនទី និងដ្យាក្រាម)
+  mapRiverBasinNotes               String?   // ផែនទីអាងទន្លេ និងកំណត់សម្គាល់
+  schematicRiverBasinNotes         String?   // ដ្យាក្រាមអាងទន្លេ និងកំណត់សម្គាល់
+  mapSubprojectNotes               String?   // ផែនទីអនុគម្រោង និងកំណត់សម្គាល់
+  additionalAttachmentsNotes       String?   // កំណត់សម្គាល់បន្ថែម និងឯកសារយោង
+
+  createdAt                        DateTime  @default(now())
+  updatedAt                        DateTime  @updatedAt
+
+  @@index([provinceId])
+  @@index([districtId])
+  @@index([status])
+}
+
