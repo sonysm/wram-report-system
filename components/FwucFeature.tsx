@@ -540,7 +540,7 @@ export default function FwucFeature() {
                 </button>
             </div>
 
-            <section className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
+            <section data-keep-white className="report-print-root rounded-2xl border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
                 <div className="space-y-2 text-center text-slate-900">
                     <p className="text-sm tracking-wide font-moul">ព្រះរាជាណាចក្រកម្ពុជា</p>
                     <p className="text-sm font-moul">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>

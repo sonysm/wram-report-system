@@ -74,6 +74,7 @@ interface DailyReportData {
     waterLevels: WaterLevelEntry[];
     forecast: ForecastData | null;
     stations: StationData[];
+    districts?: District[];
 }
 
 /* ================================================================
@@ -117,6 +118,15 @@ export default function ProvinceDailyReport() {
 
     /* ---- districts for rainfall ---- */
     const [districts, setDistricts] = useState<District[]>([]);
+    const [districtRows, setDistrictRows] = useState<{
+        districtId: number;
+        districtName: string;
+        stationName: string;
+        rainfall: string;
+        existingId?: number;
+    }[]>([]);
+    const [showAddCustomStation, setShowAddCustomStation] = useState(false);
+    const [isSavingAllRainfalls, setIsSavingAllRainfalls] = useState(false);
 
     /* ---- date ---- */
     const [reportDate, setReportDate] = useState(() => new Date().toISOString().split("T")[0]);
@@ -129,7 +139,7 @@ export default function ProvinceDailyReport() {
     const [maxTemp, setMaxTemp] = useState("");
     const [minTemp, setMinTemp] = useState("");
 
-    /* ---- form state: rainfall ---- */
+    /* ---- form state: custom rainfall ---- */
     const [rfStationName, setRfStationName] = useState("");
     const [rfRainfall, setRfRainfall] = useState("");
     const [rfDistrictId, setRfDistrictId] = useState("");
@@ -148,8 +158,23 @@ export default function ProvinceDailyReport() {
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
     /* ================================================================
-       Init
+       Init & Districts loader
        ================================================================ */
+
+    const loadDistricts = async (pId?: number | "") => {
+        const token = getStoredToken();
+        const targetPid = pId || effectiveProvinceId;
+        if (!token || !targetPid) return;
+        try {
+            const res = await fetch(`/api/districts?provinceId=${targetPid}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setDistricts(data.districts ?? []);
+            }
+        } catch { /* ignore */ }
+    };
 
     useEffect(() => {
         const init = async () => {
@@ -164,11 +189,8 @@ export default function ProvinceDailyReport() {
                     setProvinces(data.provinces ?? []);
                 }
             }
-            // Load districts
-            const dRes = await fetch("/api/districts", { headers: { Authorization: `Bearer ${token}` } });
-            if (dRes.ok) {
-                const dData = await dRes.json();
-                setDistricts(dData.districts ?? []);
+            if (user?.provinceId) {
+                await loadDistricts(user.provinceId);
             }
             setLoading(false);
         };
@@ -181,6 +203,7 @@ export default function ProvinceDailyReport() {
 
     useEffect(() => {
         if (!loading && effectiveProvinceId) {
+            loadDistricts(effectiveProvinceId);
             loadReport();
         }
     }, [reportDate, loading, selectedProvinceId]);
@@ -197,6 +220,9 @@ export default function ProvinceDailyReport() {
             if (res.ok) {
                 const data = await res.json();
                 setReport(data);
+                if (data.districts && Array.isArray(data.districts) && data.districts.length > 0) {
+                    setDistricts(data.districts);
+                }
                 // Pre-fill forms from existing data
                 if (data.temperature) {
                     setMaxTemp(String(data.temperature.maxTemp));
@@ -214,6 +240,37 @@ export default function ProvinceDailyReport() {
         setLoadingReport(false);
     };
 
+    // Synchronize districtRows when districts or report.rainfalls change
+    useEffect(() => {
+        if (!districts || districts.length === 0) {
+            setDistrictRows([]);
+            return;
+        }
+
+        const rainfalls = report?.rainfalls ?? [];
+
+        const updatedRows = districts.map((d) => {
+            const match = rainfalls.find(
+                (r) => r.districtId === d.id || r.stationName === (d.khmerName || d.name)
+            );
+            const defaultStationName = d.khmerName
+                ? (d.khmerName.startsWith("ស្រុក") || d.khmerName.startsWith("ក្រុង") || d.khmerName.startsWith("ខណ្ឌ")
+                    ? d.khmerName
+                    : `ស្រុក${d.khmerName}`)
+                : d.name;
+
+            return {
+                districtId: d.id,
+                districtName: d.khmerName || d.name,
+                stationName: match ? match.stationName : defaultStationName,
+                rainfall: match && match.rainfall !== null && match.rainfall !== undefined ? String(match.rainfall) : "",
+                existingId: match?.id,
+            };
+        });
+
+        setDistrictRows(updatedRows);
+    }, [districts, report?.rainfalls]);
+
     /* ================================================================
        Submit handlers
        ================================================================ */
@@ -222,6 +279,82 @@ export default function ProvinceDailyReport() {
         setMessage(msg);
         setMsgType(type);
         setTimeout(() => { setMessage(""); setMsgType(""); }, 3000);
+    };
+
+    const handleDistrictRowChange = (districtId: number, field: "stationName" | "rainfall", value: string) => {
+        setDistrictRows((prev) =>
+            prev.map((row) => (row.districtId === districtId ? { ...row, [field]: value } : row))
+        );
+    };
+
+    const handleSaveSingleDistrictRow = async (row: {
+        districtId: number;
+        districtName: string;
+        stationName: string;
+        rainfall: string;
+        existingId?: number;
+    }) => {
+        const token = getStoredToken();
+        if (!token || !effectiveProvinceId) return;
+
+        const val = parseFloat(row.rainfall);
+        const rainfallVal = isNaN(val) ? 0 : val;
+
+        const res = await fetch("/api/daily-rainfall", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+                id: row.existingId,
+                reportDate,
+                stationName: row.stationName.trim() || `ស្រុក${row.districtName}`,
+                rainfall: rainfallVal,
+                districtId: row.districtId,
+                provinceId: effectiveProvinceId,
+            }),
+        });
+
+        if (res.ok) {
+            flash(`រក្សាទុកទិន្នន័យភ្លៀងស្រុក ${row.districtName} បានជោគជ័យ`, "success");
+            await loadReport();
+        } else {
+            flash(`មិនអាចរក្សាទុកទិន្នន័យស្រុក ${row.districtName} បានទេ`, "error");
+        }
+    };
+
+    const handleSaveAllDistrictRows = async () => {
+        const token = getStoredToken();
+        if (!token || !effectiveProvinceId) return;
+
+        setIsSavingAllRainfalls(true);
+        try {
+            const entries = districtRows.map((row) => ({
+                id: row.existingId,
+                districtId: row.districtId,
+                stationName: row.stationName.trim() || `ស្រុក${row.districtName}`,
+                rainfall: isNaN(parseFloat(row.rainfall)) ? 0 : parseFloat(row.rainfall),
+            }));
+
+            const res = await fetch("/api/daily-rainfall", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    reportDate,
+                    provinceId: effectiveProvinceId,
+                    entries,
+                }),
+            });
+
+            if (res.ok) {
+                flash("រក្សាទុកទិន្នន័យភ្លៀងគ្រប់ស្រុកបានជោគជ័យ", "success");
+                await loadReport();
+            } else {
+                flash("មិនអាចរក្សាទុកទិន្នន័យភ្លៀងបានទេ", "error");
+            }
+        } catch {
+            flash("មានបញ្ហាក្នុងការរក្សាទុក", "error");
+        } finally {
+            setIsSavingAllRainfalls(false);
+        }
     };
 
     const handleSaveTemperature = async () => {
@@ -264,6 +397,7 @@ export default function ProvinceDailyReport() {
             setRfStationName("");
             setRfRainfall("");
             setRfDistrictId("");
+            setShowAddCustomStation(false);
             await loadReport();
         } else {
             flash("មិនអាចបន្ថែមទិន្នន័យភ្លៀងបានទេ", "error");
@@ -303,15 +437,60 @@ export default function ProvinceDailyReport() {
     };
 
     /* ================================================================
-       Rainfall totals
+       Rainfall totals & Bulletin District Rainfalls
        ================================================================ */
 
+    const customRainfalls = useMemo(() => {
+        if (!report?.rainfalls) return [];
+        const districtIds = new Set(districts.map((d) => d.id));
+        return report.rainfalls.filter((r) => !r.districtId || !districtIds.has(r.districtId));
+    }, [report?.rainfalls, districts]);
+
+    const bulletinDistrictRainfalls = useMemo(() => {
+        const rainfalls = report?.rainfalls ?? [];
+        if (!districts || districts.length === 0) {
+            return rainfalls.map((r) => ({
+                key: `rf-${r.id}`,
+                stationName: r.stationName,
+                rainfall: r.rainfall,
+            }));
+        }
+
+        const list = districts.map((d) => {
+            const match = rainfalls.find(
+                (r) => r.districtId === d.id || r.stationName === (d.khmerName || d.name)
+            );
+            const defaultStationName = d.khmerName
+                ? (d.khmerName.startsWith("ស្រុក") || d.khmerName.startsWith("ក្រុង") || d.khmerName.startsWith("ខណ្ឌ")
+                    ? d.khmerName
+                    : `ស្រុក${d.khmerName}`)
+                : d.name;
+
+            return {
+                key: `district-${d.id}`,
+                stationName: match?.stationName || defaultStationName,
+                rainfall: match?.rainfall ?? 0,
+            };
+        });
+
+        const districtIds = new Set(districts.map((d) => d.id));
+        const extras = rainfalls
+            .filter((r) => !r.districtId || !districtIds.has(r.districtId))
+            .map((r) => ({
+                key: `custom-${r.id}`,
+                stationName: r.stationName,
+                rainfall: r.rainfall,
+            }));
+
+        return [...list, ...extras];
+    }, [districts, report?.rainfalls]);
+
     const rainfallTotals = useMemo(() => {
-        if (!report?.rainfalls) return { daily: 0, count: 0, total: 0 };
-        const daily = report.rainfalls.reduce((sum, r) => sum + r.rainfall, 0);
-        const stationsWithRain = report.rainfalls.filter((r) => r.rainfall > 0).length;
-        return { daily, count: stationsWithRain, total: report.rainfalls.length };
-    }, [report?.rainfalls]);
+        const total = bulletinDistrictRainfalls.length;
+        const count = bulletinDistrictRainfalls.filter((item) => Number(item.rainfall) > 0).length;
+        const daily = bulletinDistrictRainfalls.reduce((sum, item) => sum + (Number(item.rainfall) || 0), 0);
+        return { daily, count, total };
+    }, [bulletinDistrictRainfalls]);
 
     /* ================================================================
        Water levels: split into rivers and reservoirs
@@ -461,59 +640,92 @@ export default function ProvinceDailyReport() {
                     </div>
 
                     {/* Section II: Rainfall form */}
-                    <div className="rounded-2xl border border-teal-200 bg-teal-50/50 p-6 shadow-sm space-y-4">
-                        <h3 className="text-base font-bold text-teal-900">II. ទិន្នន័យភ្លៀងតាមបណ្ដាស្រុក</h3>
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                    <div className="rounded-2xl border border-teal-200 dark:border-teal-900/40 bg-teal-50/50 dark:bg-slate-900/60 p-6 shadow-sm space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-teal-200/70 dark:border-slate-800">
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700">ឈ្មោះស្ថានីយ/ក្រុង-ស្រុក</label>
-                                <input value={rfStationName} onChange={(e) => setRfStationName(e.target.value)} placeholder="ឧ. ក្រុងស្វាយរៀង"
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <h3 className="text-base font-bold text-teal-900 dark:text-teal-300">
+                                    II. ទិន្នន័យភ្លៀងតាមបណ្ដាស្រុក
+                                </h3>
+                                <p className="text-xs text-teal-700 dark:text-slate-400 mt-0.5">
+                                    បង្ហាញគ្រប់បណ្ដាស្រុកតាមលំនាំដើម • បញ្ចូលបរិមាណទឹកភ្លៀង (មម)
+                                </p>
                             </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700">បរិមាណភ្លៀង (មម)</label>
-                                <input type="number" step="0.1" min="0" value={rfRainfall} onChange={(e) => setRfRainfall(e.target.value)} placeholder="0"
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
-                            </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700">ស្រុក/ខណ្ឌ</label>
-                                <select value={rfDistrictId} onChange={(e) => setRfDistrictId(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
-                                    <option value="">ជ្រើសរើស (ស្រេចចិត្ត)</option>
-                                    {districts.map((d) => (
-                                        <option key={d.id} value={d.id}>{d.khmerName || d.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="flex items-end">
-                                <button type="button" onClick={handleAddRainfall}
-                                    className="rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-700">
-                                    បន្ថែម
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-200">
+                                    សរុប {toKhmerNum(districtRows.length)} ស្រុក
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={handleSaveAllDistrictRows}
+                                    disabled={isSavingAllRainfalls || districtRows.length === 0}
+                                    className="rounded-xl bg-teal-600 px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-teal-700 transition disabled:opacity-50 flex items-center gap-1.5"
+                                >
+                                    {isSavingAllRainfalls ? (
+                                        <span>កំពុងរក្សាទុក...</span>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span>រក្សាទុកទាំងអស់</span>
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Show current rainfalls */}
-                        {report?.rainfalls && report.rainfalls.length > 0 && (
-                            <div className="mt-2 overflow-auto">
+                        {/* All Districts Table / List */}
+                        {districtRows.length > 0 ? (
+                            <div className="overflow-x-auto rounded-xl border border-teal-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs">
                                 <table className="w-full text-sm border-collapse">
                                     <thead>
-                                        <tr className="bg-teal-100 text-teal-900">
-                                            <th className="px-3 py-2 text-left border border-teal-200">ល.រ</th>
-                                            <th className="px-3 py-2 text-left border border-teal-200">ស្ថានីយ/ស្រុក</th>
-                                            <th className="px-3 py-2 text-right border border-teal-200">ភ្លៀង (មម)</th>
-                                            <th className="px-3 py-2 text-center border border-teal-200">សកម្មភាព</th>
+                                        <tr className="bg-teal-100/60 dark:bg-slate-800 text-teal-950 dark:text-teal-200 border-b border-teal-200 dark:border-slate-700 text-xs font-semibold uppercase">
+                                            <th className="px-3 py-2.5 text-center w-12">ល.រ</th>
+                                            <th className="px-3 py-2.5 text-left w-44">ក្រុង-ស្រុក (District)</th>
+                                            <th className="px-3 py-2.5 text-left">ឈ្មោះស្ថានីយ/ក្រុង-ស្រុក</th>
+                                            <th className="px-3 py-2.5 text-left w-48">បរិមាណភ្លៀង (មម)</th>
+                                            <th className="px-3 py-2.5 text-center w-24">សកម្មភាព</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {report.rainfalls.map((r, i) => (
-                                            <tr key={r.id} className="border-b border-teal-100">
-                                                <td className="px-3 py-2 border border-teal-100">{toKhmerNum(i + 1)}</td>
-                                                <td className="px-3 py-2 border border-teal-100">{r.stationName}</td>
-                                                <td className="px-3 py-2 text-right border border-teal-100">{r.rainfall}</td>
-                                                <td className="px-3 py-2 text-center border border-teal-100">
-                                                    <button onClick={() => handleDeleteRainfall(r.id)}
-                                                        className="text-red-600 hover:text-red-800 text-xs font-bold bg-red-50 px-2 py-1 rounded border border-red-200">
-                                                        លុប
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                        {districtRows.map((row, index) => (
+                                            <tr key={row.districtId} className="hover:bg-teal-50/40 dark:hover:bg-slate-800/50 transition">
+                                                <td className="px-3 py-2 text-center text-slate-500 font-mono text-xs">
+                                                    {toKhmerNum(index + 1)}
+                                                </td>
+                                                <td className="px-3 py-2 font-semibold text-slate-800 dark:text-slate-200">
+                                                    {row.districtName}
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <input
+                                                        type="text"
+                                                        value={row.stationName}
+                                                        onChange={(e) => handleDistrictRowChange(row.districtId, "stationName", e.target.value)}
+                                                        placeholder={`ស្រុក${row.districtName}`}
+                                                        className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                                                    />
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <input
+                                                            type="number"
+                                                            step="0.1"
+                                                            min="0"
+                                                            value={row.rainfall}
+                                                            onChange={(e) => handleDistrictRowChange(row.districtId, "rainfall", e.target.value)}
+                                                            placeholder="0"
+                                                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-right font-mono"
+                                                        />
+                                                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">មម</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-2 text-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleSaveSingleDistrictRow(row)}
+                                                        className="rounded-lg bg-teal-600 px-3 py-1 text-xs font-semibold text-white hover:bg-teal-700 transition"
+                                                    >
+                                                        រក្សាទុក
                                                     </button>
                                                 </td>
                                             </tr>
@@ -521,7 +733,105 @@ export default function ProvinceDailyReport() {
                                     </tbody>
                                 </table>
                             </div>
+                        ) : (
+                            <p className="text-sm text-slate-500 italic py-2">មិនទាន់មានទិន្នន័យស្រុកសម្រាប់ខេត្តនេះនៅឡើយ</p>
                         )}
+
+                        {/* Extra Custom Stations (if any) */}
+                        {customRainfalls.length > 0 && (
+                            <div className="mt-4 pt-3 border-t border-teal-200/60 dark:border-slate-800">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-300 mb-2">
+                                    ស្ថានីយបន្ថែមផ្សេងទៀត (Additional Custom Stations)
+                                </h4>
+                                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                                    <table className="w-full text-xs">
+                                        <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                            <tr>
+                                                <th className="px-3 py-2 text-left">ឈ្មោះស្ថានីយ</th>
+                                                <th className="px-3 py-2 text-right">បរិមាណភ្លៀង (មម)</th>
+                                                <th className="px-3 py-2 text-center w-20">សកម្មភាព</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                            {customRainfalls.map((cr) => (
+                                                <tr key={cr.id}>
+                                                    <td className="px-3 py-2 text-slate-800 dark:text-white font-medium">{cr.stationName}</td>
+                                                    <td className="px-3 py-2 text-right text-slate-800 dark:text-white font-mono">{cr.rainfall} មម</td>
+                                                    <td className="px-3 py-2 text-center">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteRainfall(cr.id)}
+                                                            className="text-rose-600 hover:text-rose-800 text-xs font-bold bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-900"
+                                                        >
+                                                            លុប
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Toggle Add Custom Station */}
+                        <div className="pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowAddCustomStation(!showAddCustomStation)}
+                                className="text-xs font-semibold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-1"
+                            >
+                                <span>{showAddCustomStation ? "▲ បិទផ្ទាំងបន្ថែមស្ថានីយ" : "+ បន្ថែមស្ថានីយក្រៅពីស្រុក (Add Custom Station)"}</span>
+                            </button>
+
+                            {showAddCustomStation && (
+                                <div className="mt-3 p-4 rounded-xl border border-teal-200 dark:border-slate-800 bg-white/70 dark:bg-slate-850 grid grid-cols-1 gap-3 sm:grid-cols-4">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">ឈ្មោះស្ថានីយ</label>
+                                        <input
+                                            value={rfStationName}
+                                            onChange={(e) => setRfStationName(e.target.value)}
+                                            placeholder="ឧ. ស្ថានីយ៍ស្ទឹង..."
+                                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white outline-none focus:border-teal-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">បរិមាណភ្លៀង (មម)</label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            value={rfRainfall}
+                                            onChange={(e) => setRfRainfall(e.target.value)}
+                                            placeholder="0"
+                                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white outline-none focus:border-teal-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">ស្រុក/ខណ្ឌ (ស្រេចចិត្ត)</label>
+                                        <select
+                                            value={rfDistrictId}
+                                            onChange={(e) => setRfDistrictId(e.target.value)}
+                                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white outline-none focus:border-teal-500"
+                                        >
+                                            <option value="">ជ្រើសរើស (ស្រេចចិត្ត)</option>
+                                            {districts.map((d) => (
+                                                <option key={d.id} value={d.id}>{d.khmerName || d.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex items-end">
+                                        <button
+                                            type="button"
+                                            onClick={handleAddRainfall}
+                                            className="w-full rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700 transition"
+                                        >
+                                            បន្ថែម
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Section IV: Forecast form */}
@@ -599,15 +909,17 @@ export default function ProvinceDailyReport() {
                             {/* Section II: Rainfall */}
                             <div>
                                 <h3 className="text-[15px] font-bold text-slate-800 font-moul mb-2">
-                                    II. ទិន្នន័យតាមបណ្ដាស្រុក-ស្រុក
+                                    II. ទិន្នន័យភ្លៀងតាមបណ្ដាស្រុក
                                 </h3>
                                 <div className="pl-4 text-[14px] text-slate-800 space-y-1">
-                                    <p className="font-semibold">បន្ទុនក្រុង-ស្រុក : {toKhmerNum(rainfallTotals.count)}/{toKhmerNum(rainfallTotals.total)}</p>
-                                    {report?.rainfalls?.map((r, i) => (
-                                        <p key={r.id}>{toKhmerNum(i + 1)}. {r.stationName} : {r.rainfall} មម</p>
+                                    <p className="font-semibold">បន្ទុកក្រុង-ស្រុក : {toKhmerNum(rainfallTotals.count)}/{toKhmerNum(rainfallTotals.total)}</p>
+                                    {bulletinDistrictRainfalls.map((item, i) => (
+                                        <p key={item.key}>
+                                            {toKhmerNum(i + 1)}. {item.stationName} : {item.rainfall > 0 ? `${item.rainfall} មម` : "០ មម"}
+                                        </p>
                                     ))}
-                                    {(!report?.rainfalls || report.rainfalls.length === 0) && (
-                                        <p className="text-slate-400 italic">មិនមានទិន្នន័យ</p>
+                                    {bulletinDistrictRainfalls.length === 0 && (
+                                        <p className="text-slate-400 italic">មិនមានទិន្នន័យស្រុក</p>
                                     )}
                                     <div className="mt-3 pt-2 border-t border-slate-300 space-y-1">
                                         <p>ប្រចាំថ្ងៃ : <strong>{rainfallTotals.daily.toFixed(1)} មម</strong></p>

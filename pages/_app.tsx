@@ -1,6 +1,7 @@
 import type { AppProps } from "next/app";
 import { Moul } from "next/font/google";
 import "../styles/globals.css";
+import { ThemeProvider } from "../lib/theme";
 
 const moul = Moul({
     weight: "400",
@@ -11,8 +12,10 @@ const moul = Moul({
 
 export default function App({ Component, pageProps }: AppProps) {
     return (
-        <div className={moul.variable}>
-            <Component {...pageProps} />
-        </div>
+        <ThemeProvider>
+            <div className={moul.variable}>
+                <Component {...pageProps} />
+            </div>
+        </ThemeProvider>
     );
 }

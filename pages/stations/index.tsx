@@ -180,39 +180,39 @@ const StationsPage: NextPage = () => {
         <Layout>
             <section className="space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Station List</h1>
-                    <p className="mt-2 text-sm text-slate-600">
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Station List</h1>
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                         គ្រប់គ្រងព័ត៌មាន ស្ថានីយជលសាស្ត្រ
                     </p>
                 </div>
 
                 {sessionUser?.role !== "admin" && (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <h2 className="mb-4 text-lg font-bold text-slate-800">{editId ? "កែប្រែស្ថានីយ (Edit Station)" : "បន្ថែមស្ថានីយថ្មី (Add New Station)"}</h2>
+                    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+                        <h2 className="mb-4 text-lg font-bold text-slate-800 dark:text-slate-100">{editId ? "កែប្រែស្ថានីយ (Edit Station)" : "បន្ថែមស្ថានីយថ្មី (Add New Station)"}</h2>
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (English)</label>
-                                <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Station Name (English)</label>
+                                <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Station Name (Khmer)</label>
-                                <input type="text" value={khmerName} onChange={e => setKhmerName(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Station Name (Khmer)</label>
+                                <input type="text" value={khmerName} onChange={e => setKhmerName(e.target.value)} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">River/Lake</label>
-                                <input type="text" value={river} onChange={e => setRiver(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">River/Lake</label>
+                                <input type="text" value={river} onChange={e => setRiver(e.target.value)} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Category</label>
-                                <input type="text" value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Category</label>
+                                <input type="text" value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Monitoring Functions</label>
-                                <input type="text" value={monitoringFunctions} onChange={e => setMonitoringFunctions(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Monitoring Functions</label>
+                                <input type="text" value={monitoringFunctions} onChange={e => setMonitoringFunctions(e.target.value)} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">ស្ថានភាព (Status)</label>
-                                <select value={status} onChange={e => setStatus(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">ស្ថានភាព (Status)</label>
+                                <select value={status} onChange={e => setStatus(e.target.value)} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
                                     <option value="">ជ្រើសរើសស្ថានភាព</option>
                                     <option value="ដំណើរការ">ដំណើរការ</option>
                                     <option value="កំពុងជួសជុល">កំពុងជួសជុល</option>
@@ -220,31 +220,31 @@ const StationsPage: NextPage = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">កាលបរិច្ឆេទដំឡើង (Installation Date)</label>
-                                <input type="date" value={installationDate} onChange={e => setInstallationDate(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">កាលបរិច្ឆេទដំឡើង (Installation Date)</label>
+                                <input type="date" value={installationDate} onChange={e => setInstallationDate(e.target.value)} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">កម្រិតកម្ពស់ប្រុងប្រយ័ត្ន (Warning Level)</label>
-                                <input type="number" step="any" value={warningLevel} onChange={e => setWarningLevel(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">កម្រិតកម្ពស់ប្រុងប្រយ័ត្ន (Warning Level)</label>
+                                <input type="number" step="any" value={warningLevel} onChange={e => setWarningLevel(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Lat./X</label>
-                                <input type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Lat./X</label>
+                                <input type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Long./Y</label>
-                                <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Long./Y</label>
+                                <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">ស្រុក (District)</label>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">ស្រុក (District)</label>
                                 <select
                                     value={districtId}
                                     onChange={e => {
                                         setDistrictId(e.target.value === "" ? "" : Number(e.target.value));
                                         setCommuneId("");
                                     }}
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                                 >
                                     <option value="">ជ្រើសរើសស្រុក (Select District)</option>
                                     {districts.map(d => (
@@ -253,11 +253,11 @@ const StationsPage: NextPage = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">ឃុំ/សង្កាត់ (Commune)</label>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">ឃុំ/សង្កាត់ (Commune)</label>
                                 <select
                                     value={communeId}
                                     onChange={e => setCommuneId(e.target.value === "" ? "" : Number(e.target.value))}
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                                     disabled={!districtId}
                                 >
                                     <option value="">ជ្រើសរើសឃុំ (Select Commune)</option>
@@ -267,12 +267,12 @@ const StationsPage: NextPage = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Order (លេខរៀង)</label>
-                                <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Order (លេខរៀង)</label>
+                                <input type="number" value={order} onChange={e => setOrder(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div className="md:col-span-2 lg:col-span-3">
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">ផ្សេងៗ (Remark)</label>
-                                <textarea value={remark} onChange={e => setRemark(e.target.value)} rows={2} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">ផ្សេងៗ (Remark)</label>
+                                <textarea value={remark} onChange={e => setRemark(e.target.value)} rows={2} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div className="md:col-span-1 lg:col-span-1 flex items-end space-x-2">
                                 <button type="submit" className="w-full rounded-xl bg-cyan-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">
@@ -288,10 +288,10 @@ const StationsPage: NextPage = () => {
                     </div>
                 )}
 
-                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm text-slate-600">
-                            <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-700">
+                        <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                            <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
                                 <tr>
                                     <th className="px-4 py-3">Order</th>
                                     <th className="px-4 py-3">Station Name</th>
@@ -313,11 +313,11 @@ const StationsPage: NextPage = () => {
                                     )}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200 bg-white">
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
                                 {stations.map(st => (
-                                    <tr key={st.id} className="hover:bg-slate-50">
+                                    <tr key={st.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                         <td className="px-4 py-3">{st.order}</td>
-                                        <td className="px-4 py-3 font-medium text-slate-900">{st.name}</td>
+                                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{st.name}</td>
                                         <td className="px-4 py-3">{st.khmerName}</td>
                                         {/* <td className="px-4 py-3">{st.province.name}</td> */}
                                         <td className="px-4 py-3">{st.district?.khmerName || ""}</td>
@@ -333,15 +333,15 @@ const StationsPage: NextPage = () => {
                                         <td className="px-4 py-3">{st.longitude}</td> */}
                                         {sessionUser?.role !== "admin" && (
                                             <td className="px-4 py-3 space-x-2">
-                                                <button onClick={() => handleEdit(st)} className="text-cyan-600 hover:text-cyan-800 font-semibold">Edit</button>
-                                                <button onClick={() => handleDelete(st.id)} className="text-red-500 hover:text-red-700 font-semibold">Delete</button>
+                                                <button onClick={() => handleEdit(st)} className="text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 dark:hover:text-cyan-300 font-semibold">Edit</button>
+                                                <button onClick={() => handleDelete(st.id)} className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-semibold">Delete</button>
                                             </td>
                                         )}
                                     </tr>
                                 ))}
                                 {stations.length === 0 && (
                                     <tr>
-                                        <td colSpan={13} className="px-4 py-8 text-center text-slate-500">
+                                        <td colSpan={13} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
                                             មិនមានទិន្នន័យ (No data)
                                         </td>
                                     </tr>

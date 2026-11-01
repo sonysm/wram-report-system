@@ -1,7 +1,14 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   color-scheme: light;
+}
+
+:root.dark,
+html.dark {
+  color-scheme: dark;
 }
 
 * {
@@ -13,6 +20,97 @@ body {
   font-family: var(--font-kh-moul), "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
   background-color: #f8fafc;
   color: #0f172a;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark body,
+html.dark body {
+  background-color: #090d16;
+  color: #f1f5f9;
+}
+
+/* ============================================================== */
+/* DARK MODE COMPONENT DEFAULTS                                   */
+/* Ensures all legacy cards, tables, inputs and headers adapt     */
+/* ============================================================== */
+@media screen {
+  html.dark .bg-white:not([data-keep-white]):not([data-keep-white] *) {
+    background-color: #0f172a !important;
+  }
+
+  html.dark .bg-slate-50:not([data-keep-white]):not([data-keep-white] *),
+  html.dark .bg-slate-100:not([data-keep-white]):not([data-keep-white] *) {
+    background-color: #1e293b !important;
+  }
+
+  html.dark .border-slate-200:not([data-keep-white]),
+  html.dark .border-slate-300:not([data-keep-white]),
+  html.dark .border-slate-100:not([data-keep-white]) {
+    border-color: #334155 !important;
+  }
+
+  html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+  html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #334155 !important;
+  }
+
+  html.dark .text-slate-900:not([data-keep-white]):not([data-keep-white] *),
+  html.dark .text-slate-800:not([data-keep-white]):not([data-keep-white] *) {
+    color: #f8fafc !important;
+  }
+
+  html.dark .text-slate-700:not([data-keep-white]):not([data-keep-white] *),
+  html.dark .text-slate-600:not([data-keep-white]):not([data-keep-white] *) {
+    color: #cbd5e1 !important;
+  }
+
+  html.dark .text-slate-500:not([data-keep-white]):not([data-keep-white] *) {
+    color: #94a3b8 !important;
+  }
+
+  /* Form inputs, selects & textareas */
+  html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="color"]):not([data-keep-white]),
+  html.dark select:not([data-keep-white]),
+  html.dark textarea:not([data-keep-white]) {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+  }
+
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: #64748b !important;
+  }
+
+  html.dark select option {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+  }
+
+  /* Table styling in dark mode */
+  html.dark table thead:not([data-keep-white]):not([data-keep-white] *) {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+  }
+
+  html.dark table thead th:not([data-keep-white]):not([data-keep-white] *) {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark table tbody tr:not([data-keep-white]):not([data-keep-white] *) {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+  }
+
+  html.dark table tbody tr:hover:not([data-keep-white]):not([data-keep-white] *) {
+    background-color: rgba(30, 41, 59, 0.7) !important;
+  }
+
+  html.dark table tbody td:not([data-keep-white]):not([data-keep-white] *) {
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+  }
 }
 
 @utility font-moul {

@@ -72,11 +72,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         };
     }).filter(wl => wl.station); // ensure station exists
 
+    // 6. Fetch Districts of this province
+    const districts = await prisma.district.findMany({
+        where: { provinceId: targetProvinceId },
+        select: { id: true, name: true, khmerName: true, provinceId: true },
+        orderBy: { name: 'asc' }
+    });
+
     return res.status(200).json({
         temperature: temperature ? { ...temperature, reportDate: temperature.reportDate.toISOString() } : null,
         rainfalls,
         forecast: forecast ? { ...forecast, reportDate: forecast.reportDate.toISOString() } : null,
         stations,
-        waterLevels
+        waterLevels,
+        districts
     });
 }

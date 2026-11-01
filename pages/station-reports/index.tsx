@@ -168,16 +168,16 @@ const StationReportsPage: NextPage = () => {
             <section className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Station Reports</h1>
-                        <p className="mt-1 text-slate-500">Manage daily water level reports.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Station Reports</h1>
+                        <p className="mt-1 text-slate-500 dark:text-slate-400">Manage daily water level reports.</p>
                     </div>
                 </div>
 
                 {sessionUser?.role === "admin" && (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-6 flex gap-4 items-center">
+                    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm mb-6 flex flex-wrap gap-4 items-center">
                         <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Select Province</label>
-                            <select value={selectedProvinceId} onChange={e => setSelectedProvinceId(e.target.value === "" ? "" : Number(e.target.value))} className="w-64 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
+                            <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Select Province</label>
+                            <select value={selectedProvinceId} onChange={e => setSelectedProvinceId(e.target.value === "" ? "" : Number(e.target.value))} className="w-64 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
                                 <option value="" disabled>Select a Province</option>
                                 {provinces.map(p => (
                                     <option key={p.id} value={p.id}>{p.khmerName || p.name}</option>
@@ -185,22 +185,22 @@ const StationReportsPage: NextPage = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="mb-1 block text-sm font-semibold text-slate-700">Select Date</label>
-                            <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} className="w-48 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                            <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Select Date</label>
+                            <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} className="w-48 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                         </div>
                     </div>
                 )}
 
                 {sessionUser?.role !== "admin" && (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-6">
+                    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm mb-6">
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
                             <div className="lg:col-span-1">
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Date</label>
-                                <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} required className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Date</label>
+                                <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} required className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div className="lg:col-span-1">
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Station</label>
-                                <select value={stationId} onChange={e => setStationId(e.target.value === "" ? "" : Number(e.target.value))} required className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Station</label>
+                                <select value={stationId} onChange={e => setStationId(e.target.value === "" ? "" : Number(e.target.value))} required className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
                                     <option value="" disabled>Select Station</option>
                                     {stations.map(st => (
                                         <option key={st.id} value={st.id}>{st.khmerName ? `${st.khmerName} (${st.name})` : st.name}</option>
@@ -208,16 +208,16 @@ const StationReportsPage: NextPage = () => {
                                 </select>
                             </div>
                             <div className="lg:col-span-1">
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Water Level</label>
-                                <input type="number" step="any" value={waterLevel} onChange={e => setWaterLevel(e.target.value === "" ? "" : Number(e.target.value))} required className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Water Level</label>
+                                <input type="number" step="any" value={waterLevel} onChange={e => setWaterLevel(e.target.value === "" ? "" : Number(e.target.value))} required className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" />
                             </div>
                             <div className="lg:col-span-1">
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Level (Yesterday)</label>
-                                <input type="number" step="any" value={waterLevelYesterday} onChange={e => setWaterLevelYesterday(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" placeholder="Auto" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Level (Yesterday)</label>
+                                <input type="number" step="any" value={waterLevelYesterday} onChange={e => setWaterLevelYesterday(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" placeholder="Auto" />
                             </div>
                             <div className="lg:col-span-1">
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Level (Last Year)</label>
-                                <input type="number" step="any" value={waterLevelLastYear} onChange={e => setWaterLevelLastYear(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" placeholder="Auto" />
+                                <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Level (Last Year)</label>
+                                <input type="number" step="any" value={waterLevelLastYear} onChange={e => setWaterLevelLastYear(e.target.value === "" ? "" : Number(e.target.value))} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" placeholder="Auto" />
                             </div>
                             <div className="lg:col-span-2 flex items-end">
                                 <button type="submit" className="rounded-xl bg-cyan-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">
@@ -235,7 +235,7 @@ const StationReportsPage: NextPage = () => {
                     </button>
                 </div>
 
-                <div id="report-bulletin" className="relative mx-auto max-w-[1000px] bg-white overflow-hidden p-8 font-khmer pb-12" style={{ backgroundColor: "#f4f7f6" }}>
+                <div id="report-bulletin" data-keep-white className="relative mx-auto max-w-[1000px] bg-white overflow-hidden p-8 font-khmer pb-12" style={{ backgroundColor: "#f4f7f6" }}>
                     {/* Background Texture/Watermark placeholder */}
                     <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: "url('/map-bg-placeholder.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
 
