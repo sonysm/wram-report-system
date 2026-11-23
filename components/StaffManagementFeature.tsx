@@ -4,12 +4,20 @@ import {
   CIVIL_SERVANT_RANKS,
   DEPARTMENT_LEADERSHIP_POSITIONS,
   EDUCATION_LEVELS,
+  EXPERIENCE_EMPLOYMENT_TYPES,
   STAFF_GENDERS,
   STAFF_OFFICES,
   STAFF_POSITIONS,
   STAFF_SKILLS,
+  getHighestEducationLevel,
   getPositionRank,
 } from "../lib/staffConstants";
+import StaffProfileModal, {
+  type StaffEducationItem,
+  type StaffExperienceItem,
+  type StaffMemberProfile,
+  type StaffTrainingItem,
+} from "./StaffProfileModal";
 
 interface CurrentUser {
   id: number;
@@ -26,30 +34,38 @@ interface ProvinceOption {
   sortOrder?: number | null;
 }
 
-interface StaffMember {
-  id: number;
-  provinceId: number;
-  fullName: string;
-  latinName: string | null;
-  gender: string;
-  dateOfBirth: string | null;
-  phoneNumber: string | null;
-  email: string | null;
-  civilServantId: string | null;
-  position: string;
-  office: string | null;
-  civilServantRank: string | null;
-  educationLevel: string;
-  skill: string;
-  majorDetail: string | null;
-  startWorkDate: string | null;
-  assignedLocation: string | null;
-  trainingNotes: string | null;
-  isActive: boolean;
-  note: string | null;
-  createdAt: string;
-  province?: { id: number; name: string; khmerName: string; sortOrder?: number | null };
+type StaffMember = StaffMemberProfile & {
   user?: { id: number; username: string } | null;
+};
+
+interface ExperienceFormRow {
+  title: string;
+  organization: string;
+  location: string;
+  employmentType: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  description: string;
+}
+
+interface EducationFormRow {
+  level: string;
+  school: string;
+  fieldOfStudy: string;
+  startYear: string;
+  endYear: string;
+  gradeOrHonors: string;
+  description: string;
+}
+
+interface TrainingFormRow {
+  name: string;
+  issuingOrganization: string;
+  issueDate: string;
+  durationOrHours: string;
+  credentialId: string;
+  description: string;
 }
 
 interface StaffFormState {
@@ -72,6 +88,9 @@ interface StaffFormState {
   trainingNotes: string;
   isActive: boolean;
   note: string;
+  experiences: ExperienceFormRow[];
+  educations: EducationFormRow[];
+  trainings: TrainingFormRow[];
 }
 
 type ActiveTab = "list" | "stats" | "structure";
@@ -107,6 +126,9 @@ function createEmptyForm(defaultProvinceId = ""): StaffFormState {
     trainingNotes: "",
     isActive: true,
     note: "",
+    experiences: [],
+    educations: [],
+    trainings: [],
   };
 }
 
@@ -122,6 +144,7 @@ export default function StaffManagementFeature() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("list");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingProfile, setViewingProfile] = useState<StaffMemberProfile | null>(null);
   const [form, setForm] = useState<StaffFormState>(createEmptyForm());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(
@@ -190,8 +213,8 @@ export default function StaffManagementFeature() {
     const defaultProv = isAdmin
       ? filterProvinceId || (provinces[0]?.id ? String(provinces[0].id) : "")
       : currentUser?.provinceId
-      ? String(currentUser.provinceId)
-      : "";
+        ? String(currentUser.provinceId)
+        : "";
     setForm(createEmptyForm(defaultProv));
     setFeedback(null);
     setIsFormOpen(true);
@@ -219,6 +242,33 @@ export default function StaffManagementFeature() {
       trainingNotes: member.trainingNotes || "",
       isActive: member.isActive,
       note: member.note || "",
+      experiences: (member.experiences ?? []).map((exp: StaffExperienceItem) => ({
+        title: exp.title,
+        organization: exp.organization,
+        location: exp.location || "",
+        employmentType: exp.employmentType || EXPERIENCE_EMPLOYMENT_TYPES[0],
+        startDate: toDateInputValue(exp.startDate),
+        endDate: toDateInputValue(exp.endDate),
+        isCurrent: exp.isCurrent,
+        description: exp.description || "",
+      })),
+      educations: (member.educations ?? []).map((edu: StaffEducationItem) => ({
+        level: edu.level,
+        school: edu.school,
+        fieldOfStudy: edu.fieldOfStudy || "",
+        startYear: edu.startYear ? String(edu.startYear) : "",
+        endYear: edu.endYear ? String(edu.endYear) : "",
+        gradeOrHonors: edu.gradeOrHonors || "",
+        description: edu.description || "",
+      })),
+      trainings: (member.trainings ?? []).map((tr: StaffTrainingItem) => ({
+        name: tr.name,
+        issuingOrganization: tr.issuingOrganization || "",
+        issueDate: toDateInputValue(tr.issueDate),
+        durationOrHours: tr.durationOrHours || "",
+        credentialId: tr.credentialId || "",
+        description: tr.description || "",
+      })),
     });
     setFeedback(null);
     setIsFormOpen(true);
@@ -588,11 +638,10 @@ export default function StaffManagementFeature() {
       {/* Feedback Banner */}
       {feedback && (
         <div
-          className={`rounded-xl border px-4 py-3 text-sm font-medium flex items-center justify-between ${
-            feedback.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
-              : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
-          }`}
+          className={`rounded-xl border px-4 py-3 text-sm font-medium flex items-center justify-between ${feedback.type === "success"
+            ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+            : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
+            }`}
         >
           <span>{feedback.text}</span>
           <button
@@ -990,6 +1039,569 @@ export default function StaffManagementFeature() {
                 </div>
               </div>
 
+              {/* Section 3B: Multiple Education History (LinkedIn Style) */}
+              <div className="border-t border-slate-200 dark:border-slate-800 pt-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                      ៤. ប្រវត្តិការសិក្សាលម្អិត (Education — អាចបន្ថែមបានច្រើន)
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      បញ្ចូលគ្រប់កម្រិតសិក្សា ឬសញ្ញាបត្រ (ប្រព័ន្ធនឹងជ្រើសកម្រិតខ្ពស់បំផុតសម្រាប់ស្ថិតិ)
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        educations: [
+                          ...form.educations,
+                          {
+                            level: form.educationLevel || EDUCATION_LEVELS[2],
+                            school: "",
+                            fieldOfStudy: "",
+                            startYear: "",
+                            endYear: "",
+                            gradeOrHonors: "",
+                            description: "",
+                          },
+                        ],
+                      })
+                    }
+                    className="inline-flex items-center gap-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition"
+                  >
+                    + បន្ថែមកម្រិតសិក្សា
+                  </button>
+                </div>
+
+                {form.educations.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic">
+                    មិនទាន់មានប្រវត្តិសាលាបន្ថែមទេ — ចុច «+ បន្ថែមកម្រិតសិក្សា» ដើម្បីបញ្ចូលសាលា និងសញ្ញាបត្រ។
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {form.educations.map((edu, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/40 p-3.5 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            ការសិក្សា #{idx + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = form.educations.filter((_, i) => i !== idx);
+                              const highest = getHighestEducationLevel(next.map((e) => e.level));
+                              setForm({
+                                ...form,
+                                educations: next,
+                                educationLevel: highest || form.educationLevel,
+                              });
+                            }}
+                            className="text-xs font-semibold text-rose-600 hover:underline"
+                          >
+                            លុបចេញ
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              កម្រិតសិក្សា *
+                            </label>
+                            <select
+                              value={edu.level}
+                              onChange={(e) => {
+                                const next = [...form.educations];
+                                next[idx] = { ...next[idx], level: e.target.value };
+                                const highest = getHighestEducationLevel(next.map((x) => x.level));
+                                setForm({
+                                  ...form,
+                                  educations: next,
+                                  educationLevel: highest || form.educationLevel,
+                                });
+                              }}
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            >
+                              {EDUCATION_LEVELS.map((lvl) => (
+                                <option key={lvl} value={lvl}>
+                                  {lvl}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="sm:col-span-2">
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ឈ្មោះសាលា / សាកលវិទ្យាល័យ *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={edu.school}
+                              onChange={(e) => {
+                                const next = [...form.educations];
+                                next[idx] = { ...next[idx], school: e.target.value };
+                                setForm({ ...form, educations: next });
+                              }}
+                              placeholder="ឧ. វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា (ITC)"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              មុខជំនាញ (Field of Study)
+                            </label>
+                            <input
+                              type="text"
+                              value={edu.fieldOfStudy}
+                              onChange={(e) => {
+                                const next = [...form.educations];
+                                next[idx] = { ...next[idx], fieldOfStudy: e.target.value };
+                                setForm({ ...form, educations: next });
+                              }}
+                              placeholder="ឧ. វិស្វកម្មធនធានទឹក"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ឆ្នាំចូល - ឆ្នាំបញ្ចប់
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                min={1960}
+                                max={2035}
+                                value={edu.startYear}
+                                onChange={(e) => {
+                                  const next = [...form.educations];
+                                  next[idx] = { ...next[idx], startYear: e.target.value };
+                                  setForm({ ...form, educations: next });
+                                }}
+                                placeholder="2015"
+                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                              />
+                              <span className="text-xs text-slate-400">-</span>
+                              <input
+                                type="number"
+                                min={1960}
+                                max={2035}
+                                value={edu.endYear}
+                                onChange={(e) => {
+                                  const next = [...form.educations];
+                                  next[idx] = { ...next[idx], endYear: e.target.value };
+                                  setForm({ ...form, educations: next });
+                                }}
+                                placeholder="2019"
+                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              និទ្ទេស / សមិទ្ធផល
+                            </label>
+                            <input
+                              type="text"
+                              value={edu.gradeOrHonors}
+                              onChange={(e) => {
+                                const next = [...form.educations];
+                                next[idx] = { ...next[idx], gradeOrHonors: e.target.value };
+                                setForm({ ...form, educations: next });
+                              }}
+                              placeholder="ឧ. ល្អ / GPA 3.6"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Section 4: Work Experience (LinkedIn Style) */}
+              <div className="border-t border-slate-200 dark:border-slate-800 pt-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
+                      ៥. ប្រវត្តិការងារ (Work Experience)
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      ពីមុនធ្លាប់ធ្វើការងារអ្វីខ្លះ? នៅស្ថាប័នណា? (អាចបន្ថែមបានច្រើន)
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        experiences: [
+                          ...form.experiences,
+                          {
+                            title: "",
+                            organization: "",
+                            location: "",
+                            employmentType: EXPERIENCE_EMPLOYMENT_TYPES[0],
+                            startDate: "",
+                            endDate: "",
+                            isCurrent: false,
+                            description: "",
+                          },
+                        ],
+                      })
+                    }
+                    className="inline-flex items-center gap-1 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 px-3 py-1.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 transition"
+                  >
+                    + បន្ថែមប្រវត្តិការងារ
+                  </button>
+                </div>
+
+                {form.experiences.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic">
+                    មិនទាន់មានប្រវត្តិការងារទេ — ចុច «+ បន្ថែមប្រវត្តិការងារ» ដើម្បីបញ្ចូល។
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {form.experiences.map((exp, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/40 p-3.5 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            បទពិសោធន៍ការងារ #{idx + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setForm({
+                                ...form,
+                                experiences: form.experiences.filter((_, i) => i !== idx),
+                              })
+                            }
+                            className="text-xs font-semibold text-rose-600 hover:underline"
+                          >
+                            លុបចេញ
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              មុខតំណែង / តួនាទី *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={exp.title}
+                              onChange={(e) => {
+                                const next = [...form.experiences];
+                                next[idx] = { ...next[idx], title: e.target.value };
+                                setForm({ ...form, experiences: next });
+                              }}
+                              placeholder="ឧ. វិស្វករធារាសាស្ត្រ"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ស្ថាប័ន / អង្គភាព / ក្រុមហ៊ុន *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={exp.organization}
+                              onChange={(e) => {
+                                const next = [...form.experiences];
+                                next[idx] = { ...next[idx], organization: e.target.value };
+                                setForm({ ...form, experiences: next });
+                              }}
+                              placeholder="ឧ. ក្រសួងធនធានទឹក / ក្រុមហ៊ុន..."
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ប្រភេទការងារ
+                            </label>
+                            <select
+                              value={exp.employmentType}
+                              onChange={(e) => {
+                                const next = [...form.experiences];
+                                next[idx] = { ...next[idx], employmentType: e.target.value };
+                                setForm({ ...form, experiences: next });
+                              }}
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            >
+                              {EXPERIENCE_EMPLOYMENT_TYPES.map((t) => (
+                                <option key={t} value={t}>
+                                  {t}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ទីតាំង (ខេត្ត / ក្រុង)
+                            </label>
+                            <input
+                              type="text"
+                              value={exp.location}
+                              onChange={(e) => {
+                                const next = [...form.experiences];
+                                next[idx] = { ...next[idx], location: e.target.value };
+                                setForm({ ...form, experiences: next });
+                              }}
+                              placeholder="ឧ. រាជធានីភ្នំពេញ"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ថ្ងៃចាប់ផ្ដើម
+                            </label>
+                            <input
+                              type="date"
+                              value={exp.startDate}
+                              onChange={(e) => {
+                                const next = [...form.experiences];
+                                next[idx] = { ...next[idx], startDate: e.target.value };
+                                setForm({ ...form, experiences: next });
+                              }}
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ថ្ងៃបញ្ចប់
+                            </label>
+                            <div className="space-y-1">
+                              <input
+                                type="date"
+                                disabled={exp.isCurrent}
+                                value={exp.isCurrent ? "" : exp.endDate}
+                                onChange={(e) => {
+                                  const next = [...form.experiences];
+                                  next[idx] = { ...next[idx], endDate: e.target.value };
+                                  setForm({ ...form, experiences: next });
+                                }}
+                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white disabled:opacity-50"
+                              />
+                              <label className="inline-flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={exp.isCurrent}
+                                  onChange={(e) => {
+                                    const next = [...form.experiences];
+                                    next[idx] = {
+                                      ...next[idx],
+                                      isCurrent: e.target.checked,
+                                      endDate: e.target.checked ? "" : next[idx].endDate,
+                                    };
+                                    setForm({ ...form, experiences: next });
+                                  }}
+                                  className="h-3.5 w-3.5 rounded border-slate-300 text-cyan-600"
+                                />
+                                <span>កំពុងធ្វើការនៅទីនេះ</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="sm:col-span-2 lg:col-span-3">
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ការពិពណ៌នាអំពីភារកិច្ច / សមិទ្ធផល
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={exp.description}
+                              onChange={(e) => {
+                                const next = [...form.experiences];
+                                next[idx] = { ...next[idx], description: e.target.value };
+                                setForm({ ...form, experiences: next });
+                              }}
+                              placeholder="សង្ខេបការងារដែលបានធ្វើ..."
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Section 5: Trainings & Certifications (LinkedIn Style) */}
+              <div className="border-t border-slate-200 dark:border-slate-800 pt-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      ៦. វគ្គបណ្ដុះបណ្ដាល និងវិញ្ញាបនបត្រ (Trainings)
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      បន្ថែមវគ្គបណ្ដុះបណ្ដាល សិក្ខាសាលា ឬវិញ្ញាបនបត្រជំនាញផ្សេងៗ (អាចបន្ថែមបានច្រើន)
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        trainings: [
+                          ...form.trainings,
+                          {
+                            name: "",
+                            issuingOrganization: "",
+                            issueDate: "",
+                            durationOrHours: "",
+                            credentialId: "",
+                            description: "",
+                          },
+                        ],
+                      })
+                    }
+                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
+                  >
+                    + បន្ថែមវគ្គបណ្ដុះបណ្ដាល
+                  </button>
+                </div>
+
+                {form.trainings.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic">
+                    មិនទាន់មានវគ្គបណ្ដុះបណ្ដាលទេ — ចុច «+ បន្ថែមវគ្គបណ្ដុះបណ្ដាល» ដើម្បីបញ្ចូល។
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {form.trainings.map((tr, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/40 p-3.5 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            វគ្គបណ្ដុះបណ្ដាល #{idx + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setForm({
+                                ...form,
+                                trainings: form.trainings.filter((_, i) => i !== idx),
+                              })
+                            }
+                            className="text-xs font-semibold text-rose-600 hover:underline"
+                          >
+                            លុបចេញ
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          <div className="sm:col-span-2">
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ឈ្មោះវគ្គបណ្ដុះបណ្ដាល / វិញ្ញាបនបត្រ *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={tr.name}
+                              onChange={(e) => {
+                                const next = [...form.trainings];
+                                next[idx] = { ...next[idx], name: e.target.value };
+                                setForm({ ...form, trainings: next });
+                              }}
+                              placeholder="ឧ. ការប្រើប្រាស់ប្រព័ន្ធ GIS & Remote Sensing"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              ស្ថាប័នរៀបចំ / ផ្ដល់វិញ្ញាបនបត្រ
+                            </label>
+                            <input
+                              type="text"
+                              value={tr.issuingOrganization}
+                              onChange={(e) => {
+                                const next = [...form.trainings];
+                                next[idx] = {
+                                  ...next[idx],
+                                  issuingOrganization: e.target.value,
+                                };
+                                setForm({ ...form, trainings: next });
+                              }}
+                              placeholder="ឧ. ADB / JICA / ក្រសួង"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              កាលបរិច្ឆេទទទួល
+                            </label>
+                            <input
+                              type="date"
+                              value={tr.issueDate}
+                              onChange={(e) => {
+                                const next = [...form.trainings];
+                                next[idx] = { ...next[idx], issueDate: e.target.value };
+                                setForm({ ...form, trainings: next });
+                              }}
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              រយៈពេល
+                            </label>
+                            <input
+                              type="text"
+                              value={tr.durationOrHours}
+                              onChange={(e) => {
+                                const next = [...form.trainings];
+                                next[idx] = { ...next[idx], durationOrHours: e.target.value };
+                                setForm({ ...form, trainings: next });
+                              }}
+                              placeholder="ឧ. ២ សប្ដាហ៍ / ៤០ ម៉ោង"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                              លេខវិញ្ញាបនបត្រ
+                            </label>
+                            <input
+                              type="text"
+                              value={tr.credentialId}
+                              onChange={(e) => {
+                                const next = [...form.trainings];
+                                next[idx] = { ...next[idx], credentialId: e.target.value };
+                                setForm({ ...form, trainings: next });
+                              }}
+                              placeholder="Credential ID"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800 pt-4">
                 <button
                   type="button"
@@ -1118,33 +1730,30 @@ export default function StaffManagementFeature() {
         <button
           type="button"
           onClick={() => setActiveTab("list")}
-          className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-            activeTab === "list"
-              ? "bg-cyan-600 text-white shadow-xs"
-              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-          }`}
+          className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === "list"
+            ? "bg-cyan-600 text-white shadow-xs"
+            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            }`}
         >
           បញ្ជីមន្ត្រី-បុគ្គលិក ({filteredStaff.length})
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("stats")}
-          className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-            activeTab === "stats"
-              ? "bg-cyan-600 text-white shadow-xs"
-              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-          }`}
+          className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === "stats"
+            ? "bg-cyan-600 text-white shadow-xs"
+            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            }`}
         >
           ស្ថិតិកម្រិតសិក្សា និងជំនាញ
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("structure")}
-          className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-            activeTab === "structure"
-              ? "bg-cyan-600 text-white shadow-xs"
-              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-          }`}
+          className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === "structure"
+            ? "bg-cyan-600 text-white shadow-xs"
+            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            }`}
         >
           រចនាសម្ព័ន្ធតាមការិយាល័យ
         </button>
@@ -1192,19 +1801,40 @@ export default function StaffManagementFeature() {
                         </td>
                       )}
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-slate-900 dark:text-white">
+                        <button
+                          type="button"
+                          onClick={() => setViewingProfile(s)}
+                          className="text-left font-semibold text-slate-900 dark:text-white hover:text-cyan-600 dark:hover:text-cyan-400 transition"
+                        >
                           {s.fullName}
-                        </div>
+                        </button>
                         {s.latinName && (
                           <div className="text-xs text-slate-500 dark:text-slate-400">
                             {s.latinName}
                           </div>
                         )}
-                        {!s.isActive && (
-                          <span className="mt-0.5 inline-block rounded bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                            ឈប់ / ចូលនិវត្តន៍
-                          </span>
-                        )}
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {(s.experiences?.length ?? 0) > 0 && (
+                            <span className="rounded bg-cyan-50 dark:bg-cyan-950/60 px-1.5 py-0.5 text-[10px] font-semibold text-cyan-700 dark:text-cyan-300">
+                              ការងារ {s.experiences?.length}
+                            </span>
+                          )}
+                          {(s.educations?.length ?? 0) > 0 && (
+                            <span className="rounded bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 dark:text-blue-300">
+                              សិក្សា {s.educations?.length}
+                            </span>
+                          )}
+                          {(s.trainings?.length ?? 0) > 0 && (
+                            <span className="rounded bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                              វគ្គ {s.trainings?.length}
+                            </span>
+                          )}
+                          {!s.isActive && (
+                            <span className="rounded bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                              ឈប់ / ចូលនិវត្តន៍
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
                         {s.gender}
@@ -1235,7 +1865,14 @@ export default function StaffManagementFeature() {
                       <td className="px-4 py-3 whitespace-nowrap text-slate-600 dark:text-slate-400">
                         {s.phoneNumber || "-"}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-right space-x-2">
+                      <td className="px-4 py-3 whitespace-nowrap text-right space-x-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setViewingProfile(s)}
+                          className="rounded-lg border border-cyan-200 dark:border-cyan-900/60 px-2.5 py-1 text-xs font-semibold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/40"
+                        >
+                          ប្រវត្តិរូប
+                        </button>
                         <button
                           type="button"
                           onClick={() => openEditForm(s)}
@@ -1522,6 +2159,12 @@ export default function StaffManagementFeature() {
           </div>
         </div>
       )}
+
+      <StaffProfileModal
+        member={viewingProfile}
+        onClose={() => setViewingProfile(null)}
+        onEdit={(member) => openEditForm(member)}
+      />
     </div>
   );
 }

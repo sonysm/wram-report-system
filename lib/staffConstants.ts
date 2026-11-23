@@ -59,7 +59,29 @@ export const CIVIL_SERVANT_RANKS = [
 
 export const STAFF_GENDERS = ["ប្រុស", "ស្រី"] as const;
 
+export const EXPERIENCE_EMPLOYMENT_TYPES = [
+  "ពេញម៉ោង / មន្ត្រីរាជការ",
+  "បុគ្គលិកកិច្ចសន្យា",
+  "ក្រៅម៉ោង",
+  "ហាត់ការ (Internship)",
+  "ស្ម័គ្រចិត្ត",
+  "ផ្សេងៗ",
+] as const;
+
 export function getPositionRank(position: string): number {
   const idx = STAFF_POSITIONS.indexOf(position as (typeof STAFF_POSITIONS)[number]);
   return idx === -1 ? STAFF_POSITIONS.length : idx;
+}
+
+export function getHighestEducationLevel(levels: string[]): string | null {
+  let bestIdx: number = EDUCATION_LEVELS.length;
+  let bestLevel: string | null = null;
+  for (const lvl of levels) {
+    const idx = EDUCATION_LEVELS.indexOf(lvl as (typeof EDUCATION_LEVELS)[number]);
+    if (idx !== -1 && idx < bestIdx) {
+      bestIdx = idx;
+      bestLevel = lvl;
+    }
+  }
+  return bestLevel;
 }

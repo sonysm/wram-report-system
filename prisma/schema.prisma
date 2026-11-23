@@ -887,8 +887,11 @@ model Staff {
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
-  province Province @relation(fields: [provinceId], references: [id])
-  user     User?    @relation(fields: [userId], references: [id])
+  province    Province          @relation(fields: [provinceId], references: [id])
+  user        User?             @relation(fields: [userId], references: [id])
+  experiences StaffExperience[]
+  educations  StaffEducation[]
+  trainings   StaffTraining[]
 
   @@index([provinceId])
   @@index([position])
@@ -896,5 +899,58 @@ model Staff {
   @@index([educationLevel])
   @@index([skill])
   @@index([isActive])
+}
+
+model StaffExperience {
+  id             Int       @id @default(autoincrement())
+  staffId        Int
+  title          String
+  organization   String
+  location       String?
+  employmentType String?
+  startDate      DateTime?
+  endDate        DateTime?
+  isCurrent      Boolean   @default(false)
+  description    String?
+  createdAt      DateTime  @default(now())
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+}
+
+model StaffEducation {
+  id            Int      @id @default(autoincrement())
+  staffId       Int
+  level         String
+  school        String
+  fieldOfStudy  String?
+  startYear     Int?
+  endYear       Int?
+  gradeOrHonors String?
+  description   String?
+  createdAt     DateTime @default(now())
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+  @@index([level])
+}
+
+model StaffTraining {
+  id                  Int       @id @default(autoincrement())
+  staffId             Int
+  name                String
+  issuingOrganization String?
+  issueDate           DateTime?
+  expirationDate      DateTime?
+  durationOrHours     String?
+  credentialId        String?
+  description         String?
+  createdAt           DateTime  @default(now())
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
 }
 

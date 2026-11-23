@@ -1,19 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../lib/db";
 import { getActiveAuthPayload } from "../../../lib/requestAuth";
-import { DEPARTMENT_LEADERSHIP_POSITIONS } from "../../../lib/staffConstants";
-
-function parseOptionalDate(value: unknown): Date | null {
-  if (!value || typeof value !== "string" || !value.trim()) return null;
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
-function cleanString(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
+import {
+  DEPARTMENT_LEADERSHIP_POSITIONS,
+  getHighestEducationLevel,
+} from "../../../lib/staffConstants";
+import {
+  STAFF_INCLUDE,
+  cleanString,
+  parseOptionalDate,
+  sanitizeEducations,
+  sanitizeExperiences,
+  sanitizeTrainings,
+} from "../../../lib/staffPayload";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const user = await getActiveAuthPayload(req);
@@ -43,8 +42,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const body = req.body ?? {};
       const fullName = cleanString(body.fullName);
       const position = cleanString(body.position);
-      const educationLevel = cleanString(body.educationLevel);
       const skill = cleanString(body.skill);
+      const educations = sanitizeEducations(body.educations);
+      const experiences = sanitizeExperiences(body.experiences);
+      const trainings = sanitizeTrainings(body.trainings);
+
+      const highestFromList = getHighestEducationLevel(educations.map((e) => e.level));
+      const educationLevel = cleanString(body.educationLevel) || highestFromList;
 
       if (!fullName || !position || !educationLevel || !skill) {
         return res.status(400).json({
@@ -79,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           position,
           office,
           civilServantRank: cleanString(body.civilServantRank),
-          educationLevel,
+          educationLevel: highestFromList || educationLevel,
           skill,
           majorDetail: cleanString(body.majorDetail),
           startWorkDate: parseOptionalDate(body.startWorkDate),
@@ -87,15 +91,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           trainingNotes: cleanString(body.trainingNotes),
           isActive: body.isActive !== undefined ? Boolean(body.isActive) : existing.isActive,
           note: cleanString(body.note),
-        },
-        include: {
-          province: {
-            select: { id: true, name: true, khmerName: true, sortOrder: true },
+          experiences: {
+            deleteMany: {},
+            create: experiences,
           },
-          user: {
-            select: { id: true, username: true },
+          educations: {
+            deleteMany: {},
+            create: educations,
+          },
+          trainings: {
+            deleteMany: {},
+            create: trainings,
           },
         },
+        include: STAFF_INCLUDE,
       });
 
       return res.status(200).json(updated);
