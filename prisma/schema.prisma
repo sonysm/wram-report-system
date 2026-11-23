@@ -70,6 +70,7 @@ model User {
   waterways                     Waterway[]
   reportedTickets               AssetInspectionTicket[] @relation("TicketReporter")
   subprojectPlans               SubprojectPlan[]
+  staffs                        Staff[]
 
   @@index([isActive])
 }
@@ -97,6 +98,7 @@ model Province {
   waterways              Waterway[]
   basins                 Basin[]
   subprojectPlans        SubprojectPlan[]
+  staffs                 Staff[]
 
   @@index([sortOrder])
 }
@@ -858,5 +860,41 @@ model SubprojectPlan {
   @@index([provinceId])
   @@index([districtId])
   @@index([status])
+}
+
+model Staff {
+  id                     Int       @id @default(autoincrement())
+  provinceId             Int
+  userId                 Int?
+  fullName               String
+  latinName              String?
+  gender                 String    @default("ប្រុស")
+  dateOfBirth            DateTime?
+  phoneNumber            String?
+  email                  String?
+  civilServantId         String?
+  position               String
+  office                 String?
+  civilServantRank       String?
+  educationLevel         String
+  skill                  String
+  majorDetail            String?
+  startWorkDate          DateTime?
+  assignedLocation       String?
+  trainingNotes          String?
+  isActive               Boolean   @default(true)
+  note                   String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  province Province @relation(fields: [provinceId], references: [id])
+  user     User?    @relation(fields: [userId], references: [id])
+
+  @@index([provinceId])
+  @@index([position])
+  @@index([office])
+  @@index([educationLevel])
+  @@index([skill])
+  @@index([isActive])
 }
 
